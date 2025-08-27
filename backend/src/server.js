@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/database.js';
-import productRoutes from './routes/productRoutes.js';  // Add this line
+import productRoutes from './routes/productRoutes.js';
+import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
+
 
 dotenv.config();
 
@@ -17,7 +19,8 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/products', productRoutes);  // Add this line
+app.use('/api/products', productRoutes); 
+app.use('/api/raw-materials', rawMaterialRoutes); 
 
 // Basic route
 app.get('/', (req, res) => {
