@@ -24,6 +24,11 @@ const rawMaterialOrderSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  farmerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Farmer',
+        required: true
+  },
   deliveredQtyKg: {
     type: Number,
     default: 0,
@@ -59,21 +64,31 @@ rawMaterialOrderSchema.pre('save', async function (next) {
   next();
 });
 
-// --- Ensure rmOrderId shows first in JSON output ---
+// Modify the toJSON method to include farmer name
 rawMaterialOrderSchema.method("toJSON", function () {
-  const { _id, __v, ...object } = this.toObject();
+    const { _id, __v, ...object } = this.toObject();
 
-  return {
-    rmOrderId: object.rmOrderId,             // always first
-    rawMaterialType: object.rawMaterialType,
-    requestedQtyKg: object.requestedQtyKg,
-    deliveredQtyKg: object.deliveredQtyKg,
-    status: object.status,
-    deliveredAt: object.deliveredAt,
-    createdAt: object.createdAt,
-    updatedAt: object.updatedAt,
-    id: _id                                  // keep Mongo _id last
-  };
+    return {
+        rmOrderId: object.rmOrderId,
+        rawMaterialType: object.rawMaterialType,
+        requestedQtyKg: object.requestedQtyKg,
+        farmerName: object.farmerId ? object.farmerId.name : null, // Add farmer name
+        deliveredQtyKg: object.deliveredQtyKg,
+        status: object.status,
+        deliveredAt: object.deliveredAt,
+        createdAt: object.createdAt,
+        updatedAt: object.updatedAt,
+        id: _id
+    };
+});
+
+// Add populate middleware to automatically populate farmer details
+rawMaterialOrderSchema.pre('find', function() {
+    this.populate('farmerId', 'name');
+});
+
+rawMaterialOrderSchema.pre('findOne', function() {
+    this.populate('farmerId', 'name');
 });
 
 export default mongoose.model('RawMaterialOrder', rawMaterialOrderSchema);

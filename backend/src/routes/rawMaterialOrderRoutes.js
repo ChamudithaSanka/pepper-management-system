@@ -3,10 +3,13 @@ import {
     createOrder,
     listOrders,
     markDelivered,
-    deleteOrder
+    deleteOrder,
+    getEligibleFarmers
 } from '../controllers/rawMaterialOrderController.js';
 
 const router = express.Router();
+
+router.get('/eligible-farmers', getEligibleFarmers);
 
 router.route('/')
     .post(createOrder)
@@ -14,5 +17,6 @@ router.route('/')
 
 router.patch('/:rmOrderId/deliver', markDelivered);
 router.delete('/:rmOrderId', deleteOrder);
+
 
 export default router;

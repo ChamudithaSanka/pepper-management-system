@@ -5,7 +5,7 @@ import connectDB from './config/database.js';
 import productRoutes from './routes/productRoutes.js';
 import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
 import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
-
+import farmerRoutes from './routes/farmerRoutes.js';//vishwa
 
 
 dotenv.config();
@@ -24,6 +24,8 @@ app.use(express.json());
 app.use('/api/products', productRoutes); 
 app.use('/api/raw-materials', rawMaterialRoutes); 
 app.use('/api/rm-orders', rawMaterialOrderRoutes);
+
+app.use('/api/farmers', farmerRoutes);//vishwa
 
 // Basic route
 app.get('/', (req, res) => {

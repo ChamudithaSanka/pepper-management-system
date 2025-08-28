@@ -1,13 +1,58 @@
 import RawMaterialOrder from '../models/rawMaterialOrderModel.js';
+import Farmer from '../models/farmerModel.js';
 
-// Create new order
+export const getEligibleFarmers = async (req, res) => {
+    try {
+        const { requestedQtyKg } = req.query;
+        
+        const farmers = await Farmer.find({
+            status: 'Active',
+            capacity: { $gte: parseFloat(requestedQtyKg || 0) }
+        }).select('-_id name capacity location'); // Added -_id to exclude the ID
+
+        const formattedFarmers = farmers.map(farmer => ({
+            name: farmer.name,
+            capacity: farmer.capacity,
+            location: farmer.location
+        }));
+
+        res.status(200).json({
+            success: true,
+            count: formattedFarmers.length,
+            data: formattedFarmers
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 export const createOrder = async (req, res) => {
     try {
-        const { rawMaterialType, requestedQtyKg } = req.body;
+        const { rawMaterialType, requestedQtyKg, farmerName } = req.body;
         
+        // Find farmer by name instead of ID
+        const farmer = await Farmer.findOne({ name: farmerName });
+        if (!farmer) {
+            return res.status(404).json({
+                success: false,
+                error: 'Farmer not found'
+            });
+        }
+
+        if (farmer.capacity < requestedQtyKg) {
+            return res.status(400).json({
+                success: false,
+                error: 'Requested quantity exceeds farmer capacity'
+            });
+        }
+
         const order = await RawMaterialOrder.create({
             rawMaterialType,
-            requestedQtyKg
+            requestedQtyKg,
+            farmerId: farmer._id  // Convert farmer name to ID internally
         });
 
         res.status(201).json({
