@@ -8,6 +8,8 @@ import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
 import farmerRoutes from './routes/farmerRoutes.js';//vishwa
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 
+import userRoutes from './routes/userRoutes.js';
+
 dotenv.config();
 
 // Connect to database
@@ -27,6 +29,8 @@ app.use('/api/rm-orders', rawMaterialOrderRoutes);
 app.use('/api/inventory-history', inventoryHistoryRoutes);
 
 app.use('/api/farmers', farmerRoutes);//vishwa
+
+app.use('/api/users', userRoutes); 
 
 // Basic route
 app.get('/', (req, res) => {
