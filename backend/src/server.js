@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import productRoutes from './routes/productRoutes.js';
 import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
-
+import farmerRoutes from './routes/farmerRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +21,7 @@ app.use(express.json());
 // Routes
 app.use('/api/products', productRoutes); 
 app.use('/api/raw-materials', rawMaterialRoutes); 
+app.use('/api/farmers', farmerRoutes); 
 
 // Basic route
 app.get('/', (req, res) => {
