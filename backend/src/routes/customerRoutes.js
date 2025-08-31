@@ -5,7 +5,11 @@ import {
     getCustomerProfile,
     updateCustomerProfile,
     getAllCustomers,
-    getCustomerStats
+    getCustomerStats,
+    getAvailableProducts,
+    getProductDetails,
+    getProductCategories,
+    searchProducts
 } from '../controllers/customerController.js';
 
 const router = express.Router();
@@ -15,6 +19,12 @@ router.post('/register', registerCustomer);
 router.post('/login', loginCustomer);
 router.get('/profile/:id', getCustomerProfile);
 router.put('/profile/:id', updateCustomerProfile);
+
+// Product browsing routes for customers
+router.get('/products', getAvailableProducts);
+router.get('/products/categories', getProductCategories);
+router.get('/products/search', searchProducts);
+router.get('/products/:id', getProductDetails);
 
 // Admin routes for customer management
 router.get('/', getAllCustomers);
