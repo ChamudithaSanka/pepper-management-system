@@ -60,6 +60,46 @@ export const getProductById = async (req, res) => {
     }
 };
 
+// Customer catalog (grouped by category, only public fields)
+// - Show all products where status = "Active"
+// - Stock = currentStock - safetyStock (clamped at 0)
+// - No "Not Available" label; just show stock number
+// - Always include expiryDate (for add/update visibility)
+export const getCustomerCatalog = async (req, res) => {
+  try {
+    const products = await Product.find(
+      { status: 'Active' },
+      'productName description price category currentStock safetyStock expiryDate'
+    ).sort({ category: 1, productName: 1 });
+
+    const mapped = products.map((p) => {
+      const stock = Math.max((p.currentStock ?? 0) - (p.safetyStock ?? 0), 0);
+      return {
+        category: p.category,
+        productName: p.productName,
+        description: p.description,
+        price: p.price,
+        stock,              // numeric only; 0 is shown as 0
+        expiryDate: p.expiryDate
+      };
+    });
+
+    const grouped = mapped.reduce((acc, item) => {
+      (acc[item.category] ||= []).push({
+        productName: item.productName,
+        description: item.description,
+        price: item.price,
+        stock: item.stock,
+        expiryDate: item.expiryDate
+      });
+      return acc;
+    }, {});
+
+    res.status(200).json({ success: true, data: grouped });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
 
 // Create new product
 export const createProduct = async (req, res) => {

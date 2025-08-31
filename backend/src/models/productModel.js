@@ -86,6 +86,15 @@ productSchema.pre('save', function(next) {
     next();
 });
 
+// Keep only availableStock virtual (no “Not Available” status)
+productSchema.virtual('availableStock').get(function () {
+  const avail = (this.currentStock ?? 0) - (this.safetyStock ?? 0);
+  return Math.max(avail, 0);// show 0 if negative
+});
+
+productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toObject', { virtuals: true });
+
 const Product = mongoose.model('Product', productSchema);
 
 export default Product;
