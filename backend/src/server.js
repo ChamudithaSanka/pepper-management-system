@@ -9,6 +9,7 @@ import farmerRoutes from './routes/farmerRoutes.js';//vishwa
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 
 import userRoutes from './routes/userRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use('/api/inventory-history', inventoryHistoryRoutes);
 app.use('/api/farmers', farmerRoutes);//vishwa
 
 app.use('/api/users', userRoutes); 
+app.use('/api/customers', customerRoutes); 
 
 // Basic route
 app.get('/', (req, res) => {
