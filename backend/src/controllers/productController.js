@@ -105,19 +105,25 @@ export const createProduct = async (req, res) => {
     try {
         const { currentStock, rawMaterialRecipe, ...productData } = req.body;
 
-        // create product first with 0 stock
+        // Check raw materials BEFORE creating product
+        if (currentStock > 0) {
+            try {
+                // Validate raw materials first
+                await deductRawMaterials(rawMaterialRecipe, currentStock);
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+        }
+
+        // Only create product if raw material check passes
         const product = await Product.create({
             ...productData,
-            currentStock: 0,
+            currentStock: currentStock || 0,
             rawMaterialRecipe
         });
-
-        // deduct raw materials if initial stock is provided
-        if (currentStock > 0) {
-            await deductRawMaterials(rawMaterialRecipe, currentStock);
-            product.currentStock = currentStock;
-            await product.save();
-        }
 
         // inventory history tracking
         await addInventoryHistory(null, product);
