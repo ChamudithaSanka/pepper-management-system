@@ -57,7 +57,7 @@ const productSchema = new mongoose.Schema({
     },
     stockStatus: {
         type: String,
-        enum: ["InStock", "LowStock"],
+        enum: ["InStock", "LowStock"], // Removed "OutOfStock"
         default: "InStock"
     },
     rawMaterialRecipe: [rawMaterialRecipeSchema],
@@ -66,7 +66,7 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Active", "Expiring Soon"],
+        enum: ["Active", "Expiring Soon"], // Removed "Expired"
         default: "Active"
     }
 }, {
@@ -76,7 +76,9 @@ const productSchema = new mongoose.Schema({
 // Create index on productId for faster queries
 productSchema.index({ productId: 1 });
 
-// Add a pre-save hook to update stockStatus
+// ------------------ Pre-save hooks ------------------
+
+// Update stockStatus before save
 productSchema.pre('save', function(next) {
     if (this.currentStock <= this.reorderLevel) {
         this.stockStatus = "LowStock";
@@ -86,6 +88,7 @@ productSchema.pre('save', function(next) {
     next();
 });
 
+// Expiry and status check
 productSchema.pre('save', function(next) {
     // Existing stock status check
     if (this.currentStock <= this.reorderLevel) {
@@ -94,7 +97,7 @@ productSchema.pre('save', function(next) {
         this.stockStatus = "InStock";
     }
 
-    // New expiry check
+    // Expiry status handling
     if (this.expiryDate) {
         const daysUntilExpiry = Math.ceil((this.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
         this.status = daysUntilExpiry <= 10 ? "Expiring Soon" : "Active";
@@ -103,10 +106,12 @@ productSchema.pre('save', function(next) {
     next();
 });
 
-// Keep only availableStock virtual (no “Not Available” status)
+// ------------------ Virtuals ------------------
+
+// Only availableStock (no “Not Available” status)
 productSchema.virtual('availableStock').get(function () {
   const avail = (this.currentStock ?? 0) - (this.safetyStock ?? 0);
-  return Math.max(avail, 0);// show 0 if negative
+  return Math.max(avail, 0); // Always show 0 if negative
 });
 
 productSchema.set('toJSON', { virtuals: false });
