@@ -4,10 +4,15 @@ import {
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getCustomerCatalog,
 } from '../controllers/productController.js';
 
 const router = express.Router();
+
+// Customer-facing catalog (only public fields, grouped by category)
+router.get('/customer', getCustomerCatalog);   // <-- add this ABOVE '/:id'
+
 
 router.route('/')
     .get(getAllProducts)

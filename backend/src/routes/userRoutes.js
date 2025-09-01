@@ -1,8 +1,11 @@
 import express from 'express';
 import {
+<<<<<<< HEAD
     loginStaff,
     logoutStaff,
     checkStaffSession,
+=======
+>>>>>>> origin/main
     getAllUsers,
     getUserById,
     getUserStats,
@@ -13,12 +16,15 @@ import {
 
 const router = express.Router();
 
+<<<<<<< HEAD
 // Staff authentication routes
 router.post('/login', loginStaff);
 router.post('/logout', logoutStaff);
 router.get('/session', checkStaffSession);
 
 // User management routes
+=======
+>>>>>>> origin/main
 router.get('/', getAllUsers);
 router.get('/stats', getUserStats);
 router.get('/:id', getUserById);
