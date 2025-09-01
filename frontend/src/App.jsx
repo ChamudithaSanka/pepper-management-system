@@ -1,14 +1,14 @@
-import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom';
-import './App.css'
-import CeylonPepperHomepage from './components/homepage';
+import Homepage from './components/Homepage';
+import CustomerLogin from './components/CustomerLogin';
+import CustomerRegister from './components/CustomerRegister';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <Routes>
-      <Route path="/" element={<CeylonPepperHomepage />} />
+      <Route path="/" element={<Homepage />} />
+      <Route path="/login" element={<CustomerLogin />} />
+      <Route path="/register" element={<CustomerRegister />} />
     </Routes>
   )
 }
