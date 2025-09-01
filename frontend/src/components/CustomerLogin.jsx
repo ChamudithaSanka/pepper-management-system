@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CustomerLogin = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -16,10 +17,42 @@ const CustomerLogin = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle customer login logic here
-    console.log('Customer login:', formData);
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const response = await fetch('/api/customers/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for sessions
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSuccess(true);
+        setFormData({ email: '', password: '' });
+        setTimeout(() => {
+          // Trigger page reload to update header state
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
+    setLoading(false);
   };
 
   return (
@@ -38,6 +71,8 @@ const CustomerLogin = () => {
 
         {/* Login Form */}
         <div className="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-8 border border-gray-700">
+          {error && <div className="text-red-400 mb-4">{error}</div>}
+          {success && <div className="text-green-400 mb-4">Login successful!</div>}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>

@@ -21,10 +21,48 @@ const CustomerRegister = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle customer registration logic here
-    console.log('Customer registration:', formData);
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const response = await fetch('/api/customers/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for sessions
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          deliveryAddress: formData.deliveryAddress,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSuccess(true);
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          phone: '',
+          deliveryAddress: ''
+        });
+      } else {
+        setError(data.message || 'Registration failed');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
+    setLoading(false);
   };
 
   return (
@@ -43,6 +81,8 @@ const CustomerRegister = () => {
 
         {/* Registration Form */}
         <div className="bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-8 border border-gray-700">
+          {error && <div className="text-red-400 mb-4">{error}</div>}
+          {success && <div className="text-green-400 mb-4">Account created successfully!</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name Field */}
             <div>

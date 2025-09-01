@@ -25,8 +25,13 @@ export const registerCustomer = async (req, res) => {
             });
         }
         
+        // Generate unique customer ID
+        const lastCustomer = await Customer.findOne().sort({ customerId: -1 });
+        const customerId = lastCustomer ? lastCustomer.customerId + 1 : 1001;
+        
         // Create new customer
         const customer = new Customer({ 
+            customerId,
             name, 
             email, 
             password, 
@@ -97,6 +102,13 @@ export const loginCustomer = async (req, res) => {
         const customerResponse = customer.toObject();
         delete customerResponse.password;
         
+        // Store customer info in session
+        req.session.customer = {
+            customerId: customer.customerId,
+            name: customer.name,
+            email: customer.email
+        };
+        
         res.status(200).json({ 
             success: true, 
             message: 'Login successful', 
@@ -106,6 +118,55 @@ export const loginCustomer = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Error during login', 
+            error: error.message 
+        });
+    }
+};
+
+// CUSTOMER LOGOUT
+export const logoutCustomer = async (req, res) => {
+    try {
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ 
+                    success: false, 
+                    message: 'Error during logout' 
+                });
+            }
+            res.clearCookie('connect.sid');
+            res.status(200).json({ 
+                success: true, 
+                message: 'Logout successful' 
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error during logout', 
+            error: error.message 
+        });
+    }
+};
+
+// CHECK SESSION
+export const checkSession = async (req, res) => {
+    try {
+        if (req.session.customer) {
+            res.status(200).json({ 
+                success: true, 
+                isLoggedIn: true,
+                customer: req.session.customer 
+            });
+        } else {
+            res.status(200).json({ 
+                success: true, 
+                isLoggedIn: false 
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error checking session', 
             error: error.message 
         });
     }
