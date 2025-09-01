@@ -1,7 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Check session on component mount
+  useEffect(() => {
+    checkSession();
+  }, []);
+  
+  const checkSession = async () => {
+    try {
+      const response = await fetch('/api/customers/session', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setIsLoggedIn(data.isLoggedIn);
+    } catch (error) {
+      setIsLoggedIn(false);
+    }
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/customers/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <header className="bg-black text-white shadow-lg">
       {/* Top Navigation */}
@@ -32,12 +63,28 @@ const Header = () => {
 
           {/* Login/Register & Cart */}
           <div className="flex items-center space-x-4">
-            <Link to="/login" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors">
-              Login
-            </Link>
-            <Link to="/register" className="border border-green-600 text-green-400 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors">
-              Register
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link to="/customer-dashboard" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                  Customer Dashboard
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="border border-red-600 text-red-400 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                  Login
+                </Link>
+                <Link to="/register" className="border border-green-600 text-green-400 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  Register
+                </Link>
+              </>
+            )}
             <button className="relative text-green-400 hover:text-green-300">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 4H19" />

@@ -2,6 +2,8 @@ import express from 'express';
 import {
     registerCustomer,
     loginCustomer,
+    logoutCustomer,
+    checkSession,
     getCustomerProfile,
     updateCustomerProfile,
     getAllCustomers,
@@ -17,6 +19,8 @@ const router = express.Router();
 // Customer self-service routes
 router.post('/register', registerCustomer);
 router.post('/login', loginCustomer);
+router.post('/logout', logoutCustomer);
+router.get('/session', checkSession);
 router.get('/profile/:id', getCustomerProfile);
 router.put('/profile/:id', updateCustomerProfile);
 
