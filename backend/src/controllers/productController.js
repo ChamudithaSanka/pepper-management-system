@@ -1,5 +1,6 @@
 import Product from '../models/productModel.js';
 import RawMaterial from '../models/rawMaterialModel.js';
+import { addInventoryHistory } from './inventoryHistoryController.js';
 
 // Helper function to deduct raw materials
 const deductRawMaterials = async (recipe, unitsAdded) => {
@@ -21,7 +22,7 @@ const deductRawMaterials = async (recipe, unitsAdded) => {
     }
 };
 
-// Get all products
+// ------------------ Get all products ------------------
 export const getAllProducts = async (req, res) => {
     try {
         const products = await Product.find();
@@ -38,7 +39,7 @@ export const getAllProducts = async (req, res) => {
     }
 };
 
-// Get single product by ID
+// ------------------ Get single product by ID ------------------
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -60,16 +61,11 @@ export const getProductById = async (req, res) => {
     }
 };
 
-// Customer catalog (grouped by category, only public fields)
-// - Show all products where status = "Active"
-// - Stock = currentStock - safetyStock (clamped at 0)
-// - No "Not Available" label; just show stock number
-// - Always include expiryDate (for add/update visibility)
-//newly added expire part
+// ------------------ Customer catalog ------------------
 export const getCustomerCatalog = async (req, res) => {
     try {
         const products = await Product.find(
-            { status: { $in: ['Active', 'Expiring Soon'] } },
+            { status: { $in: ['Active', 'Expiring Soon'] } },// include Expiring Soon
             'productName description price category currentStock safetyStock expiryDate status'
         ).sort({ category: 1, productName: 1 });
 
@@ -81,8 +77,8 @@ export const getCustomerCatalog = async (req, res) => {
                 description: p.description,
                 price: p.price,
                 stock,
-                expiryDate: p.expiryDate,
-                status: p.status // Include status in response
+                expiryDate: p.expiryDate, 
+                status: p.status          
             };
         });
 
@@ -92,8 +88,8 @@ export const getCustomerCatalog = async (req, res) => {
                 description: item.description,
                 price: item.price,
                 stock: item.stock,
-                expiryDate: item.expiryDate,
-                status: item.status
+                expiryDate: item.expiryDate, 
+                status: item.status          
             });
             return acc;
         }, {});
@@ -104,24 +100,33 @@ export const getCustomerCatalog = async (req, res) => {
     }
 };
 
-// Create new product
+// ------------------ Create product ------------------
 export const createProduct = async (req, res) => {
     try {
         const { currentStock, rawMaterialRecipe, ...productData } = req.body;
-        
-        // First create product without stock
+
+        // Check raw materials BEFORE creating product
+        if (currentStock > 0) {
+            try {
+                // Validate raw materials first
+                await deductRawMaterials(rawMaterialRecipe, currentStock);
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+        }
+
+        // Only create product if raw material check passes
         const product = await Product.create({
             ...productData,
-            currentStock: 0,
+            currentStock: currentStock || 0,
             rawMaterialRecipe
         });
 
-        // If initial stock is provided, add it and deduct raw materials
-        if (currentStock > 0) {
-            await deductRawMaterials(rawMaterialRecipe, currentStock);
-            product.currentStock = currentStock;
-            await product.save();
-        }
+        // inventory history tracking
+        await addInventoryHistory(null, product);
 
         res.status(201).json({
             success: true,
@@ -135,7 +140,7 @@ export const createProduct = async (req, res) => {
     }
 };
 
-// Update product
+// ------------------ Update product ------------------
 export const updateProduct = async (req, res) => {
     try {
         const oldProduct = await Product.findById(req.params.id);
@@ -148,13 +153,13 @@ export const updateProduct = async (req, res) => {
 
         const { currentStock, expiryDate, ...updateData } = req.body;
 
-        // Handle stock changes
+        // deduct raw materials only if stock increased
         if (currentStock > oldProduct.currentStock) {
             const stockIncrease = currentStock - oldProduct.currentStock;
             await deductRawMaterials(oldProduct.rawMaterialRecipe, stockIncrease);
         }
 
-        // Calculate expiry status
+        // calculate expiry status
         let status = oldProduct.status;
         if (expiryDate) {
             const daysUntilExpiry = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
@@ -166,6 +171,9 @@ export const updateProduct = async (req, res) => {
             { ...updateData, currentStock, expiryDate, status },
             { new: true, runValidators: true }
         );
+
+        // inventory history tracking
+        await addInventoryHistory(oldProduct, product);
 
         res.status(200).json({
             success: true,
@@ -179,10 +187,11 @@ export const updateProduct = async (req, res) => {
     }
 };
 
+// ------------------ Delete product ------------------
 // Delete product
 export const deleteProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
+        const product = await Product.findById(req.params.id);
 
         if (!product) {
             return res.status(404).json({
@@ -190,6 +199,15 @@ export const deleteProduct = async (req, res) => {
                 error: 'Product not found'
             });
         }
+
+        // ------------------ 🆕 Add inventory history for deletion ------------------
+        await addInventoryHistory(product, {
+            ...product.toObject(),   // preserve all fields
+            currentStock: 0          // newStock = 0 because product is removed
+        }, "Removed");               // explicitly set changeType to "Removed"
+
+        // Delete the product
+        await product.deleteOne();
 
         res.status(200).json({
             success: true,
@@ -202,3 +220,4 @@ export const deleteProduct = async (req, res) => {
         });
     }
 };
+
