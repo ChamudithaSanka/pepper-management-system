@@ -41,14 +41,10 @@ export const registerCustomer = async (req, res) => {
         
         await customer.save();
         
-        // Don't send password in response
-        const customerResponse = customer.toObject();
-        delete customerResponse.password;
-        
         res.status(201).json({ 
             success: true, 
             message: 'Customer registered successfully', 
-            data: customerResponse 
+            data: customer 
         });
     } catch (error) {
         if (error.name === 'ValidationError') {
@@ -98,21 +94,16 @@ export const loginCustomer = async (req, res) => {
             });
         }
         
-        // Don't send password in response
-        const customerResponse = customer.toObject();
-        delete customerResponse.password;
-        
         // Store customer info in session
         req.session.customer = {
             customerId: customer.customerId,
             name: customer.name,
             email: customer.email
         };
-        
         res.status(200).json({ 
             success: true, 
             message: 'Login successful', 
-            data: customerResponse 
+            data: customer 
         });
     } catch (error) {
         res.status(500).json({ 
