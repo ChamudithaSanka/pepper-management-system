@@ -66,7 +66,7 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Active", "Expired"],
+        enum: ["Active", "Expiring Soon"],
         default: "Active"
     }
 }, {
@@ -85,6 +85,32 @@ productSchema.pre('save', function(next) {
     }
     next();
 });
+
+productSchema.pre('save', function(next) {
+    // Existing stock status check
+    if (this.currentStock <= this.reorderLevel) {
+        this.stockStatus = "LowStock";
+    } else {
+        this.stockStatus = "InStock";
+    }
+
+    // New expiry check
+    if (this.expiryDate) {
+        const daysUntilExpiry = Math.ceil((this.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+        this.status = daysUntilExpiry <= 10 ? "Expiring Soon" : "Active";
+    }
+
+    next();
+});
+
+// Keep only availableStock virtual (no “Not Available” status)
+productSchema.virtual('availableStock').get(function () {
+  const avail = (this.currentStock ?? 0) - (this.safetyStock ?? 0);
+  return Math.max(avail, 0);// show 0 if negative
+});
+
+productSchema.set('toJSON', { virtuals: false });
+productSchema.set('toObject', { virtuals: false });
 
 const Product = mongoose.model('Product', productSchema);
 

@@ -60,6 +60,49 @@ export const getProductById = async (req, res) => {
     }
 };
 
+// Customer catalog (grouped by category, only public fields)
+// - Show all products where status = "Active"
+// - Stock = currentStock - safetyStock (clamped at 0)
+// - No "Not Available" label; just show stock number
+// - Always include expiryDate (for add/update visibility)
+//newly added expire part
+export const getCustomerCatalog = async (req, res) => {
+    try {
+        const products = await Product.find(
+            { status: { $in: ['Active', 'Expiring Soon'] } },
+            'productName description price category currentStock safetyStock expiryDate status'
+        ).sort({ category: 1, productName: 1 });
+
+        const mapped = products.map((p) => {
+            const stock = Math.max((p.currentStock ?? 0) - (p.safetyStock ?? 0), 0);
+            return {
+                category: p.category,
+                productName: p.productName,
+                description: p.description,
+                price: p.price,
+                stock,
+                expiryDate: p.expiryDate,
+                status: p.status // Include status in response
+            };
+        });
+
+        const grouped = mapped.reduce((acc, item) => {
+            (acc[item.category] ||= []).push({
+                productName: item.productName,
+                description: item.description,
+                price: item.price,
+                stock: item.stock,
+                expiryDate: item.expiryDate,
+                status: item.status
+            });
+            return acc;
+        }, {});
+
+        res.status(200).json({ success: true, data: grouped });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
 
 // Create new product
 export const createProduct = async (req, res) => {
@@ -103,15 +146,24 @@ export const updateProduct = async (req, res) => {
             });
         }
 
-        const { currentStock, ...updateData } = req.body;
+        const { currentStock, expiryDate, ...updateData } = req.body;
+
+        // Handle stock changes
         if (currentStock > oldProduct.currentStock) {
             const stockIncrease = currentStock - oldProduct.currentStock;
             await deductRawMaterials(oldProduct.rawMaterialRecipe, stockIncrease);
         }
 
+        // Calculate expiry status
+        let status = oldProduct.status;
+        if (expiryDate) {
+            const daysUntilExpiry = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+            status = daysUntilExpiry <= 10 ? "Expiring Soon" : "Active";
+        }
+
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            { ...updateData, currentStock },
+            { ...updateData, currentStock, expiryDate, status },
             { new: true, runValidators: true }
         );
 
