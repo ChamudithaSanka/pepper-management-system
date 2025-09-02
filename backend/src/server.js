@@ -9,7 +9,6 @@ import farmerRoutes from './routes/farmerRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
-import farmerRoutes from './routes/farmerRoutes.js';//vishwa
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 
 dotenv.config();

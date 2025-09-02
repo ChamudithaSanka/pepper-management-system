@@ -357,15 +357,6 @@ export const getProductDetails = async (req, res) => {
                 message: 'Product not found'
             });
         }
-        
-        // Check if product is available for customers
-        if (product.status !== 'Active' || product.currentStock <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Product is currently unavailable'
-            });
-        }
-        
         res.status(200).json({
             success: true,
             data: product
