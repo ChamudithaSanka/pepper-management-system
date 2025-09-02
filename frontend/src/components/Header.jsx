@@ -100,14 +100,14 @@ const Header = () => {
         <nav className="mt-4">
           <ul className="flex space-x-8">
             <li>
-              <a href="#" className="text-green-400 hover:text-green-300 font-medium border-b-2 border-green-400 pb-1">
+              <Link to="/" className="text-green-400 hover:text-green-300 font-medium border-b-2 border-green-400 pb-1">
                 Home
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+              <Link to="/shop" className="text-white hover:text-green-400 font-medium transition-colors">
                 Shop
-              </a>
+              </Link>
             </li>
             <li>
               <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">

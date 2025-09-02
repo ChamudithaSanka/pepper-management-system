@@ -6,7 +6,6 @@ import connectDB from './config/database.js';
 import productRoutes from './routes/productRoutes.js';
 import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
 import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
-import farmerRoutes from './routes/farmerRoutes.js';//vishwa
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 
 import userRoutes from './routes/userRoutes.js';
