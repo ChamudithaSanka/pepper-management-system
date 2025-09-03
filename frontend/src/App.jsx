@@ -6,6 +6,9 @@ import StaffLogin from './components/StaffLogin';
 import ProductListing from './components/ProductListing';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
+import CheckoutCustomerDetails from './components/CheckoutCustomerDetails';
+import CheckoutPayment from './components/CheckoutPayment';
+import OrderConfirmation from './components/OrderConfirmation';
 
 function App() {
   return (
@@ -17,6 +20,9 @@ function App() {
       <Route path="/shop" element={<ProductListing />} />
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<CheckoutCustomerDetails />} />
+      <Route path="/checkout/payment" element={<CheckoutPayment />} />
+      <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
     </Routes>
   )
 }

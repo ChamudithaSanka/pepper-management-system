@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps API Test</title>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google Maps API Test</h1>
+    <div id="map"></div>
+    
+    <script>
+        function initMap() {
+            console.log('Initializing map...');
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 15,
+                center: { lat: 6.9271, lng: 79.8612 }, // Colombo
+            });
+            console.log('Map initialized successfully');
+        }
+        
+        window.initMap = initMap;
+    </script>
+    
+    <!-- Replace YOUR_API_KEY with your actual API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDVInoRNl_wanyp_gVtptQncfVwrNE1Ihw&callback=initMap"></script>
+</body>
+</html>

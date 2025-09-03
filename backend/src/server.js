@@ -10,6 +10,8 @@ import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 dotenv.config();
 
@@ -46,8 +48,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/customers', customerRoutes); 
 app.use('/api/rm-orders', rawMaterialOrderRoutes);
 app.use('/api/inventory-history', inventoryHistoryRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 
-app.use('/api/farmers', farmerRoutes);//vishwa
+app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

@@ -166,7 +166,8 @@ export const checkSession = async (req, res) => {
 // GET CUSTOMER PROFILE
 export const getCustomerProfile = async (req, res) => {
     try {
-        const customer = await Customer.findById(req.params.id).select('-password');
+        // Use customerId instead of MongoDB _id
+        const customer = await Customer.findOne({ customerId: parseInt(req.params.id) }).select('-password');
         
         if (!customer) {
             return res.status(404).json({ 
@@ -191,13 +192,14 @@ export const getCustomerProfile = async (req, res) => {
 // UPDATE CUSTOMER PROFILE
 export const updateCustomerProfile = async (req, res) => {
     try {
-        const { name, phone, deliveryAddress } = req.body;
+        const { name, phone, deliveryAddress, location } = req.body;
+        const customerId = parseInt(req.params.id);
         
         // Check if phone is being changed and conflicts with another customer
         if (phone) {
             const existingPhone = await Customer.findOne({ 
                 phone, 
-                _id: { $ne: req.params.id } 
+                customerId: { $ne: customerId }
             });
             if (existingPhone) {
                 return res.status(400).json({ 
@@ -207,10 +209,10 @@ export const updateCustomerProfile = async (req, res) => {
             }
         }
         
-        // Update customer (excluding email and password)
-        const customer = await Customer.findByIdAndUpdate(
-            req.params.id,
-            { name, phone, deliveryAddress },
+        // Update customer using customerId instead of _id
+        const customer = await Customer.findOneAndUpdate(
+            { customerId: customerId },
+            { name, phone, deliveryAddress, location },
             { new: true, runValidators: true }
         ).select('-password');
         
