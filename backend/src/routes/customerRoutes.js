@@ -13,6 +13,14 @@ import {
     getProductCategories,
     searchProducts
 } from '../controllers/customerController.js';
+import {
+    addToCart,
+    getCart,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+    getCartCount
+} from '../controllers/cartController.js';
 
 const router = express.Router();
 
@@ -29,6 +37,14 @@ router.get('/products', getAvailableProducts);
 router.get('/products/categories', getProductCategories);
 router.get('/products/search', searchProducts);
 router.get('/products/:id', getProductDetails);
+
+// Cart management routes
+router.post('/:customerId/cart', addToCart);
+router.get('/:customerId/cart', getCart);
+router.get('/:customerId/cart/count', getCartCount);
+router.put('/:customerId/cart/:productId', updateCartItem);
+router.delete('/:customerId/cart/:productId', removeFromCart);
+router.delete('/:customerId/cart', clearCart);
 
 // Admin routes for customer management
 router.get('/', getAllCustomers);

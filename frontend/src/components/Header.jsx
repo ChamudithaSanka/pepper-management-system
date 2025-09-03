@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   
   // Check session on component mount
   useEffect(() => {
     checkSession();
+    fetchCartCount();
   }, []);
   
   const checkSession = async () => {
@@ -20,6 +22,33 @@ const Header = () => {
       setIsLoggedIn(false);
     }
   };
+
+  const fetchCartCount = async () => {
+    try {
+      // Get customer session first
+      const sessionResponse = await fetch('/api/customers/session', {
+        credentials: 'include'
+      });
+      const sessionData = await sessionResponse.json();
+      
+      if (!sessionData.success || !sessionData.isLoggedIn) {
+        setCartCount(0);
+        return;
+      }
+
+      const customerId = sessionData.customer.customerId;
+      const response = await fetch(`/api/customers/${customerId}/cart/count`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCartCount(data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching cart count:', error);
+      setCartCount(0);
+    }
+  };
   
   const handleLogout = async () => {
     try {
@@ -28,6 +57,7 @@ const Header = () => {
         credentials: 'include'
       });
       setIsLoggedIn(false);
+      setCartCount(0);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -85,14 +115,16 @@ const Header = () => {
                 </Link>
               </>
             )}
-            <button className="relative text-green-400 hover:text-green-300">
+            <Link to="/cart" className="relative text-green-400 hover:text-green-300">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 4H19" />
               </svg>
-              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </button>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
 

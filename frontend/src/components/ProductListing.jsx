@@ -87,7 +87,7 @@ const ProductListing = () => {
 
       const customerId = sessionData.customer.customerId;
 
-      const response = await fetch(`/api/customers/cart/${customerId}/add`, {
+      const response = await fetch(`/api/customers/${customerId}/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,6 +102,8 @@ const ProductListing = () => {
       const data = await response.json();
       if (data.success) {
         alert(`${productName} added to cart successfully!`);
+        // Trigger a page refresh to update cart count in header
+        window.location.reload();
       } else {
         alert(data.message || 'Failed to add product to cart');
       }
