@@ -51,9 +51,6 @@ app.use('/api/inventory-history', inventoryHistoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 
-app.use('/api/orders', orderRoutes);
-app.use('/api/payments', paymentRoutes);
-
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Pepper Management System API' });

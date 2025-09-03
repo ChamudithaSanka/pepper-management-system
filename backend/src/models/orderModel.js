@@ -32,12 +32,10 @@ const orderItemSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
     orderId: {
         type: String,
-        required: true,
         unique: true
     },
     customerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Customer',
+        type: String,  // Changed from ObjectId to String to match our custom ID system
         required: true
     },
     items: [orderItemSchema],
