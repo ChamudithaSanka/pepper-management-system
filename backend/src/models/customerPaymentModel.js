@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 const customerPaymentSchema = new mongoose.Schema({
     paymentId: {
         type: String,
-        required: true,
         unique: true
     },
     orderId: {
@@ -13,8 +12,7 @@ const customerPaymentSchema = new mongoose.Schema({
         ref: 'Order'
     },
     customerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Customer',
+        type: String,  // Changed from ObjectId to String to match our custom ID system
         required: true
     },
     amount: {

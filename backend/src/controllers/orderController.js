@@ -6,20 +6,28 @@ import Customer from '../models/customerModel.js';
 // CREATE ORDER FROM CART
 export const createOrderFromCart = async (req, res) => {
     try {
+        console.log('🛒 createOrderFromCart called');
         const { customerId } = req.params;
         const { deliveryAddress, deliveryLocation, notes } = req.body;
+        console.log('🛒 customerId:', customerId);
+        console.log('🛒 session customer:', req.session.customer);
+        console.log('🛒 request body:', { deliveryAddress, deliveryLocation, notes });
 
         // Check if user is logged in
         if (!req.session.customer || req.session.customer.customerId != customerId) {
+            console.log('🛒 Authentication failed');
             return res.status(401).json({
                 success: false,
                 message: 'Please login to create order'
             });
         }
 
+        console.log('🛒 Authentication passed, looking for cart...');
         // Get customer's cart
         const cart = await Cart.findOne({ customerId }).populate('items.productId');
+        console.log('🛒 Cart found:', cart);
         if (!cart || cart.items.length === 0) {
+            console.log('🛒 Cart is empty or not found');
             return res.status(400).json({
                 success: false,
                 message: 'Cart is empty'
@@ -46,8 +54,13 @@ export const createOrderFromCart = async (req, res) => {
             subtotal: item.quantity * item.price
         }));
 
+        // Generate orderId
+        const orderCount = await Order.countDocuments();
+        const orderId = `ORD${String(orderCount + 1).padStart(6, '0')}`;
+
         // Create new order
         const newOrder = new Order({
+            orderId,
             customerId,
             items: orderItems,
             totalAmount: cart.totalPrice,
@@ -67,10 +80,13 @@ export const createOrderFromCart = async (req, res) => {
         }
 
         // Update customer's order count and last order date
-        await Customer.findByIdAndUpdate(customerId, {
-            $inc: { totalOrders: 1 },
-            lastOrderDate: new Date()
-        });
+        await Customer.findOneAndUpdate(
+            { customerId },  // Use customerId field instead of _id
+            {
+                $inc: { totalOrders: 1 },
+                lastOrderDate: new Date()
+            }
+        );
 
         // Clear cart after order creation
         await Cart.findOneAndUpdate(
@@ -85,6 +101,8 @@ export const createOrderFromCart = async (req, res) => {
         });
 
     } catch (error) {
+        console.error('🛒 Error in createOrderFromCart:', error);
+        console.error('🛒 Error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Error creating order',

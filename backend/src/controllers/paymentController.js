@@ -5,6 +5,7 @@ import Customer from '../models/customerModel.js';
 // PROCESS PAYMENT
 export const processPayment = async (req, res) => {
     try {
+        console.log('💳 processPayment called');
         const { orderId } = req.params;
         const {
             paymentMethod,
@@ -12,9 +13,15 @@ export const processPayment = async (req, res) => {
             cardDetails,
             customerId
         } = req.body;
+        
+        console.log('💳 orderId:', orderId);
+        console.log('💳 customerId from body:', customerId);
+        console.log('💳 session customer:', req.session.customer);
+        console.log('💳 paymentMethod:', paymentMethod);
 
         // Check if user is logged in
         if (!req.session.customer || req.session.customer.customerId != customerId) {
+            console.log('💳 Authentication failed');
             return res.status(401).json({
                 success: false,
                 message: 'Please login to process payment'
@@ -23,7 +30,9 @@ export const processPayment = async (req, res) => {
 
         // Find the order
         const order = await Order.findOne({ orderId });
+        console.log('💳 Order found:', order);
         if (!order) {
+            console.log('💳 Order not found');
             return res.status(404).json({
                 success: false,
                 message: 'Order not found'
@@ -31,7 +40,11 @@ export const processPayment = async (req, res) => {
         }
 
         // Check if order belongs to the customer
-        if (order.customerId.toString() !== customerId) {
+        console.log('💳 order.customerId:', order.customerId, 'type:', typeof order.customerId);
+        console.log('💳 customerId from request:', customerId, 'type:', typeof customerId);
+        
+        if (order.customerId !== String(customerId)) {
+            console.log('💳 Unauthorized access to order');
             return res.status(403).json({
                 success: false,
                 message: 'Unauthorized access to order'
@@ -67,7 +80,7 @@ export const processPayment = async (req, res) => {
 
             paymentData.cardDetails = {
                 cardholderName: cardDetails.cardholderName,
-                cardType: cardDetails.cardType,
+                cardType: cardDetails.cardType || 'Visa', // Default to Visa if empty
                 lastFourDigits: cardDetails.cardNumber?.slice(-4) || '****',
                 expiryMonth: cardDetails.expiryMonth,
                 expiryYear: cardDetails.expiryYear
@@ -145,6 +158,8 @@ export const processPayment = async (req, res) => {
         }
 
     } catch (error) {
+        console.error('💳 Error in processPayment:', error);
+        console.error('💳 Error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Error processing payment',
