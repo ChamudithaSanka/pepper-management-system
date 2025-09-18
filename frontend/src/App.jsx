@@ -9,6 +9,7 @@ import Cart from './components/Cart';
 import CheckoutCustomerDetails from './components/CheckoutCustomerDetails';
 import CheckoutPayment from './components/CheckoutPayment';
 import OrderConfirmation from './components/OrderConfirmation';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path="/checkout" element={<CheckoutCustomerDetails />} />
       <Route path="/checkout/payment" element={<CheckoutPayment />} />
       <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+      <Route path="/admin" element={<AdminDashboard />} />
     </Routes>
   )
 }
