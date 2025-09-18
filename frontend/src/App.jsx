@@ -9,7 +9,7 @@ import Cart from './components/Cart';
 import CheckoutCustomerDetails from './components/CheckoutCustomerDetails';
 import CheckoutPayment from './components/CheckoutPayment';
 import OrderConfirmation from './components/OrderConfirmation';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 function App() {
   return (

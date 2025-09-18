@@ -41,8 +41,17 @@ const StaffLogin = () => {
         setSuccess(true);
         setFormData({ email: '', password: '' });
         setTimeout(() => {
-          // Trigger page reload to update header state
-          window.location.href = '/admin-dashboard';
+          // Redirect based on user role (fix: use data.data.role)
+          const role = data.data?.role;
+          if (role === 'Admin') {
+            window.location.href = '/admin';
+          } else if (role === 'Finance Manager') {
+            window.location.href = '/finance';
+          } else if (role === 'Inventory Manager') {
+            window.location.href = '/inventory';
+          } else {
+            window.location.href = '/';
+          }
         }, 1000);
       } else {
         setError(data.message || 'Login failed');
