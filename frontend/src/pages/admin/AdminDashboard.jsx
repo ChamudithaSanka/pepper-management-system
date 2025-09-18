@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import StatCards from '../../components/Dashboard/StatCards';
 import PieChart from '../../components/Dashboard/PieChart';
 import UserManagement from '../../components/Dashboard/UserManagement';
+import EmployeeManagement from '../../components/admin/EmployeeManagement';
 import { 
     adminSidebarLinks, 
     adminUserInfo, 
@@ -150,6 +151,13 @@ const AdminDashboard = () => {
                             <h3 className="text-xl font-semibold text-gray-600 mb-2">Customer Management</h3>
                             <p className="text-gray-400">Customer management features will be implemented here</p>
                         </div>
+                    </div>
+                );
+
+            case 'employees':
+                return (
+                    <div className="space-y-6">
+                        <EmployeeManagement onStatsUpdate={fetchDashboardData} />
                     </div>
                 );
 
