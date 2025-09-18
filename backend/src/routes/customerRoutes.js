@@ -8,6 +8,7 @@ import {
     updateCustomerProfile,
     getAllCustomers,
     getCustomerStats,
+    deleteCustomer,
     getAvailableProducts,
     getProductDetails,
     getProductCategories,
@@ -49,5 +50,7 @@ router.delete('/:customerId/cart', clearCart);
 // Admin routes for customer management
 router.get('/', getAllCustomers);
 router.get('/stats', getCustomerStats);
+router.put('/:id', updateCustomerProfile);
+router.delete('/:id', deleteCustomer);
 
 export default router;
