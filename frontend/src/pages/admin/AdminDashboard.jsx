@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import StatCards from '../../components/Dashboard/StatCards';
 import PieChart from '../../components/Dashboard/PieChart';
-import UserManagement from '../../components/Dashboard/UserManagement';
+import UserManagement from '../../components/admin/UserManagement';
 import EmployeeManagement from '../../components/admin/EmployeeManagement';
 import { 
     adminSidebarLinks, 
