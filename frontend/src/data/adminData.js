@@ -4,6 +4,7 @@ export const adminSidebarLinks = [
     { id: 'users', label: 'User Management', icon: 'users' },
     { id: 'farmers', label: 'Farmer Management', icon: 'farmers' },
     { id: 'customers', label: 'Customer Management', icon: 'customers' },
+    { id: 'employees', label: 'Employee Management', icon: 'employees' },
     { id: 'orders', label: 'Order Management', icon: 'orders' },
     { id: 'inventory', label: 'Inventory Overview', icon: 'inventory' },
     { id: 'finance', label: 'Financial Reports', icon: 'finance' },
