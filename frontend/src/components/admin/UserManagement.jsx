@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const UserManagement = ({ onStatsUpdate }) => {
-    const [activeTab, setActiveTab] = useState('staff');
-    const [staffUsers, setStaffUsers] = useState([]);
-    const [customers, setCustomers] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,73 +11,39 @@ const UserManagement = ({ onStatsUpdate }) => {
         name: '',
         email: '',
         password: '',
-        role: 'Finance Manager', // default for staff
-        phone: '', // for customers
-        deliveryAddress: '' // for customers
+        role: 'Finance Manager' //default for staff
     });
 
     useEffect(() => {
-        fetchData();
-    }, [activeTab]);
+        fetchUsers();
+    }, []);
 
-    const fetchData = async () => {
+    const fetchUsers = async () => {
         setLoading(true);
-        try {
-            if (activeTab === 'staff') {
-                await fetchStaffUsers();
-            } else {
-                await fetchCustomers();
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Error fetching data');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchStaffUsers = async () => {
         try {
             const response = await fetch('/api/users', {
                 credentials: 'include'
             });
             if (response.ok) {
                 const data = await response.json();
-                setStaffUsers(data.data || []);
+                setUsers(data.data || []);
                 if (onStatsUpdate) onStatsUpdate();
             } else {
-                setError('Failed to fetch staff users');
+                setError('Failed to fetch users');
             }
         } catch (error) {
-            console.error('Error fetching staff users:', error);
-            setError('Error fetching staff users');
+            console.error('Error fetching users:', error);
+            setError('Error fetching users');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const fetchCustomers = async () => {
-        try {
-            const response = await fetch('/api/customers', {
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setCustomers(data.data || []);
-                if (onStatsUpdate) onStatsUpdate();
-            } else {
-                setError('Failed to fetch customers');
-            }
-        } catch (error) {
-            console.error('Error fetching customers:', error);
-            setError('Error fetching customers');
-        }
-    };
-
-    const handleStatusToggle = async (userId, currentStatus, userType) => {
+    const handleStatusToggle = async (userId, currentStatus) => {
         const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
         
         try {
-            const endpoint = userType === 'staff' ? `/api/users/${userId}` : `/api/customers/${userId}`;
-            const response = await fetch(endpoint, {
+            const response = await fetch(`/api/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -89,8 +53,7 @@ const UserManagement = ({ onStatsUpdate }) => {
             });
 
             if (response.ok) {
-                // Refresh data
-                fetchData();
+                fetchUsers();
             } else {
                 const data = await response.json();
                 setError(data.message || 'Failed to update status');
@@ -105,12 +68,14 @@ const UserManagement = ({ onStatsUpdate }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const endpoint = activeTab === 'staff' ? '/api/users/register' : '/api/customers/register';
-            const payload = activeTab === 'staff' 
-                ? { name: newItem.name, email: newItem.email, password: newItem.password, role: newItem.role }
-                : { name: newItem.name, email: newItem.email, password: newItem.password, phone: newItem.phone, deliveryAddress: newItem.deliveryAddress };
+            const payload = { 
+                name: newItem.name, 
+                email: newItem.email, 
+                password: newItem.password, 
+                role: newItem.role 
+            };
 
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/users/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -124,19 +89,17 @@ const UserManagement = ({ onStatsUpdate }) => {
                     name: '',
                     email: '',
                     password: '',
-                    role: 'Finance Manager',
-                    phone: '',
-                    deliveryAddress: ''
+                    role: 'Finance Manager'
                 });
                 setShowAddForm(false);
-                fetchData();
+                fetchUsers();
             } else {
                 const data = await response.json();
-                setError(data.message || `Failed to add ${activeTab === 'staff' ? 'user' : 'customer'}`);
+                setError(data.message || 'Failed to add user');
             }
         } catch (error) {
             console.error('Error adding item:', error);
-            setError(`Error adding ${activeTab === 'staff' ? 'user' : 'customer'}`);
+            setError('Error adding user');
         } finally {
             setLoading(false);
         }
@@ -145,8 +108,7 @@ const UserManagement = ({ onStatsUpdate }) => {
     const handleUpdate = async (itemId, updatedData) => {
         setLoading(true);
         try {
-            const endpoint = activeTab === 'staff' ? `/api/users/${itemId}` : `/api/customers/${itemId}`;
-            const response = await fetch(endpoint, {
+            const response = await fetch(`/api/users/${itemId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -157,95 +119,62 @@ const UserManagement = ({ onStatsUpdate }) => {
 
             if (response.ok) {
                 setEditingItem(null);
-                fetchData();
+                fetchUsers();
             } else {
                 const data = await response.json();
-                setError(data.message || `Failed to update ${activeTab === 'staff' ? 'user' : 'customer'}`);
+                setError(data.message || 'Failed to update user');
             }
         } catch (error) {
             console.error('Error updating item:', error);
-            setError(`Error updating ${activeTab === 'staff' ? 'user' : 'customer'}`);
+            setError('Error updating user');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (itemId) => {
-        if (!window.confirm(`Are you sure you want to delete this ${activeTab === 'staff' ? 'user' : 'customer'}?`)) {
+        if (!window.confirm('Are you sure you want to delete this user?')) {
             return;
         }
 
         setLoading(true);
         try {
-            const endpoint = activeTab === 'staff' ? `/api/users/${itemId}` : `/api/customers/${itemId}`;
-            const response = await fetch(endpoint, {
+            const response = await fetch(`/api/users/${itemId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
 
             if (response.ok) {
-                fetchData();
+                fetchUsers();
             } else {
                 const data = await response.json();
-                setError(data.message || `Failed to delete ${activeTab === 'staff' ? 'user' : 'customer'}`);
+                setError(data.message || 'Failed to delete user');
             }
         } catch (error) {
             console.error('Error deleting item:', error);
-            setError(`Error deleting ${activeTab === 'staff' ? 'user' : 'customer'}`);
+            setError('Error deleting user');
         } finally {
             setLoading(false);
         }
     };
 
-    const filteredStaffUsers = staffUsers.filter(user =>
+    const filteredUsers = users.filter(user =>
         user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const filteredCustomers = customers.filter(customer =>
-        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone?.includes(searchTerm)
-    );
-
-    const currentData = activeTab === 'staff' ? filteredStaffUsers : filteredCustomers;
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-                <div className="flex items-center space-x-3">
-                    <button
-                        onClick={() => setShowAddForm(true)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                    >
-                        + Add {activeTab === 'staff' ? 'User' : 'Customer'}
-                    </button>
-                    <div className="flex space-x-2">
-                        <button
-                            onClick={() => setActiveTab('staff')}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                activeTab === 'staff'
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                            Staff Users
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('customers')}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                activeTab === 'customers'
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                            Customers
-                        </button>
-                    </div>
-                </div>
+                <button
+                    onClick={() => setShowAddForm(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                    + Add User
+                </button>
             </div>
 
             {/* Search */}
@@ -253,14 +182,14 @@ const UserManagement = ({ onStatsUpdate }) => {
                 <div className="max-w-md">
                     <input
                         type="text"
-                        placeholder={`Search ${activeTab === 'staff' ? 'staff' : 'customers'}...`}
+                        placeholder="Search users..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     />
                 </div>
                 <button
-                    onClick={fetchData}
+                    onClick={fetchUsers}
                     disabled={loading}
                     className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
@@ -285,20 +214,20 @@ const UserManagement = ({ onStatsUpdate }) => {
             <div className="grid grid-cols-3 gap-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">
-                        Total {activeTab === 'staff' ? 'Staff' : 'Customers'}
+                        Total Users
                     </h3>
-                    <p className="text-2xl font-bold text-gray-900">{currentData.length}</p>
+                    <p className="text-2xl font-bold text-gray-900">{filteredUsers.length}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">Active</h3>
                     <p className="text-2xl font-bold text-green-600">
-                        {currentData.filter(item => item.status === 'Active').length}
+                        {filteredUsers.filter(item => item.status === 'Active').length}
                     </p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">Inactive</h3>
                     <p className="text-2xl font-bold text-red-600">
-                        {currentData.filter(item => item.status === 'Inactive').length}
+                        {filteredUsers.filter(item => item.status === 'Inactive').length}
                     </p>
                 </div>
             </div>
@@ -306,7 +235,7 @@ const UserManagement = ({ onStatsUpdate }) => {
             {/* Add Form */}
             {showAddForm && (
                 <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <h3 className="text-lg font-medium mb-4">Add New {activeTab === 'staff' ? 'Staff User' : 'Customer'}</h3>
+                    <h3 className="text-lg font-medium mb-4">Add New User</h3>
                     <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
                         <input
                             type="text"
@@ -332,44 +261,23 @@ const UserManagement = ({ onStatsUpdate }) => {
                             className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             required
                         />
-                        {activeTab === 'staff' ? (
-                            <select
-                                value={newItem.role}
-                                onChange={(e) => setNewItem({...newItem, role: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            >
-                                <option value="Finance Manager">Finance Manager</option>
-                                <option value="Inventory Manager">Inventory Manager</option>
-                                <option value="Delivery Staff">Delivery Staff</option>
-                            </select>
-                        ) : (
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={newItem.phone}
-                                onChange={(e) => setNewItem({...newItem, phone: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                        )}
-                        {activeTab === 'customers' && (
-                            <textarea
-                                placeholder="Delivery Address"
-                                value={newItem.deliveryAddress}
-                                onChange={(e) => setNewItem({...newItem, deliveryAddress: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent col-span-2"
-                                rows="3"
-                                required
-                            />
-                        )}
+                        <select
+                            value={newItem.role}
+                            onChange={(e) => setNewItem({...newItem, role: e.target.value})}
+                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required
+                        >
+                            <option value="Finance Manager">Finance Manager</option>
+                            <option value="Inventory Manager">Inventory Manager</option>
+                            <option value="Delivery Staff">Delivery Staff</option>
+                        </select>
                         <div className="col-span-2 flex gap-3">
                             <button
                                 type="submit"
                                 disabled={loading}
                                 className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
                             >
-                                {loading ? 'Adding...' : `Add ${activeTab === 'staff' ? 'User' : 'Customer'}`}
+                                {loading ? 'Adding...' : 'Add User'}
                             </button>
                             <button
                                 type="button"
@@ -383,18 +291,18 @@ const UserManagement = ({ onStatsUpdate }) => {
                 </div>
             )}
 
-            {/* Users/Customers Table */}
+            {/* Staff Users Table */}
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                 {loading ? (
                     <div className="p-8 text-center">
-                        <div className="text-gray-500">Loading {activeTab}...</div>
+                        <div className="text-gray-500">Loading users...</div>
                     </div>
-                ) : currentData.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                     <div className="p-8 text-center">
                         <div className="text-gray-400">
                             {searchTerm 
-                                ? `No ${activeTab} found matching your search.` 
-                                : `No ${activeTab} found.`
+                                ? 'No users found matching your search.' 
+                                : 'No users found.'
                             }
                         </div>
                     </div>
@@ -404,7 +312,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {activeTab === 'staff' ? 'User ID' : 'Customer ID'}
+                                        User ID
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Name
@@ -412,15 +320,9 @@ const UserManagement = ({ onStatsUpdate }) => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Email
                                     </th>
-                                    {activeTab === 'staff' ? (
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Role
-                                        </th>
-                                    ) : (
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Phone
-                                        </th>
-                                    )}
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Role
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
@@ -433,10 +335,10 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {currentData.map((item) => (
+                                {filteredUsers.map((item) => (
                                     <tr key={item._id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {activeTab === 'staff' ? item.userId : item.customerId}
+                                            {item.userId}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {item.name}
@@ -445,7 +347,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                                             {item.email}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {activeTab === 'staff' ? item.role : item.phone}
+                                            {item.role}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -486,7 +388,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
                         <h3 className="text-lg font-medium mb-4">
-                            Edit {activeTab === 'staff' ? 'Staff User' : 'Customer'}
+                            Edit User
                         </h3>
                         <form 
                             onSubmit={(e) => {
@@ -511,37 +413,16 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
-                            {activeTab === 'staff' ? (
-                                <select
-                                    value={editingItem.role}
-                                    onChange={(e) => setEditingItem({...editingItem, role: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required
-                                >
-                                    <option value="Finance Manager">Finance Manager</option>
-                                    <option value="Inventory Manager">Inventory Manager</option>
-                                    <option value="Delivery Staff">Delivery Staff</option>
-                                </select>
-                            ) : (
-                                <>
-                                    <input
-                                        type="tel"
-                                        placeholder="Phone Number"
-                                        value={editingItem.phone}
-                                        onChange={(e) => setEditingItem({...editingItem, phone: e.target.value})}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        required
-                                    />
-                                    <textarea
-                                        placeholder="Delivery Address"
-                                        value={editingItem.deliveryAddress}
-                                        onChange={(e) => setEditingItem({...editingItem, deliveryAddress: e.target.value})}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        rows="3"
-                                        required
-                                    />
-                                </>
-                            )}
+                            <select
+                                value={editingItem.role}
+                                onChange={(e) => setEditingItem({...editingItem, role: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            >
+                                <option value="Finance Manager">Finance Manager</option>
+                                <option value="Inventory Manager">Inventory Manager</option>
+                                <option value="Delivery Staff">Delivery Staff</option>
+                            </select>
                             <select
                                 value={editingItem.status}
                                 onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
