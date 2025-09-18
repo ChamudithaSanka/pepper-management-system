@@ -294,6 +294,34 @@ export const getCustomerStats = async (req, res) => {
     }
 };
 
+// DELETE CUSTOMER (ADMIN ONLY)
+export const deleteCustomer = async (req, res) => {
+    try {
+        const customerId = parseInt(req.params.id);
+        
+        // Find and delete customer using customerId instead of _id
+        const customer = await Customer.findOneAndDelete({ customerId: customerId });
+        
+        if (!customer) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Customer not found' 
+            });
+        }
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Customer deleted successfully' 
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error deleting customer', 
+            error: error.message 
+        });
+    }
+};
+
 // PRODUCT BROWSING FOR CUSTOMERS
 // GET ALL AVAILABLE PRODUCTS (CUSTOMER VIEW)
 export const getAvailableProducts = async (req, res) => {

@@ -3,6 +3,7 @@ import DashboardLayout from '../Dashboard/DashboardLayout';
 import StatCards from '../Dashboard/StatCards';
 import PieChart from '../Dashboard/PieChart';
 import UserManagement from './UserManagement';
+import CustomerManagement from './CustomerManagement';
 import EmployeeManagement from './EmployeeManagement';
 import { 
     adminSidebarLinks, 
@@ -143,14 +144,7 @@ const AdminDashboard = () => {
             case 'customers':
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
-                        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
-                            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Customer Management</h3>
-                            <p className="text-gray-400">Customer management features will be implemented here</p>
-                        </div>
+                        <CustomerManagement onStatsUpdate={fetchDashboardData} />
                     </div>
                 );
 
