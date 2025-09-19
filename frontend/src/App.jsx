@@ -10,6 +10,7 @@ import CheckoutCustomerDetails from './components/CheckoutCustomerDetails';
 import CheckoutPayment from './components/CheckoutPayment';
 import OrderConfirmation from './components/OrderConfirmation';
 import AdminDashboard from './components/admin/AdminDashboard';
+import FinanceDashboard from './components/finance/FinanceDashboard';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/checkout/payment" element={<CheckoutPayment />} />
       <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/finance" element={<FinanceDashboard />} />
     </Routes>
   )
 }
