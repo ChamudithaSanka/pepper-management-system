@@ -9,6 +9,7 @@ import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import salaryRoutes from './routes/salaryRoutes.js';
 
 import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
@@ -47,6 +48,7 @@ app.use('/api/rm-orders', rawMaterialOrderRoutes);
 app.use('/api/inventory-history', inventoryHistoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/salaries', salaryRoutes);
 
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
