@@ -75,21 +75,36 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-lg mx-8">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for pepper products..."
-                className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-green-400 focus:outline-none"
-              />
-              <button className="absolute right-2 top-2 text-green-400 hover:text-green-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-          </div>
+          {/* Navigation Menu - Centered */}
+          <nav className="flex-1 flex justify-center">
+            <ul className="flex space-x-8">
+              <li>
+                <Link to="/" className="text-green-400 hover:text-green-300 font-medium border-b-2 border-green-400 pb-1">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/shop" className="text-white hover:text-green-400 font-medium transition-colors">
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                  About
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                  Contact
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                  FAQ
+                </a>
+              </li>
+            </ul>
+          </nav>
 
           {/* Login/Register & Cart */}
           <div className="flex items-center space-x-4">
@@ -127,37 +142,6 @@ const Header = () => {
             </Link>
           </div>
         </div>
-
-        {/* Navigation Menu */}
-        <nav className="mt-4">
-          <ul className="flex space-x-8">
-            <li>
-              <Link to="/" className="text-green-400 hover:text-green-300 font-medium border-b-2 border-green-400 pb-1">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/shop" className="text-white hover:text-green-400 font-medium transition-colors">
-                Shop
-              </Link>
-            </li>
-            <li>
-              <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
-                About
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
-                Contact
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
-                FAQ
-              </a>
-            </li>
-          </ul>
-        </nav>
       </div>
     </header>
   );
