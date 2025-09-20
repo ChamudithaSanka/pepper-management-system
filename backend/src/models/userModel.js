@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     if (!this.userId) {
         const lastUser = await this.constructor.findOne({}, {}, { sort: { userId: -1 } });
-        this.userId = lastUser ? lastUser.userId + 1 : 1;
+        this.userId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
     }
     next();
 });

@@ -28,9 +28,24 @@ const customerSchema = new mongoose.Schema({
         trim: true
     },
     deliveryAddress: {
-        type: String,
-        required: true,
-        trim: true
+        latitude: {
+            type: Number,
+            required: true,
+            min: [-90, 'Latitude must be between -90 and 90'],
+            max: [90, 'Latitude must be between -90 and 90']
+        },
+        longitude: {
+            type: Number,
+            required: true,
+            min: [-180, 'Longitude must be between -180 and 180'],
+            max: [180, 'Longitude must be between -180 and 180']
+        },
+        address: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: [500, 'Address cannot exceed 500 characters']
+        }
     },
     status: {
         type: String,
@@ -48,34 +63,6 @@ const customerSchema = new mongoose.Schema({
     totalOrders: {
         type: Number,
         default: 0
-    },
-    location: {
-        latitude: {
-            type: Number,
-            validate: {
-                validator: function(v) {
-                    return v >= -90 && v <= 90;
-                },
-                message: 'Latitude must be between -90 and 90 degrees'
-            }
-        },
-        longitude: {
-            type: Number,
-            validate: {
-                validator: function(v) {
-                    return v >= -180 && v <= 180;
-                },
-                message: 'Longitude must be between -180 and 180 degrees'
-            }
-        },
-        address: {
-            type: String,
-            trim: true
-        },
-        lastUpdated: {
-            type: Date,
-            default: Date.now
-        }
     }
 }, {
     timestamps: true

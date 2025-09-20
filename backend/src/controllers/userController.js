@@ -191,8 +191,13 @@ export const createUser = async (req, res) => {
             });
         }
         
-        // Create new user
+        // Generate userId
+        const lastUser = await User.findOne({}, {}, { sort: { userId: -1 } });
+        const nextUserId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
+        
+        // Create new user with generated userId
         const user = new User({ 
+            userId: nextUserId,
             name, 
             email, 
             password, 

@@ -42,7 +42,11 @@ const CustomerRegister = () => {
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
-          deliveryAddress: formData.deliveryAddress,
+          deliveryAddress: {
+            latitude: 0, // Default coordinates - customer can update later
+            longitude: 0,
+            address: formData.deliveryAddress
+          },
         }),
       });
       const data = await response.json();

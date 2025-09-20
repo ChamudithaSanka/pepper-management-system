@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const UserManagement = ({ onStatsUpdate }) => {
     const [users, setUsers] = useState([]);
@@ -11,12 +12,24 @@ const UserManagement = ({ onStatsUpdate }) => {
         name: '',
         email: '',
         password: '',
-        role: 'Finance Manager' //default for staff
+        role: 'Admin'
     });
 
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        if (showAddForm) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showAddForm]);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -66,39 +79,60 @@ const UserManagement = ({ onStatsUpdate }) => {
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        
+        if (!newItem.name.trim() || !newItem.email.trim() || !newItem.password.trim()) {
+            setError('Please fill in all required fields');
+            return;
+        }
+        
+        if (newItem.name.trim().length < 2) {
+            setError('Name must be at least 2 characters long');
+            return;
+        }
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newItem.email)) {
+            setError('Please enter a valid email address');
+            return;
+        }
+        
+        if (newItem.password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
+        
         setLoading(true);
+        setError('');
+        
         try {
             const payload = { 
-                name: newItem.name, 
-                email: newItem.email, 
+                name: newItem.name.trim(), 
+                email: newItem.email.trim(), 
                 password: newItem.password, 
-                role: newItem.role 
+                role: newItem.role,
+                status: 'Active'
             };
 
-            const response = await fetch('/api/users/register', {
+            const response = await fetch('/api/users', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload)
             });
 
             if (response.ok) {
-                setNewItem({
-                    name: '',
-                    email: '',
-                    password: '',
-                    role: 'Finance Manager'
-                });
+                setNewItem({ name: '', email: '', password: '', role: 'Admin' });
                 setShowAddForm(false);
                 fetchUsers();
             } else {
                 const data = await response.json();
-                setError(data.message || 'Failed to add user');
+                if (data.errors && Array.isArray(data.errors)) {
+                    setError(data.errors.join(', '));
+                } else {
+                    setError(data.message || 'Failed to add user');
+                }
             }
         } catch (error) {
-            console.error('Error adding item:', error);
+            console.error('Error adding user:', error);
             setError('Error adding user');
         } finally {
             setLoading(false);
@@ -232,63 +266,67 @@ const UserManagement = ({ onStatsUpdate }) => {
                 </div>
             </div>
 
-            {/* Add Form */}
-            {showAddForm && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <h3 className="text-lg font-medium mb-4">Add New User</h3>
-                    <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
-                        <input
-                            type="text"
-                            placeholder="Full Name"
-                            value={newItem.name}
-                            onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={newItem.email}
-                            onChange={(e) => setNewItem({...newItem, email: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={newItem.password}
-                            onChange={(e) => setNewItem({...newItem, password: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <select
-                            value={newItem.role}
-                            onChange={(e) => setNewItem({...newItem, role: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        >
-                            <option value="Finance Manager">Finance Manager</option>
-                            <option value="Inventory Manager">Inventory Manager</option>
-                            <option value="Delivery Staff">Delivery Staff</option>
-                        </select>
-                        <div className="col-span-2 flex gap-3">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+            {/* Add Form Modal */}
+            {showAddForm && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+                    <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Add New User</h3>
+                        <form onSubmit={handleAdd} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Full Name"
+                                value={newItem.name}
+                                onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={newItem.email}
+                                onChange={(e) => setNewItem({...newItem, email: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={newItem.password}
+                                onChange={(e) => setNewItem({...newItem, password: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <select
+                                value={newItem.role}
+                                onChange={(e) => setNewItem({...newItem, role: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
                             >
-                                {loading ? 'Adding...' : 'Add User'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowAddForm(false)}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                                <option value="Admin">Admin</option>
+                                <option value="Finance Manager">Finance Manager</option>
+                                <option value="Inventory Manager">Inventory Manager</option>
+                                <option value="Delivery Staff">Delivery Staff</option>
+                            </select>
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    {loading ? 'Adding...' : 'Add User'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddForm(false)}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
             )}
 
             {/* Staff Users Table */}
@@ -393,6 +431,18 @@ const UserManagement = ({ onStatsUpdate }) => {
                         <form 
                             onSubmit={(e) => {
                                 e.preventDefault();
+                                
+                                if (!editingItem.name.trim() || !editingItem.email.trim()) {
+                                    setError('Please fill in all required fields');
+                                    return;
+                                }
+                                
+                                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingItem.email)) {
+                                    setError('Please enter a valid email address');
+                                    return;
+                                }
+                                
+                                setError('');
                                 handleUpdate(editingItem._id, editingItem);
                             }}
                             className="space-y-4"
@@ -419,6 +469,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             >
+                                <option value="Admin">Admin</option>
                                 <option value="Finance Manager">Finance Manager</option>
                                 <option value="Inventory Manager">Inventory Manager</option>
                                 <option value="Delivery Staff">Delivery Staff</option>
