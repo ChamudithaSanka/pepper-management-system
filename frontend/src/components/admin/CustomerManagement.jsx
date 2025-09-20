@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import GoogleMapSelector from '../GoogleMapSelector';
 
 const CustomerManagement = ({ onStatsUpdate }) => {
     const [customers, setCustomers] = useState([]);
@@ -12,8 +14,74 @@ const CustomerManagement = ({ onStatsUpdate }) => {
         email: '',
         password: '',
         phone: '',
-        deliveryAddress: ''
+        deliveryAddress: {
+            latitude: null,
+            longitude: null,
+            address: ''
+        }
     });
+    const [showMapSelector, setShowMapSelector] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+
+    // Validation helper function
+    const validateField = (field, value) => {
+        const errors = { ...fieldErrors };
+        
+        switch (field) {
+            case 'email':
+                if (!value.trim()) {
+                    errors.email = 'Email is required';
+                } else if (!/^\S+@\S+\.\S+$/.test(value.trim())) {
+                    errors.email = 'Please enter a valid email address';
+                } else {
+                    delete errors.email;
+                }
+                break;
+            case 'phone':
+                if (!value.trim()) {
+                    errors.phone = 'Phone number is required';
+                } else if (!/^[0-9]{8,15}$/.test(value.trim())) {
+                    errors.phone = 'Enter valid phone number (8-15 digits)';
+                } else {
+                    delete errors.phone;
+                }
+                break;
+            case 'name':
+                if (!value.trim()) {
+                    errors.name = 'Name is required';
+                } else if (value.length > 100) {
+                    errors.name = 'Name cannot exceed 100 characters';
+                } else {
+                    delete errors.name;
+                }
+                break;
+            case 'password':
+                if (!value.trim()) {
+                    errors.password = 'Password is required';
+                } else if (value.length < 6) {
+                    errors.password = 'Password must be at least 6 characters';
+                } else {
+                    delete errors.password;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        setFieldErrors(errors);
+    };
+
+    const handleLocationSelect = (location) => {
+        setNewItem({
+            ...newItem,
+            deliveryAddress: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                address: location.address
+            }
+        });
+        setShowMapSelector(false);
+    };
 
     useEffect(() => {
         fetchCustomers();
@@ -68,14 +136,65 @@ const CustomerManagement = ({ onStatsUpdate }) => {
     const handleAdd = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
+
+        // Frontend validation
+        const errors = [];
+
+        // Name validation
+        if (!newItem.name.trim()) {
+            errors.push('Name is required');
+        } else if (newItem.name.length > 100) {
+            errors.push('Name cannot exceed 100 characters');
+        }
+
+        // Email validation
+        if (!newItem.email.trim()) {
+            errors.push('Email is required');
+        } else if (!/^\S+@\S+\.\S+$/.test(newItem.email.trim())) {
+            errors.push('Please enter a valid email address');
+        }
+
+        // Password validation
+        if (!newItem.password.trim()) {
+            errors.push('Password is required');
+        } else if (newItem.password.length < 6) {
+            errors.push('Password must be at least 6 characters');
+        }
+
+        // Phone validation
+        if (!newItem.phone.trim()) {
+            errors.push('Phone number is required');
+        } else if (!/^[0-9]{8,15}$/.test(newItem.phone.trim())) {
+            errors.push('Please enter a valid phone number (8-15 digits)');
+        }
+
+        // Delivery address validation
+        if (!newItem.deliveryAddress.latitude || !newItem.deliveryAddress.longitude || !newItem.deliveryAddress.address) {
+            errors.push('Please select a delivery address on the map');
+        }
+
+        // If there are validation errors, show them and stop
+        if (errors.length > 0) {
+            setError(errors.join('. '));
+            setLoading(false);
+            return;
+        }
+
         try {
             const payload = { 
                 name: newItem.name, 
                 email: newItem.email, 
                 password: newItem.password, 
                 phone: newItem.phone,
-                deliveryAddress: newItem.deliveryAddress
+                deliveryAddress: {
+                    latitude: Number(newItem.deliveryAddress.latitude),
+                    longitude: Number(newItem.deliveryAddress.longitude),
+                    address: newItem.deliveryAddress.address
+                }
             };
+
+            console.log('Sending customer data:', payload);
 
             const response = await fetch('/api/customers/register', {
                 method: 'POST',
@@ -92,13 +211,23 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                     email: '',
                     password: '',
                     phone: '',
-                    deliveryAddress: ''
+                    deliveryAddress: {
+                        latitude: null,
+                        longitude: null,
+                        address: ''
+                    }
                 });
+                setFieldErrors({});
                 setShowAddForm(false);
                 fetchCustomers();
             } else {
                 const data = await response.json();
-                setError(data.message || 'Failed to add customer');
+                console.log('Error response:', data);
+                if (data.errors && Array.isArray(data.errors)) {
+                    setError(data.errors.join(', '));
+                } else {
+                    setError(data.message || 'Failed to add customer');
+                }
             }
         } catch (error) {
             console.error('Error adding customer:', error);
@@ -164,7 +293,8 @@ const CustomerManagement = ({ onStatsUpdate }) => {
     const filteredCustomers = customers.filter(customer =>
         customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone?.includes(searchTerm)
+        customer.phone?.includes(searchTerm) ||
+        customer.deliveryAddress?.address?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -235,69 +365,128 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                 </div>
             </div>
 
-            {/* Add Form */}
-            {showAddForm && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <h3 className="text-lg font-medium mb-4">Add New Customer</h3>
-                    <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
-                        <input
-                            type="text"
-                            placeholder="Full Name"
-                            value={newItem.name}
-                            onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={newItem.email}
-                            onChange={(e) => setNewItem({...newItem, email: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={newItem.password}
-                            onChange={(e) => setNewItem({...newItem, password: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="tel"
-                            placeholder="Phone Number"
-                            value={newItem.phone}
-                            onChange={(e) => setNewItem({...newItem, phone: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <textarea
-                            placeholder="Delivery Address"
-                            value={newItem.deliveryAddress}
-                            onChange={(e) => setNewItem({...newItem, deliveryAddress: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent col-span-2"
-                            rows="3"
-                            required
-                        />
-                        <div className="col-span-2 flex gap-3">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                {loading ? 'Adding...' : 'Add Customer'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowAddForm(false)}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            {/* Add Form Modal */}
+            {showAddForm && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+                    <div className="bg-white rounded-lg p-6 w-2/3 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Add New Customer</h3>
+                        <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Full Name"
+                                    value={newItem.name}
+                                    onChange={(e) => {
+                                        setNewItem({...newItem, name: e.target.value});
+                                        validateField('name', e.target.value);
+                                    }}
+                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
+                                        fieldErrors.name ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    required
+                                />
+                                {fieldErrors.name && <p className="text-red-500 text-sm mt-1">{fieldErrors.name}</p>}
+                            </div>
+                            
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={newItem.email}
+                                    onChange={(e) => {
+                                        setNewItem({...newItem, email: e.target.value});
+                                        validateField('email', e.target.value);
+                                    }}
+                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
+                                        fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    required
+                                />
+                                {fieldErrors.email && <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>}
+                            </div>
+                            
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Password (min 6 characters)"
+                                    value={newItem.password}
+                                    onChange={(e) => {
+                                        setNewItem({...newItem, password: e.target.value});
+                                        validateField('password', e.target.value);
+                                    }}
+                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
+                                        fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    required
+                                />
+                                {fieldErrors.password && <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>}
+                            </div>
+                            
+                            <div>
+                                <input
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    value={newItem.phone}
+                                    onChange={(e) => {
+                                        setNewItem({...newItem, phone: e.target.value});
+                                        validateField('phone', e.target.value);
+                                    }}
+                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
+                                        fieldErrors.phone ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                    required
+                                />
+                                {fieldErrors.phone && <p className="text-red-500 text-sm mt-1">{fieldErrors.phone}</p>}
+                            </div>
+                            
+                            <div className="col-span-2">
+                                <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
+                                    <div className="text-sm text-gray-600 mb-2">Delivery Address</div>
+                                    {newItem.deliveryAddress.address ? (
+                                        <div className="text-sm text-green-700 mb-2">{newItem.deliveryAddress.address}</div>
+                                    ) : (
+                                        <div className="text-sm text-gray-400 mb-2">No address selected</div>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowMapSelector(true)}
+                                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                                    >
+                                        {newItem.deliveryAddress.address ? 'Change Location' : 'Select on Map'}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {error && (
+                                <div className="col-span-2 text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <div className="col-span-2 flex gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    {loading ? 'Adding...' : 'Add Customer'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowAddForm(false);
+                                        setFieldErrors({});
+                                        setError('');
+                                    }}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
             )}
 
             {/* Customers Table */}
@@ -365,7 +554,7 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                                             {customer.phone}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                                            {customer.deliveryAddress}
+                                            {customer.deliveryAddress?.address || customer.deliveryAddress || 'No address'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
@@ -480,6 +669,27 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {/* Google Maps Location Selector Modal */}
+            {showMapSelector && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
+                    <div className="bg-white rounded-lg p-4 w-[90%] max-w-4xl h-[80vh] flex flex-col shadow-2xl">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-medium">Select Delivery Location</h3>
+                            <button
+                                onClick={() => setShowMapSelector(false)}
+                                className="text-gray-500 hover:text-gray-700 text-xl"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="flex-1">
+                            <GoogleMapSelector onLocationSelect={handleLocationSelect} />
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

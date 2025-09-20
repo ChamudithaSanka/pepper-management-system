@@ -64,8 +64,8 @@ const CheckoutCustomerDetails = () => {
                     name: customerResult.data.name,
                     email: customerResult.data.email,
                     phone: customerResult.data.phone,
-                    deliveryAddress: customerResult.data.deliveryAddress,
-                    location: customerResult.data.location || { latitude: null, longitude: null, address: '' }
+                    deliveryAddress: customerResult.data.deliveryAddress?.address || '',
+                    location: customerResult.data.deliveryAddress || { latitude: null, longitude: null, address: '' }
                 });
             }
 
@@ -101,7 +101,18 @@ const CheckoutCustomerDetails = () => {
 
     const saveField = async (field) => {
         try {
-            const updateData = { [field]: formData[field] };
+            let updateData;
+            if (field === 'deliveryAddress') {
+                updateData = { 
+                    deliveryAddress: {
+                        latitude: formData.location.latitude || 0,
+                        longitude: formData.location.longitude || 0,
+                        address: formData.deliveryAddress
+                    }
+                };
+            } else {
+                updateData = { [field]: formData[field] };
+            }
             
             const response = await fetch(`/api/customers/profile/${customerData.customerId}`, {
                 method: 'PUT',
@@ -126,7 +137,13 @@ const CheckoutCustomerDetails = () => {
 
     const handleLocationSelect = async (location) => {
         try {
-            const updateData = { location };
+            const updateData = { 
+                deliveryAddress: {
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    address: location.address
+                }
+            };
             
             const response = await fetch(`/api/customers/profile/${customerData.customerId}`, {
                 method: 'PUT',
@@ -139,8 +156,12 @@ const CheckoutCustomerDetails = () => {
 
             const result = await response.json();
             if (result.success) {
-                setFormData(prev => ({ ...prev, location }));
-                setCustomerData(prev => ({ ...prev, location }));
+                setFormData(prev => ({ 
+                    ...prev, 
+                    location: location,
+                    deliveryAddress: location.address
+                }));
+                setCustomerData(prev => ({ ...prev, deliveryAddress: updateData.deliveryAddress }));
                 setShowMapSection(false);
             } else {
                 setError('Failed to update delivery location');
