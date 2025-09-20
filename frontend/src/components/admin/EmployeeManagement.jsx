@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const EmployeeManagement = ({ onStatsUpdate }) => {
     const [employees, setEmployees] = useState([]);
@@ -246,56 +247,58 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                 </div>
             </div>
 
-            {/* Add Form */}
-            {showAddForm && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <h3 className="text-lg font-medium mb-4">Add New Employee</h3>
-                    <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
-                        <input
-                            type="text"
-                            placeholder="Full Name"
-                            value={newEmployee.name}
-                            onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="Designation (e.g., Sorter, Grader, Driver)"
-                            value={newEmployee.designation}
-                            onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            required
-                        />
-                        <input
-                            type="number"
-                            placeholder="Basic Salary (LKR)"
-                            value={newEmployee.basicSalary}
-                            onChange={(e) => setNewEmployee({...newEmployee, basicSalary: e.target.value})}
-                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            min="0"
-                            step="0.01"
-                            required
-                        />
-                        {/* EPF Number removed */}
-                        <div className="col-span-2 flex gap-3">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                {loading ? 'Adding...' : 'Add Employee'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowAddForm(false)}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            {/* Add Employee Modal */}
+            {showAddForm && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
+                        <h3 className="text-lg font-medium mb-4">Add New Employee</h3>
+                        <form onSubmit={handleAdd} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Full Name"
+                                value={newEmployee.name}
+                                onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="text"
+                                placeholder="Designation (e.g., Sorter, Grader, Driver)"
+                                value={newEmployee.designation}
+                                onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="number"
+                                placeholder="Basic Salary (LKR)"
+                                value={newEmployee.basicSalary}
+                                onChange={(e) => setNewEmployee({...newEmployee, basicSalary: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                min="0"
+                                step="0.01"
+                                required
+                            />
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    {loading ? 'Adding...' : 'Add Employee'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddForm(false)}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
             )}
 
             {/* Employees Table */}
