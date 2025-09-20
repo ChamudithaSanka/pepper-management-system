@@ -64,14 +64,14 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-black text-white shadow-lg">
+    <header className="bg-white text-gray-900 shadow-lg border-b border-gray-200">
       {/* Top Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-green-400">
-              Ceylon<span className="text-white">Pepper</span>
+            <Link to="/" className="text-2xl font-bold text-green-600">
+              Ceylon<span className="text-gray-900">Pepper</span>
             </Link>
           </div>
 
@@ -79,27 +79,27 @@ const Header = () => {
           <nav className="flex-1 flex justify-center">
             <ul className="flex space-x-8">
               <li>
-                <Link to="/" className="text-green-400 hover:text-green-300 font-medium border-b-2 border-green-400 pb-1">
+                <Link to="/" className="text-green-600 hover:text-green-700 font-medium border-b-2 border-green-600 pb-1">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/shop" className="text-white hover:text-green-400 font-medium transition-colors">
+                <Link to="/shop" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
                   Shop
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
                   About
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
                   Contact
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white hover:text-green-400 font-medium transition-colors">
+                <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
                   FAQ
                 </a>
               </li>
@@ -110,27 +110,27 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <Link to="/customer-dashboard" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                  Customer Dashboard
+                <Link to="/customer-dashboard" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  Dashboard
                 </Link>
                 <button 
                   onClick={handleLogout}
-                  className="border border-red-600 text-red-400 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                <Link to="/login" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                   Login
                 </Link>
-                <Link to="/register" className="border border-green-600 text-green-400 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <Link to="/register" className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors">
                   Register
                 </Link>
               </>
             )}
-            <Link to="/cart" className="relative text-green-400 hover:text-green-300">
+            <Link to="/cart" className="relative text-green-600 hover:text-green-700">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 4H19" />
               </svg>

@@ -5,7 +5,7 @@ import Carousel from './Carousel';
 
 const Homepage = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Carousel Section */}
@@ -14,12 +14,12 @@ const Homepage = () => {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Welcome to <span className="text-green-600">Ceylon Pepper</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
             Discover the finest Ceylon pepper and pepper-based products, sourced directly from Sri Lankan farms. 
             Experience authentic flavors that have made Ceylon pepper famous worldwide.
           </p>
@@ -30,7 +30,7 @@ const Homepage = () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Featured <span className="text-green-600">Products</span>
@@ -38,9 +38,9 @@ const Homepage = () => {
           
           <div className="grid grid-cols-3 gap-8">
             {/* Product 1 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="h-48 bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-600 text-lg font-medium">Product Image</span>
+            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
+              <div className="h-48 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500 text-lg font-medium">Product Image</span>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Premium Black Pepper</h3>
@@ -55,9 +55,9 @@ const Homepage = () => {
             </div>
 
             {/* Product 2 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="h-48 bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-600 text-lg font-medium">Product Image</span>
+            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
+              <div className="h-48 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500 text-lg font-medium">Product Image</span>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Fresh Green Pepper</h3>
@@ -72,9 +72,9 @@ const Homepage = () => {
             </div>
 
             {/* Product 3 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="h-48 bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-600 text-lg font-medium">Product Image</span>
+            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
+              <div className="h-48 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500 text-lg font-medium">Product Image</span>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Pepper Powder</h3>
@@ -98,7 +98,7 @@ const Homepage = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-16 bg-black text-white">
+      <section className="py-16 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
             Why Choose <span className="text-green-400">Ceylon Pepper</span>?
@@ -113,7 +113,7 @@ const Homepage = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-green-400">Premium Quality</h3>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 Hand-selected pepper from the finest Ceylon farms, ensuring superior quality and flavor.
               </p>
             </div>
@@ -126,7 +126,7 @@ const Homepage = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-green-400">Fast Delivery</h3>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 Quick and reliable delivery service to bring fresh Ceylon pepper to your doorstep.
               </p>
             </div>
@@ -139,7 +139,7 @@ const Homepage = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-green-400">Customer Satisfaction</h3>
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 We prioritize customer satisfaction with excellent service and support.
               </p>
             </div>
@@ -161,9 +161,9 @@ const Homepage = () => {
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-l-lg border-none focus:outline-none focus:ring-2 focus:ring-green-800"
+              className="flex-1 px-4 py-3 rounded-l-lg border-none focus:outline-none focus:ring-2 focus:ring-green-800 text-gray-900"
             />
-            <button className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-r-lg font-medium transition-colors">
+            <button className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-r-lg font-medium transition-colors">
               Subscribe
             </button>
           </div>
