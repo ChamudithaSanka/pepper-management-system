@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import productRoutes from './routes/productRoutes.js';
 import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
@@ -17,6 +19,10 @@ import salaryRoutes from './routes/salaryRoutes.js';
 
 dotenv.config();
 
+// Get current directory in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Connect to database
 connectDB();
 
@@ -29,6 +35,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Static files for uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Session configuration
 app.use(session({

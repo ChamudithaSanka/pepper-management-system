@@ -8,12 +8,14 @@ import {
     updateCustomerProfile,
     getAllCustomers,
     getCustomerStats,
-    deleteCustomer,
+    deleteCustomer
+} from '../controllers/customerController.js';
+import {
     getAvailableProducts,
     getProductDetails,
     getProductCategories,
     searchProducts
-} from '../controllers/customerController.js';
+} from '../controllers/productController.js';
 import {
     addToCart,
     getCart,

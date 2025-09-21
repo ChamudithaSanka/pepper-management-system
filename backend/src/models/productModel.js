@@ -61,6 +61,10 @@ const productSchema = new mongoose.Schema({
         default: "InStock"
     },
     rawMaterialRecipe: [rawMaterialRecipeSchema],
+    imageUrl: {
+        type: String,
+        default: null
+    },
     expiryDate: {
         type: Date
     },

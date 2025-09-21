@@ -1,5 +1,8 @@
 import Product from '../models/productModel.js';
 import RawMaterial from '../models/rawMaterialModel.js';
+import upload from '../middleware/uploadMiddleware.js';
+import path from 'path';
+import fs from 'fs';
 import { addInventoryHistory } from './inventoryHistoryController.js';
 
 // Helper function to deduct raw materials
@@ -216,6 +219,233 @@ export const deleteProduct = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
+            error: error.message
+        });
+    }
+};
+
+// ------------------ Image upload endpoint ------------------
+export const uploadProductImage = (req, res) => {
+    // Use multer middleware
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({
+                    success: false,
+                    error: 'File size too large. Maximum size is 5MB.'
+                });
+            }
+            return res.status(400).json({
+                success: false,
+                error: err.message
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                error: 'No file uploaded'
+            });
+        }
+
+        // Return the file path that can be used in the database
+        const imageUrl = `/uploads/products/${req.file.filename}`;
+        
+        res.status(200).json({
+            success: true,
+            message: 'Image uploaded successfully',
+            data: {
+                imageUrl: imageUrl,
+                filename: req.file.filename,
+                originalName: req.file.originalname,
+                size: req.file.size
+            }
+        });
+    });
+};
+
+// ------------------ Delete product image ------------------
+export const deleteProductImage = async (req, res) => {
+    try {
+        const { filename } = req.params;
+        const imagePath = path.join(process.cwd(), 'uploads', 'products', filename);
+        
+        // Check if file exists
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+            res.status(200).json({
+                success: true,
+                message: 'Image deleted successfully'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                error: 'Image not found'
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// ------------------ Customer-facing product functions ------------------
+
+// GET ALL AVAILABLE PRODUCTS (CUSTOMER VIEW)
+export const getAvailableProducts = async (req, res) => {
+    try {
+        const { category, search, page = 1, limit = 10 } = req.query;
+        
+        // Build filter query - only active products with available stock
+        const filter = {
+            status: { $in: ['Active', 'Expiring Soon'] },
+            currentStock: { $gt: 0 }
+        };
+        
+        // Add category filter if provided
+        if (category) {
+            filter.category = { $regex: category, $options: 'i' };
+        }
+        
+        // Add search filter if provided (search in name and description)
+        if (search) {
+            filter.$or = [
+                { productName: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        // Calculate pagination
+        const skip = (page - 1) * limit;
+        const totalProducts = await Product.countDocuments(filter);
+        
+        // Get products with pagination
+        const products = await Product.find(filter)
+            .select('productId productName description category unit price currentStock safetyStock expiryDate status imageUrl')
+            .sort({ createdAt: -1 })
+            .skip(parseInt(skip))
+            .limit(parseInt(limit));
+        
+        // Calculate available stock (currentStock - safetyStock) for customers
+        const productsWithAvailableStock = products.map(product => ({
+            ...product.toObject(),
+            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
+        }));
+        
+        res.status(200).json({
+            success: true,
+            count: productsWithAvailableStock.length,
+            totalProducts,
+            totalPages: Math.ceil(totalProducts / limit),
+            currentPage: parseInt(page),
+            data: productsWithAvailableStock
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching available products',
+            error: error.message
+        });
+    }
+};
+
+// GET SINGLE PRODUCT DETAILS (CUSTOMER VIEW)
+export const getProductDetails = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id)
+            .select('productId productName description category unit price currentStock safetyStock expiryDate status imageUrl');
+        
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
+            });
+        }
+        
+        // Calculate available stock for customer
+        const productWithAvailableStock = {
+            ...product.toObject(),
+            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
+        };
+        
+        res.status(200).json({
+            success: true,
+            data: productWithAvailableStock
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching product details',
+            error: error.message
+        });
+    }
+};
+
+// GET PRODUCT CATEGORIES (FOR FILTER DROPDOWN)
+export const getProductCategories = async (req, res) => {
+    try {
+        const categories = await Product.distinct('category', {
+            status: { $in: ['Active', 'Expiring Soon'] },
+            currentStock: { $gt: 0 }
+        });
+        
+        res.status(200).json({
+            success: true,
+            count: categories.length,
+            data: categories
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching product categories',
+            error: error.message
+        });
+    }
+};
+
+// SEARCH PRODUCTS BY NAME
+export const searchProducts = async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        if (!query) {
+            return res.status(400).json({
+                success: false,
+                message: 'Search query is required'
+            });
+        }
+        
+        const products = await Product.find({
+            status: { $in: ['Active', 'Expiring Soon'] },
+            currentStock: { $gt: 0 },
+            $or: [
+                { productName: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } },
+                { category: { $regex: query, $options: 'i' } }
+            ]
+        })
+        .select('productId productName description category unit price currentStock safetyStock status imageUrl')
+        .sort({ productName: 1 })
+        .limit(20);
+        
+        // Calculate available stock for customers
+        const productsWithAvailableStock = products.map(product => ({
+            ...product.toObject(),
+            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
+        }));
+        
+        res.status(200).json({
+            success: true,
+            count: productsWithAvailableStock.length,
+            searchQuery: query,
+            data: productsWithAvailableStock
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error searching products',
             error: error.message
         });
     }
