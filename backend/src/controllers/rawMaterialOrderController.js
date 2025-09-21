@@ -3,17 +3,43 @@ import Farmer from '../models/farmerModel.js';
 
 export const getEligibleFarmers = async (req, res) => {
     try {
-        const { requestedQtyKg } = req.query;
+        const { materialType, requestedQtyKg } = req.query;
         
-        const farmers = await Farmer.find({
-            status: 'Active',
-            capacity: { $gte: parseFloat(requestedQtyKg || 0) }
-        }).select('-_id name capacity location'); // Added -_id to exclude the ID
+        if (!materialType) {
+            return res.status(400).json({
+                success: false,
+                error: 'Material type is required'
+            });
+        }
+
+        // Build query based on material type and capacity
+        let query = { status: 'Active' };
+        
+        // Add capacity filter based on material type
+        if (materialType === 'Green Pepper') {
+            if (requestedQtyKg) {
+                query['pepper_capacitypermonth.green'] = { $gte: parseFloat(requestedQtyKg) };
+            } else {
+                query['pepper_capacitypermonth.green'] = { $gt: 0 };
+            }
+        } else if (materialType === 'Black Pepper') {
+            if (requestedQtyKg) {
+                query['pepper_capacitypermonth.black'] = { $gte: parseFloat(requestedQtyKg) };
+            } else {
+                query['pepper_capacitypermonth.black'] = { $gt: 0 };
+            }
+        }
+        
+        const farmers = await Farmer.find(query).select('_id name pepper_capacitypermonth farm_location');
 
         const formattedFarmers = farmers.map(farmer => ({
+            _id: farmer._id,
             name: farmer.name,
-            capacity: farmer.capacity,
-            location: farmer.location
+            capacity: materialType === 'Green Pepper' 
+                ? farmer.pepper_capacitypermonth.green 
+                : farmer.pepper_capacitypermonth.black,
+            materialType: materialType,
+            location: farmer.farm_location?.address || 'Location not specified'
         }));
 
         res.status(200).json({
@@ -31,10 +57,10 @@ export const getEligibleFarmers = async (req, res) => {
 
 export const createOrder = async (req, res) => {
     try {
-        const { rawMaterialType, requestedQtyKg, farmerName } = req.body;
+        const { rawMaterialType, requestedQtyKg, farmerId } = req.body;
         
-        // Find farmer by name instead of ID
-        const farmer = await Farmer.findOne({ name: farmerName });
+        // Find farmer by ID
+        const farmer = await Farmer.findById(farmerId);
         if (!farmer) {
             return res.status(404).json({
                 success: false,
@@ -42,17 +68,30 @@ export const createOrder = async (req, res) => {
             });
         }
 
-        if (farmer.capacity < requestedQtyKg) {
+        // Check capacity based on material type
+        let farmerCapacity;
+        if (rawMaterialType === 'Green Pepper') {
+            farmerCapacity = farmer.pepper_capacitypermonth.green;
+        } else if (rawMaterialType === 'Black Pepper') {
+            farmerCapacity = farmer.pepper_capacitypermonth.black;
+        } else {
             return res.status(400).json({
                 success: false,
-                error: 'Requested quantity exceeds farmer capacity'
+                error: 'Invalid material type'
+            });
+        }
+
+        if (farmerCapacity < requestedQtyKg) {
+            return res.status(400).json({
+                success: false,
+                error: `Requested quantity (${requestedQtyKg}kg) exceeds farmer's ${rawMaterialType} capacity (${farmerCapacity}kg)`
             });
         }
 
         const order = await RawMaterialOrder.create({
             rawMaterialType,
             requestedQtyKg,
-            farmerId: farmer._id  // Convert farmer name to ID internally
+            farmerId: farmer._id
         });
 
         res.status(201).json({

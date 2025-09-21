@@ -42,7 +42,16 @@ export const getRawMaterial = async (req, res) => {
 // Create raw material
 export const createRawMaterial = async (req, res) => {
     try {
-        const rawMaterial = await RawMaterial.create(req.body);
+        // Auto-generate rawMaterialId
+        const count = await RawMaterial.countDocuments();
+        const rawMaterialId = `RM-${(count + 1).toString().padStart(3, '0')}`;
+        
+        const rawMaterialData = {
+            ...req.body,
+            rawMaterialId
+        };
+        
+        const rawMaterial = await RawMaterial.create(rawMaterialData);
         res.status(201).json({
             success: true,
             data: rawMaterial
