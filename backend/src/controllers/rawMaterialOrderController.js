@@ -115,11 +115,25 @@ export const listOrders = async (req, res) => {
         if (status) filter.status = status;
         if (rawMaterialType) filter.rawMaterialType = rawMaterialType;
 
-        const orders = await RawMaterialOrder.find(filter);
+        const orders = await RawMaterialOrder.find(filter).populate('farmerId', 'name farm_location');
+        
+        // Format the orders to include farmer information
+        const formattedOrders = orders.map(order => ({
+            rmOrderId: order.rmOrderId,
+            rawMaterialType: order.rawMaterialType,
+            requestedQtyKg: order.requestedQtyKg,
+            deliveredQtyKg: order.deliveredQtyKg,
+            status: order.status,
+            createdAt: order.createdAt,
+            deliveredAt: order.deliveredAt,
+            farmerName: order.farmerId ? order.farmerId.name : 'Unknown Farmer',
+            farmerLocation: order.farmerId?.farm_location?.address || 'Location not specified'
+        }));
+
         res.status(200).json({
             success: true,
-            count: orders.length,
-            data: orders
+            count: formattedOrders.length,
+            data: formattedOrders
         });
     } catch (error) {
         res.status(500).json({
