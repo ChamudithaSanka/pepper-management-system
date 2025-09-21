@@ -78,7 +78,11 @@ const DashboardLayout = ({
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
-            <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <div className="w-64 bg-gradient-to-b from-green-600 to-green-700 text-white flex flex-col shadow-lg">
+                <div className="p-6 border-b border-green-700">
+                    <h1 className="text-xl font-bold text-white">{userInfo.brandName}</h1>
+                    <p className="text-sm text-green-100">{userInfo.brandSubtitle}</p>
+                </div>
                 {/* Logo/Brand */}
                 <div className="p-6 border-b border-gray-200">
                     <h1 className="text-xl font-bold text-green-600">{userInfo.brandName}</h1>
@@ -92,14 +96,16 @@ const DashboardLayout = ({
                             <li key={link.id}>
                                 <button
                                     onClick={() => setActiveSection(link.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                                         activeSection === link.id
-                                            ? 'bg-green-50 text-green-700 border border-green-200'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            ? 'bg-white bg-opacity-10 text-white ring-1 ring-white/20 backdrop-blur-sm'
+                                            : 'text-green-100 hover:bg-white hover:bg-opacity-10 hover:text-white'
                                     }`}
                                 >
-                                    {renderIcon(link.icon)}
-                                    {link.label}
+                                    <span className={`${activeSection === link.id ? 'text-white' : 'text-green-100'}`}>
+                                        {renderIcon(link.icon)}
+                                    </span>
+                                    <span className="font-medium">{link.label}</span>
                                 </button>
                             </li>
                         ))}
@@ -107,17 +113,17 @@ const DashboardLayout = ({
                 </nav>
 
                 {/* User Info */}
-                <div className="p-4 border-t border-gray-200">
+                <div className="p-4 border-t border-green-700">
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                             <span className="text-sm font-medium text-white">{userInfo.initial}</span>
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-900">{userInfo.name}</p>
-                            <p className="text-xs text-gray-500">{userInfo.role}</p>
+                            <p className="text-sm font-medium text-white">{userInfo.name}</p>
+                            <p className="text-xs text-green-100">{userInfo.role}</p>
                         </div>
                     </div>
-                    <button className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+                    <button className="w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
                         Logout
                     </button>
                 </div>
@@ -126,9 +132,9 @@ const DashboardLayout = ({
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="bg-white border-b border-gray-200 px-6 py-4">
+                <header className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold text-gray-900">
+                        <h2 className="text-xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-white/90 to-white">
                             {currentSection?.label || headerTitle}
                         </h2>
                         <div className="flex items-center gap-4">
