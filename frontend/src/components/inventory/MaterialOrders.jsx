@@ -56,8 +56,20 @@ const MaterialOrders = () => {
             });
 
             if (response.ok) {
+                const result = await response.json();
                 fetchOrders(); // Refresh the orders list
-                alert('Order marked as delivered successfully');
+                
+                // Show detailed success message with inventory update info
+                if (result.inventoryUpdated) {
+                    alert(`Order marked as delivered successfully!\n\n` +
+                          `Inventory Updated:\n` +
+                          `• Material: ${result.inventoryUpdated.materialType}\n` +
+                          `• Added: ${result.inventoryUpdated.addedQuantity} kg\n` +
+                          `• New Total: ${result.inventoryUpdated.newQuantity} kg\n\n` +
+                          `Note: Visit the Raw Materials section to see updated inventory.`);
+                } else {
+                    alert('Order marked as delivered successfully');
+                }
             } else {
                 const errorData = await response.json();
                 alert(errorData.error || 'Failed to mark order as delivered');

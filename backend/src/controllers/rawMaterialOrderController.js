@@ -1,4 +1,5 @@
 import RawMaterialOrder from '../models/rawMaterialOrderModel.js';
+import RawMaterial from '../models/rawMaterialModel.js';
 import Farmer from '../models/farmerModel.js';
 
 export const getEligibleFarmers = async (req, res) => {
@@ -169,6 +170,28 @@ export const markDelivered = async (req, res) => {
             });
         }
 
+        // Find or create raw material inventory entry
+        let rawMaterial = await RawMaterial.findOne({ type: order.rawMaterialType });
+        
+        if (rawMaterial) {
+            // Add delivered quantity to existing inventory
+            rawMaterial.quantityKg += parseFloat(req.body.deliveredQtyKg);
+            await rawMaterial.save();
+        } else {
+            // Generate rawMaterialId for new entry
+            const count = await RawMaterial.countDocuments();
+            const rawMaterialId = `RM-${(count + 1).toString().padStart(3, '0')}`;
+            
+            // Create new raw material entry
+            rawMaterial = await RawMaterial.create({
+                rawMaterialId,
+                type: order.rawMaterialType,
+                quantityKg: parseFloat(req.body.deliveredQtyKg),
+                reorderLevelKg: 50 // Default reorder level
+            });
+        }
+
+        // Update order status
         order.deliveredQtyKg = req.body.deliveredQtyKg;
         order.status = "Delivered";
         order.deliveredAt = new Date();
@@ -176,7 +199,12 @@ export const markDelivered = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: order
+            data: order,
+            inventoryUpdated: {
+                materialType: order.rawMaterialType,
+                newQuantity: rawMaterial.quantityKg,
+                addedQuantity: req.body.deliveredQtyKg
+            }
         });
     } catch (error) {
         res.status(400).json({
