@@ -3,6 +3,7 @@ import DashboardLayout from '../Dashboard/DashboardLayout';
 import StatCards from '../Dashboard/StatCards';
 import PieChart from '../Dashboard/PieChart';
 import CalculateSalary from './CalculateSalary';
+import FarmerPayments from './FarmerPayments';
 import { 
     financeSidebarLinks, 
     financeUserInfo, 
@@ -125,17 +126,7 @@ const FinanceDashboard = () => {
             case 'farmer-payments':
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Farmer Payments</h2>
-                        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
-                            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zM14 6a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h6zM4 14a2 2 0 002 2h8a2 2 0 002-2v-2H4v2z"/>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Farmer Payments Management</h3>
-                            <p className="text-gray-400">Farmer payment features will be implemented here</p>
-                            <div className="mt-4 text-sm text-gray-500">
-                                • View All Payments • Add Payment • Pending Approvals
-                            </div>
-                        </div>
+                        <FarmerPayments />
                     </div>
                 );
 
