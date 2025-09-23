@@ -6,21 +6,72 @@ const ProductManagement = () => {
     const [error, setError] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showRestockModal, setShowRestockModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [restockingProduct, setRestockingProduct] = useState(null);
+    const [restockAmount, setRestockAmount] = useState('');
     const [rawMaterials, setRawMaterials] = useState([]);
     const [filterStatus, setFilterStatus] = useState('all');
+
+    // Category-based size and unit options
+    const getSizeOptions = (category) => {
+        switch (category) {
+            case 'Pepper Powder':
+                return ['50 g', '100 g', '250 g', '500 g', '1 kg'];
+            case 'Pepper Whole':
+                return ['50 g', '100 g', '250 g', '500 g', '1 kg'];
+            case 'Pepper Spray':
+                return ['30 g', '50 g', '100 g'];
+            case 'Pepper Sauce':
+                return ['100 ml', '200 ml', '250 ml', '500 ml', '1 L'];
+            case 'Pepper Oil':
+                return ['100 ml', '250 ml', '500 ml', '1 L'];
+            case 'Others':
+                return ['50 g', '100 g', '250 g', '500 g', '1 kg', '100 ml', '250 ml', '500 ml', '1 L'];
+            default:
+                return [];
+        }
+    };
+
+    const getUnitForCategory = (category) => {
+        switch (category) {
+            case 'Pepper Powder':
+                return 'Packets';
+            case 'Pepper Whole':
+                return 'Packets';
+            case 'Pepper Spray':
+                return 'Bottles';
+            case 'Pepper Sauce':
+                return 'Bottles';
+            case 'Pepper Oil':
+                return 'Bottles';
+            case 'Others':
+                return ''; // Others category still allows manual selection
+            default:
+                return '';
+        }
+    };
+
+    const getUnitOptions = (category) => {
+        switch (category) {
+            case 'Others':
+                return ['grams', 'kg', 'ml', 'liters', 'pieces', 'bottles', 'packets'];
+            default:
+                return [];
+        }
+    };
 
     // Form state
     const [formData, setFormData] = useState({
         productName: '',
         description: '',
         category: '',
+        size: '',
         unit: '',
         price: '',
         currentStock: '',
         safetyStock: '',
         reorderLevel: '',
-        expiryDate: '',
         rawMaterialRecipe: []
     });
     const [imageFile, setImageFile] = useState(null);
@@ -107,6 +158,7 @@ const ProductManagement = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError(''); // Clear any previous errors
 
         try {
             // Upload image first if there's one
@@ -119,11 +171,15 @@ const ProductManagement = () => {
                 ...formData,
                 imageUrl,
                 price: parseFloat(formData.price),
-                currentStock: parseInt(formData.currentStock),
-                safetyStock: parseInt(formData.safetyStock),
+                currentStock: parseInt(formData.currentStock) || 0,
+                safetyStock: parseInt(formData.safetyStock) || 0,
                 reorderLevel: parseInt(formData.reorderLevel),
-                expiryDate: formData.expiryDate || null
+                rawMaterialRecipe: formData.rawMaterialRecipe.filter(recipe => 
+                    recipe.type && recipe.qtyPerUnitKg && recipe.wastePercentage
+                )
             };
+
+            console.log('Sending product data:', productData); // Debug log
 
             const url = editingProduct 
                 ? `http://localhost:5002/api/products/${editingProduct._id}`
@@ -140,34 +196,37 @@ const ProductManagement = () => {
                 body: JSON.stringify(productData)
             });
 
+            const responseData = await response.json();
+
             if (response.ok) {
                 fetchProducts();
                 resetForm();
                 alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
             } else {
-                const errorData = await response.json();
-                alert(errorData.error || 'Failed to save product');
+                console.error('Error response:', responseData);
+                setError(responseData.error || 'Failed to save product');
             }
         } catch (error) {
             console.error('Error saving product:', error);
-            alert('Error saving product');
+            setError('Network error: Failed to save product');
         } finally {
             setLoading(false);
         }
     };
 
     const handleEdit = (product) => {
+        setError(''); // Clear any errors when opening edit modal
         setEditingProduct(product);
         setFormData({
             productName: product.productName,
             description: product.description || '',
             category: product.category,
+            size: product.size || '',
             unit: product.unit,
             price: product.price.toString(),
             currentStock: product.currentStock.toString(),
             safetyStock: (product.safetyStock || 0).toString(),
             reorderLevel: product.reorderLevel.toString(),
-            expiryDate: product.expiryDate ? new Date(product.expiryDate).toISOString().split('T')[0] : '',
             rawMaterialRecipe: product.rawMaterialRecipe || []
         });
         setImagePreview(product.imageUrl ? `http://localhost:5002${product.imageUrl}` : null);
@@ -196,24 +255,110 @@ const ProductManagement = () => {
         }
     };
 
+    const handleToggleStatus = async (product) => {
+        const newStatus = product.status === 'Active' ? 'Inactive' : 'Active';
+        const action = newStatus === 'Active' ? 'activate' : 'deactivate';
+        
+        if (!confirm(`Are you sure you want to ${action} this product?`)) return;
+
+        try {
+            const response = await fetch(`http://localhost:5002/api/products/${product._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    ...product,
+                    status: newStatus
+                })
+            });
+
+            if (response.ok) {
+                fetchProducts();
+                alert(`Product ${action}d successfully!`);
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || `Failed to ${action} product`);
+            }
+        } catch (error) {
+            console.error(`Error ${action}ing product:`, error);
+            alert(`Error ${action}ing product`);
+        }
+    };
+
+    const handleRestock = (product) => {
+        setRestockingProduct(product);
+        setRestockAmount('');
+        setShowRestockModal(true);
+    };
+
+    const submitRestock = async (e) => {
+        e.preventDefault();
+        
+        const amount = parseInt(restockAmount);
+        if (isNaN(amount) || amount <= 0) {
+            setError('Please enter a valid positive number');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const newStock = restockingProduct.currentStock + amount;
+            const response = await fetch(`http://localhost:5002/api/products/${restockingProduct._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    ...restockingProduct,
+                    currentStock: newStock
+                })
+            });
+
+            if (response.ok) {
+                fetchProducts();
+                setShowRestockModal(false);
+                setRestockingProduct(null);
+                setRestockAmount('');
+                alert(`Successfully restocked ${restockingProduct.productName} with ${amount} ${restockingProduct.unit}. New stock: ${newStock} ${restockingProduct.unit}`);
+            } else {
+                const errorData = await response.json();
+                setError(errorData.error || 'Failed to restock product');
+            }
+        } catch (error) {
+            console.error('Error restocking product:', error);
+            setError('Error restocking product');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             productName: '',
             description: '',
             category: '',
+            size: '',
             unit: '',
             price: '',
             currentStock: '',
             safetyStock: '',
             reorderLevel: '',
-            expiryDate: '',
             rawMaterialRecipe: []
         });
         setImageFile(null);
         setImagePreview(null);
         setShowAddModal(false);
         setShowEditModal(false);
+        setShowRestockModal(false);
         setEditingProduct(null);
+        setRestockingProduct(null);
+        setRestockAmount('');
+        setError(''); // Clear errors when resetting form
     };
 
     const addRecipeItem = () => {
@@ -246,8 +391,8 @@ const ProductManagement = () => {
         switch (status) {
             case 'Active':
                 return 'bg-green-100 text-green-800';
-            case 'Expiring Soon':
-                return 'bg-yellow-100 text-yellow-800';
+            case 'Inactive':
+                return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
@@ -267,15 +412,16 @@ const ProductManagement = () => {
     const filteredProducts = products.filter(product => {
         if (filterStatus === 'all') return true;
         if (filterStatus === 'low-stock') return product.stockStatus === 'LowStock';
-        if (filterStatus === 'expiring') return product.status === 'Expiring Soon';
+        if (filterStatus === 'active') return product.status === 'Active';
+        if (filterStatus === 'inactive') return product.status === 'Inactive';
         return product.status === filterStatus;
     });
 
     const stats = {
         total: products.length,
         lowStock: products.filter(p => p.stockStatus === 'LowStock').length,
-        expiring: products.filter(p => p.status === 'Expiring Soon').length,
-        active: products.filter(p => p.status === 'Active').length
+        active: products.filter(p => p.status === 'Active').length,
+        inactive: products.filter(p => p.status === 'Inactive').length
     };
 
     if (loading && products.length === 0) {
@@ -301,13 +447,16 @@ const ProductManagement = () => {
                     <p className="text-gray-600 mt-1">Manage your pepper products and inventory</p>
                 </div>
                 <button
-                    onClick={() => setShowAddModal(true)}
+                    onClick={() => {
+                        setError('');
+                        setShowAddModal(true);
+                    }}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
                 >
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Add Product
+                    Add New Product
                 </button>
             </div>
 
@@ -331,16 +480,16 @@ const ProductManagement = () => {
                     <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Low Stock</h3>
-                    <p className="text-2xl font-bold text-red-600">{stats.lowStock}</p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Expiring Soon</h3>
-                    <p className="text-2xl font-bold text-yellow-600">{stats.expiring}</p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">Active Products</h3>
                     <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-gray-500">Inactive Products</h3>
+                    <p className="text-2xl font-bold text-orange-600">{stats.inactive}</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-gray-500">Low Stock</h3>
+                    <p className="text-2xl font-bold text-red-600">{stats.lowStock}</p>
                 </div>
             </div>
 
@@ -349,8 +498,8 @@ const ProductManagement = () => {
                 {[
                     { key: 'all', label: 'All Products' },
                     { key: 'active', label: 'Active' },
-                    { key: 'low-stock', label: 'Low Stock' },
-                    { key: 'expiring', label: 'Expiring Soon' }
+                    { key: 'inactive', label: 'Inactive' },
+                    { key: 'low-stock', label: 'Low Stock' }
                 ].map(filter => (
                     <button
                         key={filter.key}
@@ -397,13 +546,28 @@ const ProductManagement = () => {
                                         Category
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Price
+                                        Size
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Stock
+                                        Unit
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Price ($)
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Description
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Current Stock
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Safety Stock
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ROL
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stock Status
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
@@ -448,19 +612,33 @@ const ProductManagement = () => {
                                                 {product.category}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {product.size || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {product.unit}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             ${product.price.toFixed(2)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
-                                                {product.currentStock} {product.unit}
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            <div className="max-w-xs truncate">
+                                                {product.description || 'No description'}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {product.currentStock} {product.unit}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {product.safetyStock || 0} {product.unit}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {product.reorderLevel} {product.unit}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStockStatusColor(product.stockStatus)}`}>
                                                 {product.stockStatus}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {product.safetyStock || 0} {product.unit}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
@@ -474,6 +652,20 @@ const ProductManagement = () => {
                                                     className="text-blue-600 hover:text-blue-900"
                                                 >
                                                     Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleRestock(product)}
+                                                    className="text-green-600 hover:text-green-900"
+                                                    disabled={product.status === 'Inactive'}
+                                                    title={product.status === 'Inactive' ? 'Cannot restock inactive product' : 'Restock product'}
+                                                >
+                                                    Restock
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleToggleStatus(product)}
+                                                    className={`${product.status === 'Active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                                                >
+                                                    {product.status === 'Active' ? 'Deactivate' : 'Activate'}
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(product._id)}
@@ -500,6 +692,13 @@ const ProductManagement = () => {
                                 {editingProduct ? 'Edit Product' : 'Add New Product'}
                             </h3>
                             
+                            {/* Error Display in Modal */}
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                                    {error}
+                                </div>
+                            )}
+                            
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     {/* Basic Information */}
@@ -523,15 +722,45 @@ const ProductManagement = () => {
                                         <select
                                             required
                                             value={formData.category}
-                                            onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))}
+                                            onChange={(e) => {
+                                                const selectedCategory = e.target.value;
+                                                const autoUnit = getUnitForCategory(selectedCategory);
+                                                setFormData(prev => ({
+                                                    ...prev, 
+                                                    category: selectedCategory,
+                                                    size: '', // Reset size when category changes
+                                                    unit: autoUnit // Auto-set unit based on category
+                                                }));
+                                            }}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         >
                                             <option value="">Select Category</option>
-                                            <option value="Whole Pepper">Whole Pepper</option>
-                                            <option value="Ground Pepper">Ground Pepper</option>
                                             <option value="Pepper Powder">Pepper Powder</option>
+                                            <option value="Pepper Whole">Pepper Whole</option>
+                                            <option value="Pepper Spray">Pepper Spray</option>
+                                            <option value="Pepper Sauce">Pepper Sauce</option>
                                             <option value="Pepper Oil">Pepper Oil</option>
-                                            <option value="Other">Other</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Size *
+                                        </label>
+                                        <select
+                                            required
+                                            value={formData.size}
+                                            onChange={(e) => setFormData(prev => ({...prev, size: e.target.value}))}
+                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            disabled={!formData.category}
+                                        >
+                                            <option value="">
+                                                {formData.category ? 'Select Size' : 'Select Category First'}
+                                            </option>
+                                            {getSizeOptions(formData.category).map(size => (
+                                                <option key={size} value={size}>{size}</option>
+                                            ))}
                                         </select>
                                     </div>
                                     
@@ -539,19 +768,32 @@ const ProductManagement = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Unit *
                                         </label>
-                                        <select
-                                            required
-                                            value={formData.unit}
-                                            onChange={(e) => setFormData(prev => ({...prev, unit: e.target.value}))}
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                        >
-                                            <option value="">Select Unit</option>
-                                            <option value="kg">Kilogram (kg)</option>
-                                            <option value="g">Gram (g)</option>
-                                            <option value="pieces">Pieces</option>
-                                            <option value="bottles">Bottles</option>
-                                            <option value="packets">Packets</option>
-                                        </select>
+                                        {formData.category && formData.category !== 'Others' ? (
+                                            // Auto-selected unit for specific categories
+                                            <input
+                                                type="text"
+                                                value={formData.unit}
+                                                readOnly
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-600"
+                                                placeholder="Unit auto-selected based on category"
+                                            />
+                                        ) : (
+                                            // Manual selection for Others category
+                                            <select
+                                                required
+                                                value={formData.unit}
+                                                onChange={(e) => setFormData(prev => ({...prev, unit: e.target.value}))}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                disabled={!formData.category}
+                                            >
+                                                <option value="">
+                                                    {formData.category ? 'Select Unit' : 'Select Category First'}
+                                                </option>
+                                                {getUnitOptions(formData.category).map(unit => (
+                                                    <option key={unit} value={unit}>{unit}</option>
+                                                ))}
+                                            </select>
+                                        )}
                                     </div>
                                     
                                     <div>
@@ -602,18 +844,6 @@ const ProductManagement = () => {
                                             required
                                             value={formData.reorderLevel}
                                             onChange={(e) => setFormData(prev => ({...prev, reorderLevel: e.target.value}))}
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Expiry Date
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={formData.expiryDate}
-                                            onChange={(e) => setFormData(prev => ({...prev, expiryDate: e.target.value}))}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -751,6 +981,64 @@ const ProductManagement = () => {
                                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400"
                                     >
                                         {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Add Product')}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Restock Modal */}
+            {showRestockModal && restockingProduct && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div className="mt-3">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">
+                                Restock Product
+                            </h3>
+                            
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                <h4 className="font-medium text-gray-900">{restockingProduct.productName}</h4>
+                                <p className="text-sm text-gray-600">Current Stock: {restockingProduct.currentStock} {restockingProduct.unit}</p>
+                            </div>
+                            
+                            <form onSubmit={submitRestock}>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Add Stock Amount
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        required
+                                        value={restockAmount}
+                                        onChange={(e) => setRestockAmount(e.target.value)}
+                                        placeholder={`Enter amount in ${restockingProduct.unit}`}
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    />
+                                </div>
+                                
+                                <div className="flex justify-end space-x-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowRestockModal(false)}
+                                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400"
+                                    >
+                                        {loading ? 'Restocking...' : 'Restock'}
                                     </button>
                                 </div>
                             </form>

@@ -70,14 +70,12 @@ const InventoryDashboard = () => {
                     };
                     
                     // Calculate stock status
-                    const inStock = products.filter(p => p.stockStatus === 'In Stock').length;
-                    const lowStock = products.filter(p => p.stockStatus === 'Low Stock').length;
-                    const outOfStock = products.filter(p => p.stockStatus === 'Out of Stock').length;
-                    const expiringSoon = products.filter(p => p.stockStatus === 'Expiring Soon').length;
+                    const inStock = products.filter(p => p.stockStatus === 'InStock').length;
+                    const lowStock = products.filter(p => p.stockStatus === 'LowStock').length;
                     
-                    realData.productStockStatus = [inStock, lowStock, outOfStock, expiringSoon];
+                    realData.productStockStatus = [inStock, lowStock];
                     realData.lowStock = {
-                        count: lowStock + outOfStock,
+                        count: lowStock,
                         subtitle: 'Need attention'
                     };
                 }

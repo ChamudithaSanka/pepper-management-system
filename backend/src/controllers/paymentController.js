@@ -305,17 +305,31 @@ export const getAllPayments = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const payments = await CustomerPayment.find(query)
-            .populate('customerId', 'name email')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
+
+        // Manually populate customer data since we're using custom Number IDs
+        const populatedPayments = await Promise.all(
+            payments.map(async (payment) => {
+                const customer = await Customer.findOne({ customerId: Number(payment.customerId) });
+                return {
+                    ...payment.toObject(),
+                    customerId: customer ? {
+                        name: customer.name,
+                        email: customer.email,
+                        customerId: customer.customerId
+                    } : null
+                };
+            })
+        );
 
         const totalPayments = await CustomerPayment.countDocuments(query);
 
         res.status(200).json({
             success: true,
             data: {
-                payments,
+                payments: populatedPayments,
                 pagination: {
                     currentPage: parseInt(page),
                     totalPages: Math.ceil(totalPayments / limit),

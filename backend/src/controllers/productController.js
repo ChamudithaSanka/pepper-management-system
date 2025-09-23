@@ -29,10 +29,24 @@ const deductRawMaterials = async (recipe, unitsAdded) => {
 export const getAllProducts = async (req, res) => {
     try {
         const products = await Product.find();
+        
+        // Ensure stock status is up to date for all products
+        const updatedProducts = await Promise.all(
+            products.map(async (product) => {
+                // Recalculate stock status
+                if (product.currentStock <= product.reorderLevel) {
+                    product.stockStatus = "LowStock";
+                } else {
+                    product.stockStatus = "InStock";
+                }
+                return product.save();
+            })
+        );
+        
         res.status(200).json({
             success: true,
-            count: products.length,
-            data: products
+            count: updatedProducts.length,
+            data: updatedProducts
         });
     } catch (error) {
         res.status(500).json({
@@ -68,8 +82,8 @@ export const getProductById = async (req, res) => {
 export const getCustomerCatalog = async (req, res) => {
     try {
         const products = await Product.find(
-            { status: { $in: ['Active', 'Expiring Soon'] } },// include Expiring Soon
-            'productName description price category currentStock safetyStock expiryDate status'
+            { status: 'Active' }, // Only active products for customers
+            'productName description price category currentStock safetyStock status'
         ).sort({ category: 1, productName: 1 });
 
         const mapped = products.map((p) => {
@@ -80,7 +94,6 @@ export const getCustomerCatalog = async (req, res) => {
                 description: p.description,
                 price: p.price,
                 stock,
-                expiryDate: p.expiryDate, 
                 status: p.status          
             };
         });
@@ -91,7 +104,6 @@ export const getCustomerCatalog = async (req, res) => {
                 description: item.description,
                 price: item.price,
                 stock: item.stock,
-                expiryDate: item.expiryDate, 
                 status: item.status          
             });
             return acc;
@@ -154,7 +166,7 @@ export const updateProduct = async (req, res) => {
             });
         }
 
-        const { currentStock, expiryDate, ...updateData } = req.body;
+        const { currentStock, ...updateData } = req.body;
 
         // deduct raw materials only if stock increased
         if (currentStock > oldProduct.currentStock) {
@@ -162,21 +174,20 @@ export const updateProduct = async (req, res) => {
             await deductRawMaterials(oldProduct.rawMaterialRecipe, stockIncrease);
         }
 
-        // calculate expiry status
-        let status = oldProduct.status;
-        if (expiryDate) {
-            const daysUntilExpiry = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-            status = daysUntilExpiry <= 10 ? "Expiring Soon" : "Active";
-        }
+        // status is always Active since no expiry tracking
+        const status = "Active";
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            { ...updateData, currentStock, expiryDate, status },
-            { new: true, runValidators: true }
-        );
+        // Create a copy of the old product for history tracking
+        const oldProductData = oldProduct.toObject();
+
+        // Update the product data
+        Object.assign(oldProduct, { ...updateData, currentStock, status });
+        
+        // Use save() instead of findByIdAndUpdate to trigger pre-save hooks
+        const product = await oldProduct.save();
 
         // inventory history tracking
-        await addInventoryHistory(oldProduct, product);
+        await addInventoryHistory(oldProductData, product);
 
         res.status(200).json({
             success: true,
@@ -300,7 +311,7 @@ export const getAvailableProducts = async (req, res) => {
         
         // Build filter query - only active products with available stock
         const filter = {
-            status: { $in: ['Active', 'Expiring Soon'] },
+            status: 'Active', // Only show Active products to customers
             currentStock: { $gt: 0 }
         };
         
@@ -323,16 +334,20 @@ export const getAvailableProducts = async (req, res) => {
         
         // Get products with pagination
         const products = await Product.find(filter)
-            .select('productId productName description category unit price currentStock safetyStock expiryDate status imageUrl')
+            .select('productId productName description category size unit price currentStock safetyStock imageUrl rawMaterialRecipe')
             .sort({ createdAt: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit));
         
         // Calculate available stock (currentStock - safetyStock) for customers
-        const productsWithAvailableStock = products.map(product => ({
-            ...product.toObject(),
-            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
-        }));
+        const productsWithAvailableStock = products.map(product => {
+            const availableStock = Math.max(0, product.currentStock - (product.safetyStock || 0));
+            return {
+                ...product.toObject(),
+                availableStock,
+                stockStatus: availableStock > 0 ? 'Available' : 'Out of Stock'
+            };
+        }).filter(product => product.availableStock > 0); // Only show products with available stock
         
         res.status(200).json({
             success: true,
@@ -355,7 +370,7 @@ export const getAvailableProducts = async (req, res) => {
 export const getProductDetails = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
-            .select('productId productName description category unit price currentStock safetyStock expiryDate status imageUrl');
+            .select('productId productName description category size unit price currentStock safetyStock imageUrl rawMaterialRecipe');
         
         if (!product) {
             return res.status(404).json({
@@ -364,10 +379,21 @@ export const getProductDetails = async (req, res) => {
             });
         }
         
+        // Check if product is available for customers
+        const availableStock = Math.max(0, product.currentStock - (product.safetyStock || 0));
+        
+        if (product.status !== 'Active' || availableStock <= 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not available'
+            });
+        }
+        
         // Calculate available stock for customer
         const productWithAvailableStock = {
             ...product.toObject(),
-            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
+            availableStock,
+            stockStatus: 'Available'
         };
         
         res.status(200).json({
@@ -387,7 +413,7 @@ export const getProductDetails = async (req, res) => {
 export const getProductCategories = async (req, res) => {
     try {
         const categories = await Product.distinct('category', {
-            status: { $in: ['Active', 'Expiring Soon'] },
+            status: 'Active',
             currentStock: { $gt: 0 }
         });
         
@@ -418,7 +444,7 @@ export const searchProducts = async (req, res) => {
         }
         
         const products = await Product.find({
-            status: { $in: ['Active', 'Expiring Soon'] },
+            status: 'Active',
             currentStock: { $gt: 0 },
             $or: [
                 { productName: { $regex: query, $options: 'i' } },
@@ -426,15 +452,19 @@ export const searchProducts = async (req, res) => {
                 { category: { $regex: query, $options: 'i' } }
             ]
         })
-        .select('productId productName description category unit price currentStock safetyStock status imageUrl')
+        .select('productId productName description category size unit price currentStock safetyStock imageUrl')
         .sort({ productName: 1 })
         .limit(20);
         
         // Calculate available stock for customers
-        const productsWithAvailableStock = products.map(product => ({
-            ...product.toObject(),
-            availableStock: Math.max(0, product.currentStock - (product.safetyStock || 0))
-        }));
+        const productsWithAvailableStock = products.map(product => {
+            const availableStock = Math.max(0, product.currentStock - (product.safetyStock || 0));
+            return {
+                ...product.toObject(),
+                availableStock,
+                stockStatus: 'Available'
+            };
+        }).filter(product => product.availableStock > 0);
         
         res.status(200).json({
             success: true,

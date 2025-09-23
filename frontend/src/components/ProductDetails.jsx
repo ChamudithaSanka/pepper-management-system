@@ -83,24 +83,6 @@ const ProductDetails = () => {
     }
   };
 
-  // Format expiry date
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  // Calculate days until expiry
-  const getDaysUntilExpiry = (expiryDate) => {
-    if (!expiryDate) return null;
-    const days = Math.ceil((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-    return days;
-  };
-
   useEffect(() => {
     fetchProductDetails();
   }, [id]);
@@ -142,8 +124,6 @@ const ProductDetails = () => {
     );
   }
 
-  const daysUntilExpiry = getDaysUntilExpiry(product.expiryDate);
-
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -173,7 +153,7 @@ const ProductDetails = () => {
             {/* Additional Info Cards */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-900 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-400">{product.currentStock}</div>
+                <div className="text-2xl font-bold text-green-400">{product.availableStock}</div>
                 <div className="text-gray-400 text-sm">Available Stock</div>
               </div>
               <div className="bg-gray-900 rounded-lg p-4 text-center">
@@ -220,19 +200,8 @@ const ProductDetails = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-gray-400">Stock Status:</span>
-                  <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                    product.stockStatus === 'InStock' 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-yellow-600 text-white'
-                  }`}>
-                    {product.stockStatus === 'InStock' ? 'In Stock' : 'Low Stock'}
-                  </span>
-                </div>
-                
-                <div>
                   <span className="text-gray-400">Available: </span>
-                  <span className="text-white font-medium">{product.currentStock} {product.unit}</span>
+                  <span className="text-white font-medium">{product.availableStock} {product.unit}</span>
                 </div>
                 
                 <div>
@@ -241,36 +210,15 @@ const ProductDetails = () => {
                 </div>
                 
                 <div>
+                  <span className="text-gray-400">Category: </span>
+                  <span className="text-white font-medium">{product.category}</span>
+                </div>
+                
+                <div>
                   <span className="text-gray-400">Status: </span>
-                  <span className={`font-medium ${
-                    product.status === 'Active' ? 'text-green-400' : 'text-yellow-400'
-                  }`}>
-                    {product.status}
-                  </span>
+                  <span className="font-medium text-green-400">Available</span>
                 </div>
               </div>
-
-              {/* Expiry Information */}
-              {product.expiryDate && (
-                <div className="border-t border-gray-700 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Expiry Date:</span>
-                    <span className="text-white font-medium">{formatDate(product.expiryDate)}</span>
-                  </div>
-                  {daysUntilExpiry !== null && (
-                    <div className="mt-2">
-                      <span className={`text-sm ${
-                        daysUntilExpiry <= 10 ? 'text-yellow-400' : 'text-green-400'
-                      }`}>
-                        {daysUntilExpiry > 0 
-                          ? `${daysUntilExpiry} days remaining`
-                          : 'Expired'
-                        }
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Quantity and Add to Cart */}
@@ -290,13 +238,13 @@ const ProductDetails = () => {
                     <input
                       type="number"
                       min="1"
-                      max={product.currentStock}
+                      max={product.availableStock}
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, Math.min(product.currentStock, parseInt(e.target.value) || 1)))}
+                      onChange={(e) => setQuantity(Math.max(1, Math.min(product.availableStock, parseInt(e.target.value) || 1)))}
                       className="w-20 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-center focus:border-green-500 focus:outline-none"
                     />
                     <button
-                      onClick={() => setQuantity(Math.min(product.currentStock, quantity + 1))}
+                      onClick={() => setQuantity(Math.min(product.availableStock, quantity + 1))}
                       className="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-bold transition-colors"
                     >
                       +
@@ -315,7 +263,7 @@ const ProductDetails = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={addToCart}
-                  disabled={addingToCart || product.currentStock === 0}
+                  disabled={addingToCart || product.availableStock === 0}
                   className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors"
                 >
                   {addingToCart ? 'Adding to Cart...' : 'Add to Cart'}
