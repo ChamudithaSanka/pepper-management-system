@@ -33,7 +33,7 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
         
         setFetchingFarmers(true);
         try {
-            let url = `http://localhost:5002/api/rm-orders/eligible-farmers?materialType=${material.type}`;
+            let url = `/api/rm-orders/eligible-farmers?materialType=${material.type}`;
             
             // Add quantity filter if provided
             if (quantity && parseFloat(quantity) > 0) {
@@ -92,7 +92,7 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                 notes: orderData.notes
             };
 
-            const response = await fetch('http://localhost:5002/api/rm-orders', {
+            const response = await fetch('/api/rm-orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

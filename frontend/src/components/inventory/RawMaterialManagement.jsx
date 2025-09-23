@@ -22,7 +22,7 @@ const RawMaterialManagement = () => {
     const fetchRawMaterials = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5002/api/raw-materials', {
+            const response = await fetch('/api/raw-materials', {
                 credentials: 'include'
             });
             
@@ -82,7 +82,7 @@ const RawMaterialManagement = () => {
                 reorderLevelKg: parseFloat(newMaterial.reorderLevel)
             };
 
-            const response = await fetch('http://localhost:5002/api/raw-materials', {
+            const response = await fetch('/api/raw-materials', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

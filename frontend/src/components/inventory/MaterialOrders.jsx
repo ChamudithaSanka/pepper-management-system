@@ -13,7 +13,7 @@ const MaterialOrders = () => {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5002/api/rm-orders', {
+            const response = await fetch('/api/rm-orders', {
                 credentials: 'include'
             });
             
@@ -44,7 +44,7 @@ const MaterialOrders = () => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:5002/api/rm-orders/${rmOrderId}/deliver`, {
+            const response = await fetch(`/api/rm-orders/${rmOrderId}/deliver`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

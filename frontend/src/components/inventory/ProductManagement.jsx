@@ -60,6 +60,12 @@ const ProductManagement = () => {
                 return [];
         }
     };
+    // Helper to get correct image source
+    const getImageSrc = (imageUrl) => {
+        if (!imageUrl) return null;
+        if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) return imageUrl;
+        return `/uploads/${imageUrl}`;
+    };
 
     // Form state
     const [formData, setFormData] = useState({
@@ -85,7 +91,7 @@ const ProductManagement = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5002/api/products', {
+            const response = await fetch('/api/products', {
                 credentials: 'include'
             });
             
@@ -105,7 +111,7 @@ const ProductManagement = () => {
 
     const fetchRawMaterials = async () => {
         try {
-            const response = await fetch('http://localhost:5002/api/raw-materials', {
+            const response = await fetch('/api/raw-materials', {
                 credentials: 'include'
             });
             
@@ -137,7 +143,7 @@ const ProductManagement = () => {
         imageFormData.append('image', imageFile);
 
         try {
-            const response = await fetch('http://localhost:5002/api/products/upload-image', {
+            const response = await fetch('/api/products/upload-image', {
                 method: 'POST',
                 credentials: 'include',
                 body: imageFormData
@@ -182,8 +188,8 @@ const ProductManagement = () => {
             console.log('Sending product data:', productData); // Debug log
 
             const url = editingProduct 
-                ? `http://localhost:5002/api/products/${editingProduct._id}`
-                : 'http://localhost:5002/api/products';
+                ? `/api/products/${editingProduct._id}`
+                : '/api/products';
             
             const method = editingProduct ? 'PUT' : 'POST';
 
@@ -229,7 +235,7 @@ const ProductManagement = () => {
             reorderLevel: product.reorderLevel.toString(),
             rawMaterialRecipe: product.rawMaterialRecipe || []
         });
-        setImagePreview(product.imageUrl ? `http://localhost:5002${product.imageUrl}` : null);
+    setImagePreview(product.imageUrl ? getImageSrc(product.imageUrl) : null);
         setShowEditModal(true);
     };
 
@@ -237,7 +243,7 @@ const ProductManagement = () => {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         try {
-            const response = await fetch(`http://localhost:5002/api/products/${productId}`, {
+            const response = await fetch(`/api/products/${productId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -262,7 +268,7 @@ const ProductManagement = () => {
         if (!confirm(`Are you sure you want to ${action} this product?`)) return;
 
         try {
-            const response = await fetch(`http://localhost:5002/api/products/${product._id}`, {
+            const response = await fetch(`/api/products/${product._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -307,7 +313,7 @@ const ProductManagement = () => {
 
         try {
             const newStock = restockingProduct.currentStock + amount;
-            const response = await fetch(`http://localhost:5002/api/products/${restockingProduct._id}`, {
+            const response = await fetch(`/api/products/${restockingProduct._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -585,7 +591,7 @@ const ProductManagement = () => {
                                                 <div className="flex-shrink-0 h-12 w-12">
                                                     {product.imageUrl ? (
                                                         <img 
-                                                            src={`http://localhost:5002${product.imageUrl}`}
+                                                            src={getImageSrc(product.imageUrl)}
                                                             alt={product.productName}
                                                             className="h-12 w-12 rounded-lg object-cover"
                                                         />

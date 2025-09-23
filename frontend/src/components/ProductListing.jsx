@@ -134,6 +134,12 @@ const ProductListing = () => {
     fetchProducts();
   }, [filters]);
 
+  const getImageSrc = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) return imageUrl;
+    return `/uploads/${imageUrl}`;
+  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -234,7 +240,7 @@ const ProductListing = () => {
                     <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center overflow-hidden">
                       {product.imageUrl ? (
                         <img
-                          src={product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5002${product.imageUrl}`}
+                          src={getImageSrc(product.imageUrl)}
                           alt={product.productName}
                           className="h-full w-full object-cover"
                         />
