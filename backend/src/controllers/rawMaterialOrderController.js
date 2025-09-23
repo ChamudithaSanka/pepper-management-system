@@ -1,6 +1,7 @@
 import RawMaterialOrder from '../models/rawMaterialOrderModel.js';
 import RawMaterial from '../models/rawMaterialModel.js';
 import Farmer from '../models/farmerModel.js';
+import FarmerPayment from '../models/farmerPaymentModel.js';
 
 export const getEligibleFarmers = async (req, res) => {
     try {
@@ -196,6 +197,38 @@ export const markDelivered = async (req, res) => {
         order.status = "Delivered";
         order.deliveredAt = new Date();
         await order.save();
+
+        // Auto-generate farmer payment for delivered order
+        try {
+            // Check if payment already exists for this order
+            const existingPayment = await FarmerPayment.findOne({ rmOrderId: order.rmOrderId });
+            
+            if (!existingPayment) {
+                // Get farmer details to determine price per kg
+                const farmer = await Farmer.findById(order.farmerId);
+                if (farmer) {
+                    // Determine price per kg based on pepper type
+                    const pricePerKg = order.rawMaterialType === 'Green Pepper' 
+                        ? farmer.price_per_unit.green 
+                        : farmer.price_per_unit.black;
+
+                    // Create payment record
+                    const payment = new FarmerPayment({
+                        farmerId: order.farmerId,
+                        rmOrderId: order.rmOrderId,
+                        pepperType: order.rawMaterialType,
+                        deliveredQuantityKg: parseFloat(req.body.deliveredQtyKg),
+                        pricePerKg: pricePerKg
+                    });
+
+                    await payment.save();
+                    console.log(`Payment ${payment.paymentId} generated for order ${order.rmOrderId}`);
+                }
+            }
+        } catch (paymentError) {
+            console.error('Error generating farmer payment:', paymentError);
+            // Don't fail the entire request if payment generation fails
+        }
 
         res.status(200).json({
             success: true,
