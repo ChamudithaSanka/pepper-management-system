@@ -30,7 +30,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                 params.append('search', searchTerm);
             }
 
-            const response = await fetch(`http://localhost:5002/api/employees?${params}`);
+            const response = await fetch(`/api/employees?${params}`);
             const data = await response.json();
 
             if (data.success) {
@@ -52,7 +52,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
 
     const fetchStats = async () => {
         try {
-            const response = await fetch('http://localhost:5002/api/employees/stats');
+            const response = await fetch('/api/employees/stats');
             const data = await response.json();
             
             if (data.success && onStatsUpdate) {
@@ -68,7 +68,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         
         try {
-            const response = await fetch('http://localhost:5002/api/employees', {
+            const response = await fetch('/api/employees', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         
         try {
-            const response = await fetch(`http://localhost:5002/api/employees/${employeeId}`, {
+            const response = await fetch(`/api/employees/${employeeId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         
         try {
-            const response = await fetch(`http://localhost:5002/api/employees/${employeeId}`, {
+            const response = await fetch(`/api/employees/${employeeId}`, {
                 method: 'DELETE',
             });
 
@@ -161,7 +161,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         
         try {
-            const response = await fetch(`http://localhost:5002/api/employees/${employeeId}/toggle-status`, {
+            const response = await fetch(`/api/employees/${employeeId}/toggle-status`, {
                 method: 'PUT',
             });
 
