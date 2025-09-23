@@ -230,14 +230,22 @@ const ProductListing = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 {products.map((product) => (
                   <div key={product._id} className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                    {/* Product Image Placeholder */}
-                    <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-2 flex items-center justify-center">
-                          <span className="text-2xl">🌶️</span>
+                    {/* Product Image (use uploaded image when available) */}
+                    <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center overflow-hidden">
+                      {product.imageUrl ? (
+                        <img
+                          src={product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5002${product.imageUrl}`}
+                          alt={product.productName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-2 flex items-center justify-center">
+                            <span className="text-2xl">🌶️</span>
+                          </div>
+                          <p className="text-gray-400 text-sm">Product Image</p>
                         </div>
-                        <p className="text-gray-400 text-sm">Product Image</p>
-                      </div>
+                      )}
                     </div>
 
                     {/* Product Details */}
@@ -266,14 +274,10 @@ const ProductListing = () => {
                         
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-gray-400">
-                            Stock: {product.currentStock} {product.unit}
+                            Stock: {product.availableStock} {product.unit}
                           </span>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            product.stockStatus === 'InStock' 
-                              ? 'bg-green-600 text-white' 
-                              : 'bg-yellow-600 text-white'
-                          }`}>
-                            {product.stockStatus === 'InStock' ? 'In Stock' : 'Low Stock'}
+                          <span className="px-2 py-1 rounded-full text-xs bg-green-600 text-white">
+                            Available
                           </span>
                         </div>
                       </div>
