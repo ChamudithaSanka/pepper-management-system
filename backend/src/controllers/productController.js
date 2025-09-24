@@ -370,7 +370,7 @@ export const getAvailableProducts = async (req, res) => {
 export const getProductDetails = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
-            .select('productId productName description category size unit price currentStock safetyStock imageUrl rawMaterialRecipe');
+            .select('productId productName description category size unit price currentStock safetyStock imageUrl rawMaterialRecipe status');
         
         if (!product) {
             return res.status(404).json({

@@ -68,10 +68,13 @@ export const addToCart = async (req, res) => {
 
         await cart.save();
 
+        // Return cart with populated product data
+        const updatedCart = await Cart.findOne({ customerId }).populate('items.productId');
+
         res.status(200).json({
             success: true,
             message: 'Item added to cart successfully',
-            data: cart
+            data: updatedCart
         });
 
     } catch (error) {
@@ -109,6 +112,16 @@ export const getCart = async (req, res) => {
                 }
             });
         }
+
+        // Filter out items where productId is null (deleted products)
+        cart.items = cart.items.filter(item => item.productId !== null);
+        
+        // Recalculate totals after filtering
+        cart.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
+        cart.totalPrice = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+        
+        // Save the cleaned cart
+        await cart.save();
 
         res.status(200).json({
             success: true,
@@ -174,10 +187,13 @@ export const updateCartItem = async (req, res) => {
         item.quantity = parseInt(quantity);
         await cart.save();
 
+        // Return cart with populated product data
+        const updatedCart = await Cart.findOne({ customerId }).populate('items.productId');
+
         res.status(200).json({
             success: true,
             message: 'Cart updated successfully',
-            data: cart
+            data: updatedCart
         });
 
     } catch (error) {
@@ -213,10 +229,13 @@ export const removeFromCart = async (req, res) => {
         cart.items = cart.items.filter(item => item.productId.toString() !== productId);
         await cart.save();
 
+        // Return cart with populated product data
+        const updatedCart = await Cart.findOne({ customerId }).populate('items.productId');
+
         res.status(200).json({
             success: true,
             message: 'Item removed from cart successfully',
-            data: cart
+            data: updatedCart
         });
 
     } catch (error) {
