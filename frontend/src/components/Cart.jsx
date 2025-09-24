@@ -163,7 +163,7 @@ const Cart = () => {
                 <div className="text-center">
                     <div className="text-xl text-red-400 mb-4">{error}</div>
                     {error.includes('login') && (
-                        <Link to="/customer/login" className="bg-green-600 hover:bg-green-700 text-black px-6 py-2 rounded transition-colors">
+                        <Link to="/login" className="bg-green-600 hover:bg-green-700 text-black px-6 py-2 rounded transition-colors">
                             Login
                         </Link>
                     )}
