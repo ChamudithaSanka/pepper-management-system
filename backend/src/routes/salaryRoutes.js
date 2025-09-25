@@ -4,7 +4,7 @@ import {
     saveSalary,
     getAllSalaries,
     getSalaryById,
-    updateSalaryStatus,
+    updateSalary,
     deleteSalary,
     getSalaryStats
 } from '../controllers/salaryController.js';
@@ -26,8 +26,8 @@ router.get('/stats', getSalaryStats);
 // GET /api/salaries/:id - Get salary by ID
 router.get('/:id', getSalaryById);
 
-// PUT /api/salaries/:id/status - Update salary status (approve/reject/paid)
-router.put('/:id/status', updateSalaryStatus);
+// PUT /api/salaries/:id - Update salary record
+router.put('/:id', updateSalary);
 
 // DELETE /api/salaries/:id - Delete salary record
 router.delete('/:id', deleteSalary);

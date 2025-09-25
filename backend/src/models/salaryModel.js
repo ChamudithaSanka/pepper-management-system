@@ -107,28 +107,6 @@ const salarySchema = new mongoose.Schema({
     netSalary: {
         type: Number,
         required: true
-    },
-    status: {
-        type: String,
-        enum: ['Calculated', 'Approved', 'Rejected', 'Paid'],
-        default: 'Calculated'
-    },
-    remarks: {
-        type: String
-    },
-    calculatedBy: {
-        type: String,
-        required: true
-    },
-    calculatedAt: {
-        type: Date,
-        default: Date.now
-    },
-    approvedBy: {
-        type: String
-    },
-    approvedAt: {
-        type: Date
     }
 }, {
     timestamps: true

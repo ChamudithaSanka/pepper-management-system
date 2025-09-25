@@ -3,6 +3,7 @@ export const financeSidebarLinks = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
     { id: 'farmer-payments', label: 'Farmer Payments', icon: 'farmers' },
     { id: 'employee-salary', label: 'Employee Salary', icon: 'employees' },
+    { id: 'salary-records', label: 'Salary Records', icon: 'finance' },
     { id: 'customer-payments', label: 'Customer Payments', icon: 'customers' }
 ];
 

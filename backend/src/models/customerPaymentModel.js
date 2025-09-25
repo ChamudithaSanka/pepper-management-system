@@ -12,7 +12,7 @@ const customerPaymentSchema = new mongoose.Schema({
         ref: 'Order'
     },
     customerId: {
-        type: Number,  // Changed from String to Number to match Customer model
+        type: String,  // Changed to String to match Order model
         required: true,
         ref: 'Customer'
     },
