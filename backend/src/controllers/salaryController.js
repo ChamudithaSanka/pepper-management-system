@@ -198,10 +198,7 @@ export const saveSalary = async (req, res) => {
             totalAllowances: salaryCalculation.totalAllowances,
             totalDeductions: salaryCalculation.totalDeductions,
             grossSalary: salaryCalculation.grossSalary,
-            netSalary: salaryCalculation.netSalary,
-            status: 'Calculated',
-            calculatedBy: req.session.user?.name || 'System',
-            calculatedAt: new Date()
+            netSalary: salaryCalculation.netSalary
         });
 
         await salary.save();
@@ -279,27 +276,20 @@ export const getSalaryById = async (req, res) => {
     }
 };
 
-// UPDATE SALARY STATUS (Approve/Reject)
-export const updateSalaryStatus = async (req, res) => {
+// UPDATE SALARY RECORD
+export const updateSalary = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, remarks } = req.body;
+        const updateData = req.body;
 
-        if (!['Approved', 'Rejected', 'Paid'].includes(status)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid status. Must be Approved, Rejected, or Paid'
-            });
-        }
+        // Remove any fields that shouldn't be updated directly
+        delete updateData._id;
+        delete updateData.createdAt;
+        delete updateData.updatedAt;
 
         const salary = await Salary.findByIdAndUpdate(
             id,
-            {
-                status,
-                remarks,
-                approvedBy: req.session.user?.name || 'System',
-                approvedAt: new Date()
-            },
+            updateData,
             { new: true }
         );
 
@@ -312,15 +302,15 @@ export const updateSalaryStatus = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: `Salary ${status.toLowerCase()} successfully`,
+            message: 'Salary updated successfully',
             data: salary
         });
 
     } catch (error) {
-        console.error('Error updating salary status:', error);
+        console.error('Error updating salary:', error);
         res.status(500).json({
             success: false,
-            message: 'Error updating salary status',
+            message: 'Error updating salary',
             error: error.message
         });
     }
@@ -339,13 +329,7 @@ export const deleteSalary = async (req, res) => {
             });
         }
 
-        // Only allow deletion if not approved or paid
-        if (['Approved', 'Paid'].includes(salary.status)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Cannot delete approved or paid salary records'
-            });
-        }
+        // Allow deletion of any salary record
 
         await Salary.findByIdAndDelete(id);
 
@@ -379,12 +363,8 @@ export const getSalaryStats = async (req, res) => {
                     totalGrossPay: { $sum: '$grossSalary' },
                     totalEPF: { $sum: '$companyContributions.epfCompany' },
                     totalETF: { $sum: '$companyContributions.etfCompany' },
-                    approvedCount: {
-                        $sum: { $cond: [{ $eq: ['$status', 'Approved'] }, 1, 0] }
-                    },
-                    paidCount: {
-                        $sum: { $cond: [{ $eq: ['$status', 'Paid'] }, 1, 0] }
-                    }
+                    averageNetSalary: { $avg: '$netSalary' },
+                    averageGrossSalary: { $avg: '$grossSalary' }
                 }
             }
         ]);

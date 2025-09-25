@@ -20,7 +20,7 @@ export const processPayment = async (req, res) => {
         console.log('💳 paymentMethod:', paymentMethod);
 
         // Check if user is logged in
-        if (!req.session.customer || req.session.customer.customerId != customerId) {
+        if (!req.session.customer || String(req.session.customer.customerId) !== String(customerId)) {
             console.log('💳 Authentication failed');
             return res.status(401).json({
                 success: false,
@@ -43,7 +43,7 @@ export const processPayment = async (req, res) => {
         console.log('💳 order.customerId:', order.customerId, 'type:', typeof order.customerId);
         console.log('💳 customerId from request:', customerId, 'type:', typeof customerId);
         
-        if (order.customerId !== String(customerId)) {
+        if (String(order.customerId) !== String(customerId)) {
             console.log('💳 Unauthorized access to order');
             return res.status(403).json({
                 success: false,
@@ -66,8 +66,16 @@ export const processPayment = async (req, res) => {
             customerId,
             amount: order.totalAmount,
             paymentMethod,
-            billingAddress
+            billingAddress: {
+                ...billingAddress,
+                fullAddress: typeof billingAddress.fullAddress === 'object' 
+                    ? billingAddress.fullAddress.fullAddress || JSON.stringify(billingAddress.fullAddress)
+                    : billingAddress.fullAddress
+            }
         };
+        
+        console.log('💳 Payment data being created:', paymentData);
+        console.log('💳 Order total amount:', order.totalAmount);
 
         // Add card details if payment method is credit/debit card
         if (paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card') {
@@ -118,14 +126,18 @@ export const processPayment = async (req, res) => {
                     // Update order payment status
                     order.paymentStatus = 'Completed';
                     order.orderStatus = 'Confirmed';
+                    console.log('💳 About to save order:', order.orderId);
                     await order.save();
+                    console.log('💳 Order saved successfully');
                 } else {
                     payment.paymentStatus = 'Failed';
                     payment.failureReason = 'Payment declined by bank';
                 }
             }
 
+            console.log('💳 About to save payment:', payment);
             await payment.save();
+            console.log('💳 Payment saved successfully');
 
             res.status(200).json({
                 success: true,
