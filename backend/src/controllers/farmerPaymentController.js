@@ -1,6 +1,7 @@
 import FarmerPayment from '../models/farmerPaymentModel.js';
 import RawMaterialOrder from '../models/rawMaterialOrderModel.js';
 import Farmer from '../models/farmerModel.js';
+import { sendMail } from '../utils/mailer.js';
 
 // Get all farmer payments with filtering options
 export const getAllFarmerPayments = async (req, res) => {
@@ -58,6 +59,40 @@ export const updateFarmerPaymentStatus = async (req, res) => {
                 success: false,
                 message: 'Payment not found'
             });
+        }
+
+        // Attempt to send email when marked as paid
+        if (paymentStatus === 'Paid') {
+            try {
+                // Reload with populated farmer (hooks cover find, not findOneAndUpdate)
+                const populated = await FarmerPayment.findOne({ paymentId }).populate('farmerId', 'name email');
+                const farmerEmail = populated?.farmerId?.email;
+                if (farmerEmail) {
+                    const amount = (populated.totalAmount || (populated.deliveredQuantityKg * populated.pricePerKg)).toFixed(2);
+                    const subject = `Payment Confirmed: ${populated.paymentId}`;
+                    const html = `
+                        <div>
+                            <p>Dear ${populated.farmerId.name},</p>
+                            <p>Your payment has been marked as <strong>Paid</strong>.</p>
+                            <ul>
+                                <li><strong>Payment ID:</strong> ${populated.paymentId}</li>
+                                <li><strong>Order ID:</strong> ${populated.rmOrderId}</li>
+                                <li><strong>Pepper Type:</strong> ${populated.pepperType}</li>
+                                <li><strong>Quantity (kg):</strong> ${populated.deliveredQuantityKg}</li>
+                                <li><strong>Price per kg (LKR):</strong> ${populated.pricePerKg}</li>
+                                <li><strong>Total Amount (LKR):</strong> ${amount}</li>
+                                <li><strong>Paid Date:</strong> ${new Date(populated.paidDate || new Date()).toLocaleString()}</li>
+                            </ul>
+                            <p>Thank you.</p>
+                        </div>
+                    `;
+                    const text = `Payment ${populated.paymentId} marked as Paid. Order ${populated.rmOrderId}. Quantity ${populated.deliveredQuantityKg}kg at LKR ${populated.pricePerKg}/kg. Total LKR ${amount}.`;
+                    await sendMail({ to: farmerEmail, subject, html, text });
+                }
+            } catch (mailErr) {
+                // Log and continue; do not fail the response
+                console.error('Email send failed:', mailErr.message);
+            }
         }
 
         res.status(200).json({

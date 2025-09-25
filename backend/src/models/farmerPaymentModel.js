@@ -73,11 +73,11 @@ farmerPaymentSchema.pre('save', function(next) {
 
 // Add populate middleware to automatically populate farmer details
 farmerPaymentSchema.pre('find', function() {
-    this.populate('farmerId', 'name nic phone');
+    this.populate('farmerId', 'name nic phone email');
 });
 
 farmerPaymentSchema.pre('findOne', function() {
-    this.populate('farmerId', 'name nic phone');
+    this.populate('farmerId', 'name nic phone email');
 });
 
 export default mongoose.model('FarmerPayment', farmerPaymentSchema);
