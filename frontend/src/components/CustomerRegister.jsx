@@ -8,7 +8,9 @@ const CustomerRegister = () => {
     password: '',
     confirmPassword: '',
     phone: '',
-    deliveryAddress: ''
+    street: '',
+    city: '',
+    zipCode: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -43,9 +45,12 @@ const CustomerRegister = () => {
           password: formData.password,
           phone: formData.phone,
           deliveryAddress: {
+            street: formData.street,
+            city: formData.city,
+            zipCode: formData.zipCode,
+            fullAddress: `${formData.street}, ${formData.city}, ${formData.zipCode}`,
             latitude: 0, // Default coordinates - customer can update later
-            longitude: 0,
-            address: formData.deliveryAddress
+            longitude: 0
           },
         }),
       });
@@ -58,7 +63,9 @@ const CustomerRegister = () => {
           password: '',
           confirmPassword: '',
           phone: '',
-          deliveryAddress: ''
+          street: '',
+          city: '',
+          zipCode: ''
         });
       } else {
         setError(data.message || 'Registration failed');
@@ -139,21 +146,62 @@ const CustomerRegister = () => {
               />
             </div>
 
-            {/* Delivery Address Field */}
-            <div>
-              <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-300 mb-2">
+            {/* Delivery Address Fields */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-300">
                 Delivery Address
               </label>
-              <textarea
-                id="deliveryAddress"
-                name="deliveryAddress"
-                required
-                rows="3"
-                value={formData.deliveryAddress}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400 transition-colors resize-none"
-                placeholder="Enter your delivery address"
-              />
+              
+              {/* Street Address */}
+              <div>
+                <label htmlFor="street" className="block text-sm font-medium text-gray-300 mb-2">
+                  Street Address
+                </label>
+                <input
+                  id="street"
+                  name="street"
+                  type="text"
+                  required
+                  value={formData.street}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400 transition-colors"
+                  placeholder="Enter street address"
+                />
+              </div>
+
+              {/* City and Zip Code */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-300 mb-2">
+                    City
+                  </label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400 transition-colors"
+                    placeholder="Enter city"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-300 mb-2">
+                    Zip Code
+                  </label>
+                  <input
+                    id="zipCode"
+                    name="zipCode"
+                    type="text"
+                    required
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400 transition-colors"
+                    placeholder="Enter zip code"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Password Field */}

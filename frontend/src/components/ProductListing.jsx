@@ -145,22 +145,22 @@ const ProductListing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       <Header />
       
       <div className="container mx-auto px-6 py-8">
         {/* Page Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-green-400 mb-4">Ceylon Pepper Products</h1>
-          <p className="text-gray-300 text-lg">Premium Quality Pepper Products from Sri Lanka</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Ceylon Pepper <span className="text-green-600">Products</span></h1>
+          <p className="text-gray-700 text-lg">Premium Quality Pepper Products from Sri Lanka</p>
         </div>
 
         {/* Filters Section */}
-        <div className="bg-gray-900 rounded-lg p-6 mb-8">
+        <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Products
               </label>
               <input
@@ -168,19 +168,19 @@ const ProductListing = () => {
                 placeholder="Search by name or description..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-green-500 focus:outline-none"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
               />
             </div>
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Filter by Category
               </label>
               <select
                 value={filters.category}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-green-500 focus:outline-none"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
               >
                 <option value="">All Categories</option>
                 {categories.map((category) => (
@@ -206,7 +206,7 @@ const ProductListing = () => {
         {/* Results Count */}
         {pagination.totalProducts > 0 && (
           <div className="mb-6">
-            <p className="text-gray-300">
+            <p className="text-gray-700">
               Showing {products.length} of {pagination.totalProducts} products
               {filters.search && ` for "${filters.search}"`}
               {filters.category && ` in "${filters.category}"`}
@@ -217,14 +217,14 @@ const ProductListing = () => {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
-            <p className="mt-4 text-gray-300">Loading products...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p className="mt-4 text-gray-700">Loading products...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
             {error}
           </div>
         )}
@@ -235,9 +235,9 @@ const ProductListing = () => {
             {products.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 {products.map((product) => (
-                  <div key={product._id} className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                  <div key={product._id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow border border-gray-200">
                     {/* Product Image (use uploaded image when available) */}
-                    <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center overflow-hidden">
+                    <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
                       {product.imageUrl ? (
                         <img
                           src={getImageSrc(product.imageUrl)}
@@ -246,10 +246,10 @@ const ProductListing = () => {
                         />
                       ) : (
                         <div className="text-center">
-                          <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-2 flex items-center justify-center">
+                          <div className="w-16 h-16 bg-green-600 rounded-full mx-auto mb-2 flex items-center justify-center">
                             <span className="text-2xl">🌶️</span>
                           </div>
-                          <p className="text-gray-400 text-sm">Product Image</p>
+                          <p className="text-gray-500 text-sm">Product Image</p>
                         </div>
                       )}
                     </div>
@@ -257,32 +257,32 @@ const ProductListing = () => {
                     {/* Product Details */}
                     <div className="p-6">
                       <div className="mb-2">
-                        <span className="inline-block bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                        <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
                           {product.category}
                         </span>
                       </div>
                       
-                      <h3 className="text-xl font-semibold text-white mb-2">{product.productName}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.productName}</h3>
                       
-                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                         {product.description || 'Premium quality Ceylon pepper product'}
                       </p>
 
                       <div className="mb-4">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-2xl font-bold text-green-400">
-                            Rs. {product.price}
+                          <span className="text-2xl font-bold text-green-600">
+                            LKR {product.price}
                           </span>
-                          <span className="text-gray-400 text-sm">
+                          <span className="text-gray-600 text-sm">
                             per {product.unit}
                           </span>
                         </div>
                         
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-400">
+                          <span className="text-gray-600">
                             Stock: {product.availableStock} {product.unit}
                           </span>
-                          <span className="px-2 py-1 rounded-full text-xs bg-green-600 text-white">
+                          <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
                             Available
                           </span>
                         </div>
@@ -292,7 +292,7 @@ const ProductListing = () => {
                       <div className="flex gap-2">
                         <Link
                           to={`/product/${product._id}`}
-                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium transition-colors text-center"
+                          className="flex-1 border border-gray-300 hover:border-gray-400 bg-white text-gray-900 py-2 px-4 rounded-lg font-medium transition-colors text-center"
                         >
                           View Details
                         </Link>
@@ -300,7 +300,7 @@ const ProductListing = () => {
                         <button
                           onClick={() => addToCart(product._id, product.productName)}
                           disabled={addingToCart[product._id]}
-                          className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                          className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors"
                         >
                           {addingToCart[product._id] ? 'Adding...' : 'Add to Cart'}
                         </button>
@@ -312,8 +312,8 @@ const ProductListing = () => {
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-xl font-semibold text-gray-300 mb-2">No Products Found</h3>
-                <p className="text-gray-400">
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
+                <p className="text-gray-600">
                   {filters.search || filters.category 
                     ? 'Try adjusting your search or filter criteria'
                     : 'No products are currently available'
@@ -328,7 +328,7 @@ const ProductListing = () => {
                 <button
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg transition-colors"
+                  className="px-4 py-2 border border-gray-300 hover:border-gray-400 disabled:bg-gray-100 disabled:text-gray-400 bg-white text-gray-900 rounded-lg transition-colors"
                 >
                   Previous
                 </button>
@@ -341,7 +341,7 @@ const ProductListing = () => {
                       className={`px-3 py-2 rounded-lg transition-colors ${
                         pagination.currentPage === index + 1
                           ? 'bg-green-600 text-white'
-                          : 'bg-gray-700 hover:bg-gray-600 text-white'
+                          : 'bg-white border border-gray-300 hover:border-gray-400 text-gray-900'
                       }`}
                     >
                       {index + 1}
@@ -352,7 +352,7 @@ const ProductListing = () => {
                 <button
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage === pagination.totalPages}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg transition-colors"
+                  className="px-4 py-2 border border-gray-300 hover:border-gray-400 disabled:bg-gray-100 disabled:text-gray-400 bg-white text-gray-900 rounded-lg transition-colors"
                 >
                   Next
                 </button>

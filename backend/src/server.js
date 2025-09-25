@@ -12,7 +12,7 @@ import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import farmerPaymentRoutes from './routes/farmerPaymentRoutes.js';
-import salaryRoutes from './routes/salaryRoutes.js';
+import deliveryRoutes from './routes/deliveryRoutes.js';
 
 import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
@@ -59,7 +59,7 @@ app.use('/api/inventory-history', inventoryHistoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/farmer-payments', farmerPaymentRoutes);
-app.use('/api/salaries', salaryRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);

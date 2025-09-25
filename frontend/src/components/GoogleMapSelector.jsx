@@ -1,26 +1,64 @@
 import React, { useRef, useState, useEffect } from 'react';
 
-const GoogleMapSelector = ({ onLocationSelect, initialLocation }) => {
+const GoogleMapSelector = ({ onLocationSelect, initialLocation, address }) => {
     const mapRef = useRef(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
-    const [address, setAddress] = useState('');
+    const [currentAddress, setCurrentAddress] = useState('');
 
     useEffect(() => {
         loadMap();
     }, []);
 
+    // Respond to initialLocation changes (lat/lng provided externally)
+    useEffect(() => {
+        if (!initialLocation || !window.google || !window.google.maps) return;
+        const { latitude, longitude } = initialLocation;
+        if (typeof latitude === 'number' && typeof longitude === 'number') {
+            const lat = latitude;
+            const lng = longitude;
+            if (window.mapInstance) {
+                window.mapInstance.setCenter({ lat, lng });
+            }
+            if (window.markerInstance) {
+                window.markerInstance.setPosition({ lat, lng });
+            }
+            setSelectedLocation({ latitude: lat, longitude: lng });
+        }
+    }, [initialLocation?.latitude, initialLocation?.longitude]);
+
+    // Handle address prop changes - forward geocoding
+    useEffect(() => {
+        if (address && address.trim() && window.google && window.google.maps) {
+            const geocoder = new window.google.maps.Geocoder();
+            geocoder.geocode({ 
+                address: address + ', Sri Lanka',
+                componentRestrictions: { country: 'LK' }
+            }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    const lat = location.lat();
+                    const lng = location.lng();
+                    
+                    // Update map center and marker
+                    if (window.mapInstance) {
+                        window.mapInstance.setCenter({ lat, lng });
+                        if (window.markerInstance) {
+                            window.markerInstance.setPosition({ lat, lng });
+                        }
+                    }
+                    
+                    // Update state
+                    setSelectedLocation({ latitude: lat, longitude: lng });
+                    setCurrentAddress(results[0].formatted_address);
+                }
+            });
+        }
+    }, [address]);
+
     const loadMap = async () => {
         try {
-            const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-            if (!apiKey) {
-                console.error('Google Maps API key not found');
-                return;
-            }
-            
-            // Load Google Maps script if not already loaded
-            if (!window.google) {
-                await loadGoogleScript(apiKey);
-            }
+            // Assume script is loaded by parent using LoadScript
+            if (!window.google || !window.google.maps) return;
             
             // Default location (Colombo, Sri Lanka)
             const defaultLat = 6.9271;
@@ -30,6 +68,9 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation }) => {
                 zoom: 15,
             });
             
+            // Store map instance globally for access in useEffect
+            window.mapInstance = map;
+            
             // Add marker
             const marker = new window.google.maps.Marker({
                 position: { lat: defaultLat, lng: defaultLng },
@@ -37,16 +78,45 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation }) => {
                 draggable: true,
             });
             
-            // Set initial location
-            setSelectedLocation({ latitude: defaultLat, longitude: defaultLng });
-            setAddress(`${defaultLat.toFixed(6)}, ${defaultLng.toFixed(6)}`);
+            // Store marker instance globally for access in useEffect
+            window.markerInstance = marker;
+            
+            // Set initial location (use provided initialLocation if available)
+            const initLat = (initialLocation && typeof initialLocation.latitude === 'number') ? initialLocation.latitude : defaultLat;
+            const initLng = (initialLocation && typeof initialLocation.longitude === 'number') ? initialLocation.longitude : defaultLng;
+            map.setCenter({ lat: initLat, lng: initLng });
+            marker.setPosition({ lat: initLat, lng: initLng });
+            setSelectedLocation({ latitude: initLat, longitude: initLng });
+            setCurrentAddress(`${initLat.toFixed(6)}, ${initLng.toFixed(6)}`);
             
             // Handle marker drag
             marker.addListener('dragend', (event) => {
                 const lat = event.latLng.lat();
                 const lng = event.latLng.lng();
                 setSelectedLocation({ latitude: lat, longitude: lng });
-                setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                
+                // Get address from coordinates using reverse geocoding
+                const geocoder = new window.google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        const address = results[0].formatted_address;
+                        setCurrentAddress(address);
+                        // Automatically save the location
+                        onLocationSelect({
+                            latitude: lat,
+                            longitude: lng,
+                            address: address
+                        });
+                    } else {
+                        const address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        setCurrentAddress(address);
+                        onLocationSelect({
+                            latitude: lat,
+                            longitude: lng,
+                            address: address
+                        });
+                    }
+                });
             });
             
             // Handle map click
@@ -55,7 +125,29 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation }) => {
                 const lng = event.latLng.lng();
                 marker.setPosition({ lat, lng });
                 setSelectedLocation({ latitude: lat, longitude: lng });
-                setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                
+                // Get address from coordinates using reverse geocoding
+                const geocoder = new window.google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        const address = results[0].formatted_address;
+                        setCurrentAddress(address);
+                        // Automatically save the location
+                        onLocationSelect({
+                            latitude: lat,
+                            longitude: lng,
+                            address: address
+                        });
+                    } else {
+                        const address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        setCurrentAddress(address);
+                        onLocationSelect({
+                            latitude: lat,
+                            longitude: lng,
+                            address: address
+                        });
+                    }
+                });
             });
             
         } catch (error) {
@@ -63,67 +155,24 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation }) => {
         }
     };
 
-    const loadGoogleScript = (apiKey) => {
-        return new Promise((resolve, reject) => {
-            if (window.google && window.google.maps) {
-                resolve();
-                return;
-            }
-            
-            const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-            if (existingScript) {
-                const checkGoogle = setInterval(() => {
-                    if (window.google && window.google.maps) {
-                        clearInterval(checkGoogle);
-                        resolve();
-                    }
-                }, 100);
-                return;
-            }
-            
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
-            script.async = true;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error('Failed to load Google Maps'));
-            document.head.appendChild(script);
-        });
-    };
 
-    const confirmLocation = () => {
-        if (selectedLocation) {
-            onLocationSelect({
-                ...selectedLocation,
-                address: address
-            });
-        }
-    };
 
     return (
         <div className="space-y-4">
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-600">
                 Click on the map or drag the marker to select delivery location
             </div>
 
             <div 
                 ref={mapRef} 
-                className="h-96 w-full rounded-lg border border-green-600 bg-gray-800"
+                className="h-96 w-full rounded-lg border border-gray-200 bg-gray-100"
             />
 
             {selectedLocation && (
-                <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="text-sm font-medium mb-2">Selected Location:</div>
-                    <div className="text-green-400">{address}</div>
+                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                    <div className="text-sm font-medium mb-2 text-gray-900">Selected Location:</div>
+                    <div className="text-gray-700">{currentAddress}</div>
                 </div>
-            )}
-
-            {selectedLocation && (
-                <button
-                    onClick={confirmLocation}
-                    className="w-full bg-green-600 hover:bg-green-700 text-black font-medium py-3 rounded transition-colors"
-                >
-                    Confirm Location
-                </button>
             )}
         </div>
     );
