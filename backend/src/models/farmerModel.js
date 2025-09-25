@@ -24,6 +24,13 @@ const farmerSchema = new mongoose.Schema({
         trim: true,
         match: [/^[0-9]{8,15}$/, 'Please enter a valid phone number (8-15 digits)']
     },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: [/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'Please enter a valid email']
+        // Note: do not set unique immediately to avoid migration issues
+    },
     address: {
         type: String,
         required: [true, 'Address is required'],
