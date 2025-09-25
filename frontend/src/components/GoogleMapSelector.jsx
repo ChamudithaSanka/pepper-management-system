@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Autocomplete } from '@react-google-maps/api';
 
-const GoogleMapSelector = ({ onLocationSelect, initialLocation, address }) => {
+const GoogleMapSelector = ({ onLocationSelect, initialLocation, address, showSearch = true }) => {
     const mapRef = useRef(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [currentAddress, setCurrentAddress] = useState('');
+    const autocompleteRef = useRef(null);
 
     useEffect(() => {
         loadMap();
@@ -155,13 +157,58 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation, address }) => {
         }
     };
 
+    const onPlaceChanged = () => {
+        if (!autocompleteRef.current || !window.mapInstance || !window.markerInstance) return;
+        const place = autocompleteRef.current.getPlace?.();
+        if (!place || !place.geometry || !place.geometry.location) return;
+        const loc = place.geometry.location;
+        const lat = loc.lat();
+        const lng = loc.lng();
+        window.mapInstance.setCenter({ lat, lng });
+        window.markerInstance.setPosition({ lat, lng });
+        const formatted = place.formatted_address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        setSelectedLocation({ latitude: lat, longitude: lng });
+        setCurrentAddress(formatted);
+        if (onLocationSelect) {
+            onLocationSelect({ latitude: lat, longitude: lng, address: formatted });
+        }
+    };
+
 
 
     return (
         <div className="space-y-4">
             <div className="text-sm text-gray-600">
-                Click on the map or drag the marker to select delivery location
+                Click on the map, drag the marker, or search to select location
             </div>
+
+            {showSearch && (
+                <div className="relative">
+                    {window.google && window.google.maps ? (
+                        <Autocomplete
+                            onLoad={(ref) => { autocompleteRef.current = ref; }}
+                            onPlaceChanged={onPlaceChanged}
+                            options={{
+                                fields: ['formatted_address', 'geometry', 'name'],
+                                componentRestrictions: { country: 'LK' }
+                            }}
+                        >
+                            <input
+                                type="text"
+                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                placeholder="Search location..."
+                            />
+                        </Autocomplete>
+                    ) : (
+                        <input
+                            type="text"
+                            disabled
+                            className="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-gray-500"
+                            placeholder="Loading maps..."
+                        />
+                    )}
+                </div>
+            )}
 
             <div 
                 ref={mapRef} 
