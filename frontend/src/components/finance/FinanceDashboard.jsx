@@ -3,8 +3,9 @@ import DashboardLayout from '../Dashboard/DashboardLayout';
 import StatCards from '../Dashboard/StatCards';
 import PieChart from '../Dashboard/PieChart';
 import CalculateSalary from './CalculateSalary';
+import SalaryList from './SalaryList';
 import FarmerPayments from './FarmerPayments';
-import CustomerIncome from './CustomerIncome';
+import MarketplaceIncome from './MarketplaceIncome';
 import { 
     financeSidebarLinks, 
     financeUserInfo, 
@@ -138,10 +139,17 @@ const FinanceDashboard = () => {
                     </div>
                 );
 
+            case 'salary-records':
+                return (
+                    <div className="space-y-6">
+                        <SalaryList />
+                    </div>
+                );
+
             case 'customer-payments':
                 return (
                     <div className="space-y-6">
-                        <CustomerIncome />
+                        <MarketplaceIncome />
                     </div>
                 );
 

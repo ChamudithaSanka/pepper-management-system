@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GoogleMapSelector from '../GoogleMapSelector';
+import { LoadScript } from '@react-google-maps/api';
 
 const FarmerManagement = ({ onStatsUpdate }) => {
     const [farmers, setFarmers] = useState([]);
@@ -31,7 +32,6 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         },
         status: 'Active'
     });
-    const [showMapSelector, setShowMapSelector] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
     // Validation helper function
@@ -348,22 +348,9 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         farmer.nic?.includes(searchTerm)
     );
 
-    const handleLocationSelect = (location) => {
-        if (showMapSelector === 'edit') {
-            setEditingItem({
-                ...editingItem,
-                farm_location: location
-            });
-        } else {
-            setNewItem({
-                ...newItem,
-                farm_location: location
-            });
-        }
-        setShowMapSelector(false);
-    };
 
     return (
+        <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <div className="space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
@@ -455,8 +442,8 @@ const FarmerManagement = ({ onStatsUpdate }) => {
 
             {/* Add Form Modal */}
             {showAddForm && createPortal(
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-                    <div className="bg-white rounded-lg p-6 w-2/3 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]" style={{zIndex: 9999}}>
+                    <div className="bg-white rounded-lg p-6 w-2/3 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl" style={{position: 'relative', zIndex: 10000}}>
                         <h3 className="text-lg font-medium mb-4">Add New Farmer</h3>
                         <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
                             <div>
@@ -513,7 +500,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                             <div>
                                 <input
                                     type="email"
-                                    placeholder="Email (optional)"
+                                    placeholder="Email"
                                     value={newItem.email}
                                     onChange={(e) => {
                                         setNewItem({...newItem, email: e.target.value});
@@ -526,20 +513,23 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                 {fieldErrors.email && <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>}
                             </div>
                             
-                            <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
-                                <div className="text-sm text-gray-600 mb-2">Farm Location</div>
-                                {newItem.farm_location.address ? (
-                                    <div className="text-sm text-green-700 mb-2">{newItem.farm_location.address}</div>
-                                ) : (
-                                    <div className="text-sm text-gray-400 mb-2">No location selected</div>
+                            <div className="col-span-2 mb-4">
+                                <div className="text-sm font-medium text-gray-600 mb-3">Farm Location</div>
+                                {newItem.farm_location.address && (
+                                    <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{newItem.farm_location.address}</div>
                                 )}
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMapSelector(true)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                                >
-                                    Select on Map
-                                </button>
+                                <div className="h-64 border border-gray-300 rounded overflow-hidden">
+                                    <GoogleMapSelector 
+                                        onLocationSelect={(location) => {
+                                            setNewItem({
+                                                ...newItem,
+                                                farm_location: location
+                                            });
+                                        }}
+                                        initialLocation={newItem.farm_location}
+                                        showInstructions={false}
+                                    />
+                                </div>
                             </div>
                             <textarea
                                 placeholder="Address"
@@ -760,8 +750,8 @@ const FarmerManagement = ({ onStatsUpdate }) => {
 
             {/* Edit Modal */}
             {editingItem && createPortal(
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-                    <div className="bg-white rounded-lg p-6 w-2/3 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]" style={{zIndex: 9999}}>
+                    <div className="bg-white rounded-lg p-6 w-2/3 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl" style={{position: 'relative', zIndex: 10000}}>
                         <h3 className="text-lg font-medium mb-4">Edit Farmer</h3>
                         <form 
                             onSubmit={(e) => {
@@ -796,28 +786,28 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                             />
                             <input
                                 type="email"
-                                placeholder="Email (optional)"
+                                placeholder="Email"
                                 value={editingItem.email || ''}
                                 onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
                                 className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             />
-                            <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
-                                <div className="text-sm text-gray-600 mb-2">Farm Location</div>
-                                {editingItem.farm_location?.address ? (
-                                    <div className="text-sm text-green-700 mb-2">{editingItem.farm_location.address}</div>
-                                ) : (
-                                    <div className="text-sm text-gray-400 mb-2">No location selected</div>
+                            <div className="col-span-2 mb-4">
+                                <div className="text-sm font-medium text-gray-600 mb-3">Farm Location</div>
+                                {editingItem.farm_location?.address && (
+                                    <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{editingItem.farm_location.address}</div>
                                 )}
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        // Set editingItem as the target for location update
-                                        setShowMapSelector('edit');
-                                    }}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                                >
-                                    Update Location
-                                </button>
+                                <div className="h-64 border border-gray-300 rounded overflow-hidden">
+                                    <GoogleMapSelector 
+                                        onLocationSelect={(location) => {
+                                            setEditingItem({
+                                                ...editingItem,
+                                                farm_location: location
+                                            });
+                                        }}
+                                        initialLocation={editingItem.farm_location}
+                                        showInstructions={false}
+                                    />
+                                </div>
                             </div>
                             <textarea
                                 placeholder="Address"
@@ -935,32 +925,8 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                 document.body
             )}
 
-            {/* Map Selector Modal */}
-            {showMapSelector && createPortal(
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-                    <div className="bg-white rounded-lg p-6 w-3/4 max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <h3 className="text-lg font-medium mb-4">Select Farm Location</h3>
-                        <GoogleMapSelector 
-                            onLocationSelect={handleLocationSelect}
-                            initialLocation={
-                                showMapSelector === 'edit' 
-                                    ? editingItem.farm_location 
-                                    : newItem.farm_location
-                            }
-                        />
-                        <div className="mt-4 flex justify-end">
-                            <button
-                                onClick={() => setShowMapSelector(false)}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
         </div>
+        </LoadScript>
     );
 };
 
