@@ -47,9 +47,7 @@ const orderSchema = new mongoose.Schema({
     deliveryAddress: {
         street: String,
         city: String,
-        state: String,
         zipCode: String,
-        country: { type: String, default: 'Sri Lanka' },
         fullAddress: String
     },
     deliveryLocation: {

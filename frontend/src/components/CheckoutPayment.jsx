@@ -12,6 +12,13 @@ const CheckoutPayment = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const formatAddress = (addr) => {
+        if (!addr) return '';
+        if (typeof addr === 'string') return addr;
+        const parts = [addr.street, addr.city, addr.zipCode].filter(Boolean);
+        return addr.fullAddress || parts.join(', ');
+    };
+
     const [paymentData, setPaymentData] = useState({
         paymentMethod: 'Credit Card',
         cardDetails: {
@@ -45,7 +52,7 @@ const CheckoutPayment = () => {
                     ...prev,
                     billingAddress: {
                         ...prev.billingAddress,
-                        fullAddress: location.state.customerDetails.deliveryAddress
+                        fullAddress: formatAddress(location.state.customerDetails.deliveryAddress)
                     }
                 }));
             }
@@ -104,7 +111,7 @@ const CheckoutPayment = () => {
             useSameAsDelivery: newValue,
             billingAddress: newValue ? {
                 ...prev.billingAddress,
-                fullAddress: customerDetails.deliveryAddress
+                fullAddress: formatAddress(customerDetails.deliveryAddress)
             } : {
                 street: '',
                 city: '',
@@ -240,7 +247,7 @@ const CheckoutPayment = () => {
 
     if (!customerDetails || !cart) {
         return (
-            <div className="min-h-screen bg-black text-green-400">
+            <div className="min-h-screen bg-white text-gray-900">
                 <Header />
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-xl">Loading payment details...</div>
@@ -251,35 +258,35 @@ const CheckoutPayment = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black text-green-400">
+        <div className="min-h-screen bg-white text-gray-900">
             <Header />
             
             <div className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-8">
                     <nav className="text-sm">
-                        <Link to="/cart" className="text-green-400 hover:text-green-300">Cart</Link>
-                        <span className="mx-2 text-gray-400">→</span>
-                        <Link to="/checkout" className="text-green-400 hover:text-green-300">Customer Details</Link>
-                        <span className="mx-2 text-gray-400">→</span>
-                        <span className="text-white">Payment</span>
+                        <Link to="/cart" className="text-green-600 hover:text-green-700">Cart</Link>
+                        <span className="mx-2 text-gray-500">→</span>
+                        <Link to="/checkout" className="text-green-600 hover:text-green-700">Customer Details</Link>
+                        <span className="mx-2 text-gray-500">→</span>
+                        <span className="text-gray-900">Payment</span>
                     </nav>
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Payment Form */}
                     <div className="lg:col-span-2">
-                        <div className="bg-gray-900 rounded-lg p-6">
-                            <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
+                        <div className="bg-gray-50 rounded-lg shadow-lg border border-gray-200 p-6">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900">Payment Details</h2>
                             
                             {error && (
-                                <div className="bg-red-900 border border-red-600 text-red-400 px-4 py-3 rounded mb-6">
+                                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
                                     {error}
                                 </div>
                             )}
 
                             {success && (
-                                <div className="bg-green-900 border border-green-600 text-green-400 px-4 py-3 rounded mb-6">
+                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
                                     {success}
                                 </div>
                             )}
@@ -300,8 +307,8 @@ const CheckoutPayment = () => {
                                             />
                                             <div className={`p-3 border rounded-lg text-center transition-colors ${
                                                 paymentData.paymentMethod === method
-                                                    ? 'border-green-600 bg-green-900 text-green-400'
-                                                    : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-green-600'
+                                                    ? 'border-green-600 bg-green-50 text-green-700'
+                                                    : 'border-gray-200 bg-white text-gray-700 hover:border-green-600'
                                             }`}>
                                                 {method}
                                             </div>
@@ -321,7 +328,7 @@ const CheckoutPayment = () => {
                                             type="text"
                                             value={paymentData.cardDetails.cardholderName}
                                             onChange={(e) => handleInputChange('cardDetails', 'cardholderName', e.target.value)}
-                                            className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                             placeholder="Enter cardholder name"
                                         />
                                     </div>
@@ -333,12 +340,12 @@ const CheckoutPayment = () => {
                                                 type="text"
                                                 value={paymentData.cardDetails.cardNumber}
                                                 onChange={(e) => handleCardNumberChange(e.target.value)}
-                                                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 placeholder="1234 5678 9012 3456"
                                                 maxLength="19"
                                             />
                                             {paymentData.cardDetails.cardType && (
-                                                <div className="absolute right-3 top-2 text-sm text-green-400">
+                                                <div className="absolute right-3 top-2 text-sm text-green-700">
                                                     {paymentData.cardDetails.cardType}
                                                 </div>
                                             )}
@@ -351,7 +358,7 @@ const CheckoutPayment = () => {
                                             <select
                                                 value={paymentData.cardDetails.expiryMonth}
                                                 onChange={(e) => handleInputChange('cardDetails', 'expiryMonth', e.target.value)}
-                                                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                             >
                                                 <option value="">MM</option>
                                                 {[...Array(12)].map((_, i) => (
@@ -366,7 +373,7 @@ const CheckoutPayment = () => {
                                             <select
                                                 value={paymentData.cardDetails.expiryYear}
                                                 onChange={(e) => handleInputChange('cardDetails', 'expiryYear', e.target.value)}
-                                                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                             >
                                                 <option value="">YYYY</option>
                                                 {[...Array(10)].map((_, i) => {
@@ -385,7 +392,7 @@ const CheckoutPayment = () => {
                                                 type="text"
                                                 value={paymentData.cardDetails.cvv}
                                                 onChange={(e) => handleInputChange('cardDetails', 'cvv', e.target.value.replace(/\D/g, ''))}
-                                                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 placeholder="123"
                                                 maxLength="4"
                                             />
@@ -396,10 +403,10 @@ const CheckoutPayment = () => {
 
                             {/* Cash on Delivery Info */}
                             {paymentData.paymentMethod === 'Cash on Delivery' && (
-                                <div className="mb-6 p-4 bg-yellow-900 border border-yellow-600 rounded-lg">
-                                    <h3 className="text-lg font-medium text-yellow-400 mb-2">Cash on Delivery</h3>
-                                    <p className="text-yellow-300">
-                                        You will pay ₹{cart.totalPrice.toFixed(2)} in cash when your order is delivered.
+                                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <h3 className="text-lg font-medium text-yellow-800 mb-2">Cash on Delivery</h3>
+                                    <p className="text-yellow-800">
+                                        You will pay LKR {cart.totalPrice.toFixed(2)} in cash when your order is delivered.
                                         Please have the exact amount ready for the delivery person.
                                     </p>
                                 </div>
@@ -430,7 +437,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.street}
                                                     onChange={(e) => handleInputChange('billingAddress', 'street', e.target.value)}
-                                                    className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
                                             <div>
@@ -439,7 +446,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.city}
                                                     onChange={(e) => handleInputChange('billingAddress', 'city', e.target.value)}
-                                                    className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
                                             <div>
@@ -448,7 +455,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.state}
                                                     onChange={(e) => handleInputChange('billingAddress', 'state', e.target.value)}
-                                                    className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
                                             <div>
@@ -457,7 +464,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.zipCode}
                                                     onChange={(e) => handleInputChange('billingAddress', 'zipCode', e.target.value)}
-                                                    className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
                                         </div>
@@ -465,8 +472,8 @@ const CheckoutPayment = () => {
                                 )}
 
                                 {paymentData.useSameAsDelivery && (
-                                    <div className="p-4 bg-gray-800 rounded-lg">
-                                        <div className="text-gray-400">{customerDetails.deliveryAddress}</div>
+                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <div className="text-gray-700">{formatAddress(customerDetails.deliveryAddress)}</div>
                                     </div>
                                 )}
                             </div>
@@ -475,56 +482,52 @@ const CheckoutPayment = () => {
 
                     {/* Order Summary */}
                     <div className="lg:col-span-1">
-                        <div className="bg-gray-900 rounded-lg p-6 sticky top-4">
-                            <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+                        <div className="bg-gray-50 rounded-lg shadow-lg border border-gray-200 p-6 sticky top-4">
+                            <h2 className="text-xl font-semibold mb-6 text-gray-900">Order Summary</h2>
                             
                             <div className="space-y-3 mb-6">
                                 {cart.items.map((item) => (
                                     <div key={item.productId._id} className="flex justify-between text-sm">
                                         <div className="flex-1">
-                                            <div className="font-medium">{item.productId.productName}</div>
-                                            <div className="text-gray-400">Qty: {item.quantity}</div>
+                                            <div className="font-medium text-gray-900">{item.productId.productName}</div>
+                                            <div className="text-gray-600">Qty: {item.quantity}</div>
                                         </div>
                                         <div className="text-right">
-                                            <div>₹{(item.price * item.quantity).toFixed(2)}</div>
+                                            <div className="text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="space-y-2 mb-6">
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-gray-700">
                                     <span>Subtotal:</span>
-                                    <span>₹{cart.totalPrice.toFixed(2)}</span>
+                                    <span>LKR {cart.totalPrice.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-gray-700">
                                     <span>Delivery:</span>
-                                    <span className="text-green-400">FREE</span>
+                                    <span className="text-green-600 font-medium">FREE</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-gray-700">
                                     <span>Payment Method:</span>
                                     <span className="text-sm">{paymentData.paymentMethod}</span>
                                 </div>
-                                <hr className="border-green-600" />
-                                <div className="flex justify-between text-lg font-bold">
+                                <hr className="border-gray-300" />
+                                <div className="flex justify-between text-lg font-bold text-gray-900">
                                     <span>Total:</span>
-                                    <span>₹{cart.totalPrice.toFixed(2)}</span>
+                                    <span>LKR {cart.totalPrice.toFixed(2)}</span>
                                 </div>
                             </div>
 
                             <button
                                 onClick={processOrder}
                                 disabled={loading}
-                                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 rounded transition-colors"
+                                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg transition-colors"
                             >
                                 {loading ? 'Processing...' : 'Place Order'}
                             </button>
 
-                            <div className="mt-4 text-xs text-gray-400">
-                                <p>🔒 Secure payment processing</p>
-                                <p>📦 Free delivery on all orders</p>
-                                <p>↩️ Easy returns & refunds</p>
-                            </div>
+                         
                         </div>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ import OrderConfirmation from './components/OrderConfirmation';
 import AdminDashboard from './components/admin/AdminDashboard';
 import FinanceDashboard from './components/finance/FinanceDashboard';
 import InventoryDashboard from './components/inventory/InventoryDashboard';
+import DeliveryDashboard from './components/delivery/DeliveryDashboard';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/finance" element={<FinanceDashboard />} />
       <Route path="/inventory" element={<InventoryDashboard />} />
+      <Route path="/delivery" element={<DeliveryDashboard />} />
     </Routes>
   )
 }

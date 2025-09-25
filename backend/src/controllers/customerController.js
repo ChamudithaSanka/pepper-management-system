@@ -191,7 +191,7 @@ export const getCustomerProfile = async (req, res) => {
 // UPDATE CUSTOMER PROFILE
 export const updateCustomerProfile = async (req, res) => {
     try {
-        const { name, phone, deliveryAddress, location } = req.body;
+        const { name, email, phone, deliveryAddress, location } = req.body;
         const customerId = parseInt(req.params.id);
         
         // Check if phone is being changed and conflicts with another customer
@@ -211,7 +211,7 @@ export const updateCustomerProfile = async (req, res) => {
         // Update customer using customerId instead of _id
         const customer = await Customer.findOneAndUpdate(
             { customerId: customerId },
-            { name, phone, deliveryAddress, location },
+            { name, email, phone, deliveryAddress, location },
             { new: true, runValidators: true }
         ).select('-password');
         
