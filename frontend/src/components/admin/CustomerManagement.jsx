@@ -554,7 +554,12 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                                             {customer.phone}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                                            {customer.deliveryAddress?.address || customer.deliveryAddress || 'No address'}
+                                            {customer.deliveryAddress?.address 
+                                                || customer.deliveryAddress?.fullAddress 
+                                                || [customer.deliveryAddress?.street, customer.deliveryAddress?.city, customer.deliveryAddress?.zipCode]
+                                                    .filter(Boolean)
+                                                    .join(', ') 
+                                                || 'No address'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
@@ -636,8 +641,14 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                             />
                             <textarea
                                 placeholder="Delivery Address"
-                                value={editingItem.deliveryAddress}
-                                onChange={(e) => setEditingItem({...editingItem, deliveryAddress: e.target.value})}
+                                value={editingItem.deliveryAddress?.address || ''}
+                                onChange={(e) => setEditingItem({
+                                    ...editingItem,
+                                    deliveryAddress: {
+                                        ...(editingItem.deliveryAddress || {}),
+                                        address: e.target.value
+                                    }
+                                })}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 rows="3"
                                 required

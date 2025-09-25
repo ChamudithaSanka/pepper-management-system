@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CustomerIncome = () => {
+const MarketplaceIncome = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statistics, setStatistics] = useState({
@@ -112,7 +112,7 @@ const CustomerIncome = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Customer Income</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Marketplace Income</h2>
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -142,7 +142,7 @@ const CustomerIncome = () => {
                             {formatCurrency(statistics.totalIncome)}
                         </div>
                         <p className="text-xs text-gray-500">
-                            From completed payments
+                            From marketplace sales
                         </p>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ const CustomerIncome = () => {
                             {statistics.totalPayments}
                         </div>
                         <p className="text-xs text-gray-500">
-                            All payment records
+                            All marketplace orders
                         </p>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ const CustomerIncome = () => {
             {/* Payments Table */}
             <div className="bg-white rounded-lg shadow border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Recent Customer Payments</h3>
+                    <h3 className="text-lg font-semibold">Recent Marketplace Transactions</h3>
                 </div>
                 <div className="p-6">
                     <div className="overflow-x-auto">
@@ -280,4 +280,4 @@ const CustomerIncome = () => {
     );
 };
 
-export default CustomerIncome;
+export default MarketplaceIncome;
