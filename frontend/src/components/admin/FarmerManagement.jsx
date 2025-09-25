@@ -14,6 +14,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         name: '',
         nic: '',
         phone: '',
+        email: '',
         address: '',
         farm_location: {
             latitude: null,
@@ -54,6 +55,13 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                     errors.phone = 'Enter valid phone number (8-15 digits)';
                 } else {
                     delete errors.phone;
+                }
+                break;
+            case 'email':
+                if (value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim())) {
+                    errors.email = 'Enter a valid email address';
+                } else {
+                    delete errors.email;
                 }
                 break;
             case 'name':
@@ -158,6 +166,11 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         } else if (!/^[0-9]{8,15}$/.test(newItem.phone.trim())) {
             errors.push('Please enter a valid phone number (8-15 digits)');
         }
+
+        // Email validation (optional)
+        if (newItem.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(newItem.email.trim())) {
+            errors.push('Please enter a valid email');
+        }
         
         // Address validation
         if (!newItem.address.trim()) {
@@ -235,6 +248,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                     name: '',
                     nic: '',
                     phone: '',
+                    email: '',
                     address: '',
                     farm_location: {
                         latitude: null,
@@ -495,6 +509,22 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                 />
                                 {fieldErrors.phone && <p className="text-red-500 text-sm mt-1">{fieldErrors.phone}</p>}
                             </div>
+
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email (optional)"
+                                    value={newItem.email}
+                                    onChange={(e) => {
+                                        setNewItem({...newItem, email: e.target.value});
+                                        validateField('email', e.target.value);
+                                    }}
+                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
+                                        fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                />
+                                {fieldErrors.email && <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>}
+                            </div>
                             
                             <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
                                 <div className="text-sm text-gray-600 mb-2">Farm Location</div>
@@ -651,6 +681,9 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                         Phone
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Email
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Farm Location
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -678,6 +711,9 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {farmer.phone}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {farmer.email || '—'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {farmer.farm_location?.address || 'N/A'}
@@ -757,6 +793,13 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                 onChange={(e) => setEditingItem({...editingItem, phone: e.target.value})}
                                 className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
+                            />
+                            <input
+                                type="email"
+                                placeholder="Email (optional)"
+                                value={editingItem.email || ''}
+                                onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
+                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             />
                             <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
                                 <div className="text-sm text-gray-600 mb-2">Farm Location</div>

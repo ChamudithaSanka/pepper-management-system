@@ -289,7 +289,10 @@ const DriverManagement = () => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Driver
+                                        ID
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         NIC
@@ -317,24 +320,11 @@ const DriverManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredDrivers.map((driver) => (
                                     <tr key={driver._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-10 w-10">
-                                                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                                        <span className="text-sm font-medium text-blue-600">
-                                                            {driver.name.charAt(0)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {driver.name}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        ID: {driver.driverId}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {driver.driverId}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {driver.name}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {driver.nic}
