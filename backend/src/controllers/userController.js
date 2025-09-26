@@ -1,5 +1,110 @@
 import User from '../models/userModel.js';
 
+// STAFF LOGIN
+export const loginStaff = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Invalid email or password' 
+            });
+        }
+        
+        // Check if user is active
+        if (user.status !== 'Active') {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Account is inactive. Please contact admin.' 
+            });
+        }
+        
+        // Simple password check (in production, use bcrypt)
+        if (user.password !== password) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Invalid email or password' 
+            });
+        }
+        
+        // Don't send password in response
+        const userResponse = user.toObject();
+        delete userResponse.password;
+        
+        // Store user info in session
+        req.session.staff = {
+            userId: user.userId,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        };
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Login successful', 
+            data: userResponse 
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error during login', 
+            error: error.message 
+        });
+    }
+};
+
+// STAFF LOGOUT
+export const logoutStaff = async (req, res) => {
+    try {
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ 
+                    success: false, 
+                    message: 'Error during logout' 
+                });
+            }
+            res.clearCookie('connect.sid');
+            res.status(200).json({ 
+                success: true, 
+                message: 'Logout successful' 
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error during logout', 
+            error: error.message 
+        });
+    }
+};
+
+// CHECK STAFF SESSION
+export const checkStaffSession = async (req, res) => {
+    try {
+        if (req.session.staff) {
+            res.status(200).json({ 
+                success: true, 
+                isLoggedIn: true,
+                staff: req.session.staff 
+            });
+        } else {
+            res.status(200).json({ 
+                success: true, 
+                isLoggedIn: false 
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error checking session', 
+            error: error.message 
+        });
+    }
+};
+
 // GET ALL USERS
 export const getAllUsers = async (req, res) => {
     try {
@@ -86,8 +191,13 @@ export const createUser = async (req, res) => {
             });
         }
         
-        // Create new user
+        // Generate userId
+        const lastUser = await User.findOne({}, {}, { sort: { userId: -1 } });
+        const nextUserId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
+        
+        // Create new user with generated userId
         const user = new User({ 
+            userId: nextUserId,
             name, 
             email, 
             password, 
