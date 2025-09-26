@@ -13,6 +13,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import FinanceDashboard from './components/finance/FinanceDashboard';
 import InventoryDashboard from './components/inventory/InventoryDashboard';
 import DeliveryDashboard from './components/delivery/DeliveryDashboard';
+import CustomerDashboard from './components/customer/CustomerDashboard';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       <Route path="/checkout" element={<CheckoutCustomerDetails />} />
       <Route path="/checkout/payment" element={<CheckoutPayment />} />
       <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+      <Route path="/customer-dashboard" element={<CustomerDashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/finance" element={<FinanceDashboard />} />
       <Route path="/inventory" element={<InventoryDashboard />} />
