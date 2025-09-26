@@ -210,7 +210,10 @@ const FarmerPayments = () => {
                                         Payment ID
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farmer
+                                        Farmer Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Farmer NIC
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Order ID
@@ -243,7 +246,9 @@ const FarmerPayments = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">{payment.farmerId?.name || 'N/A'}</div>
-                                            <div className="text-sm text-gray-500">{payment.farmerId?.nic || 'N/A'}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {payment.farmerId?.nic || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {payment.rmOrderId}

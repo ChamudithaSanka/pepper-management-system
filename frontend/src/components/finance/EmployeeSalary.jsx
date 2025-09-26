@@ -47,8 +47,7 @@ const EmployeeSalary = () => {
     const filtered = employees.filter(emp =>
       emp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.employeeId?.toString().includes(searchTerm) ||
-      emp.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.department?.toLowerCase().includes(searchTerm.toLowerCase())
+      emp.designation?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredEmployees(filtered);
   };
@@ -158,7 +157,7 @@ const EmployeeSalary = () => {
           </div>
           <input
             type="text"
-            placeholder="Search employees by name, ID, designation, or department..."
+            placeholder="Search employees"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
@@ -182,7 +181,6 @@ const EmployeeSalary = () => {
                 <th className="text-left py-4 px-6 font-medium text-gray-700">Name</th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700">Employee ID</th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700">Designation</th>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Department</th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700">Basic Salary</th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
                 <th className="text-center py-4 px-6 font-medium text-gray-700">Actions</th>
@@ -207,9 +205,6 @@ const EmployeeSalary = () => {
                     </td>
                     <td className="py-4 px-6">
                       <span className="text-gray-900">{employee.designation}</span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className="text-gray-900">{employee.department || 'N/A'}</span>
                     </td>
                     <td className="py-4 px-6">
                       <span className="text-gray-900 font-medium">
@@ -240,7 +235,7 @@ const EmployeeSalary = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="py-12 text-center text-gray-500">
+                  <td colSpan="6" className="py-12 text-center text-gray-500">
                     {searchTerm ? 'No employees found matching your search.' : 'No employees found.'}
                   </td>
                 </tr>

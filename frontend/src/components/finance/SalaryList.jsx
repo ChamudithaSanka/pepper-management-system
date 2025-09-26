@@ -280,7 +280,13 @@ const SalaryList = () => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Employee
+                                        Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Employee ID
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Designation
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Period
@@ -308,10 +314,9 @@ const SalaryList = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {salaries.map((salary) => (
                                     <tr key={salary._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 font-medium">{salary.employeeName}</div>
-                                            <div className="text-sm text-gray-500">{salary.employeeId} • {salary.designation}</div>
-                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{salary.employeeName}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{salary.employeeId}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{salary.designation}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {getMonthName(salary.month)} {salary.year}
                                         </td>
@@ -331,19 +336,13 @@ const SalaryList = () => {
                                             {formatDate(salary.createdAt)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                            <button
-                                                onClick={() => window.open(`/api/salaries/${salary._id}/pdf`, '_blank')}
-                                                className="text-blue-600 hover:text-blue-900"
-                                                title="Download PDF"
-                                            >
-                                                📄 PDF
-                                            </button>
+
                                             <button
                                                 onClick={() => deleteSalary(salary._id)}
                                                 className="text-red-600 hover:text-red-900"
                                                 title="Delete Record"
                                             >
-                                                🗑️ Delete
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
