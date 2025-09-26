@@ -151,8 +151,10 @@ const DashboardLayout = ({
                 </header>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
-                    {children({ activeSection, setActiveSection })}
+                <main className="flex-1 overflow-y-auto p-6 min-h-screen bg-gray-200">
+                    <div className="max-w-screen-xl mx-auto">
+                        {children({ activeSection, setActiveSection })}
+                    </div>
                 </main>
             </div>
         </div>

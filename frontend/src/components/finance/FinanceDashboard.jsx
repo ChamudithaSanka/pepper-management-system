@@ -8,17 +8,14 @@ import FarmerPayments from './FarmerPayments';
 import MarketplaceIncome from './MarketplaceIncome';
 import { 
     financeSidebarLinks, 
-    financeUserInfo, 
-    financeStatsData, 
-    financeChartData,
-    updateFinanceStats,
-    updateFinanceCharts
+    financeUserInfo
 } from '../../data/financeData';
 
 const FinanceDashboard = () => {
-    const [stats, setStats] = useState(financeStatsData);
-    const [charts, setCharts] = useState(financeChartData);
+    const [stats, setStats] = useState([]);
+    const [charts, setCharts] = useState([]);
     const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         fetchDashboardData();
@@ -26,65 +23,125 @@ const FinanceDashboard = () => {
 
     const fetchDashboardData = async () => {
         setLoading(true);
+
         try {
-            // Fetch finance-related data in parallel
-            const [salaryResponse, farmerResponse, customerResponse] = await Promise.all([
-                fetch('/api/users/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/farmers/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/customers', { credentials: 'include' }).catch(() => null)
+            // Get current month and year
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            // Fetch all payments, employees, farmer payment stats, and salary records in parallel
+            const [paymentsRes, employeesRes, farmerStatsRes, salariesRes] = await Promise.all([
+                fetch('/api/payments', { credentials: 'include' }),
+                fetch('/api/employees', { credentials: 'include' }),
+                fetch('/api/farmer-payments/statistics', { credentials: 'include' }),
+                fetch(`/api/salaries?month=${currentMonth}&year=${currentYear}`, { credentials: 'include' })
             ]);
 
-            const realData = {
-                farmerPayments: { pending: 12, subtitle: 'Awaiting approval' },
-                salaryBudget: { total: 'LKR 245,000', subtitle: 'This month' },
-                customerIssues: { count: 8, subtitle: 'Pending resolution' },
-                totalFlow: { amount: 'LKR 1,250,000', subtitle: 'Revenue this month' },
-                paymentDistribution: [35, 40, 15, 10],
-                expenseBreakdown: [45, 30, 15, 10]
+            let payments = [];
+            let employees = [];
+            let farmerStats = {};
+            let salaries = [];
+
+            if (paymentsRes && paymentsRes.ok) {
+                const data = await paymentsRes.json();
+                payments = data.data?.payments || [];
+            }
+            if (employeesRes && employeesRes.ok) {
+                const data = await employeesRes.json();
+                employees = data.data || [];
+            }
+            if (farmerStatsRes && farmerStatsRes.ok) {
+                const data = await farmerStatsRes.json();
+                farmerStats = data.data || {};
+            }
+            if (salariesRes && salariesRes.ok) {
+                const data = await salariesRes.json();
+                salaries = data.data || [];
+            }
+
+            // Calculate stats
+            const totalSales = payments.length;
+            const totalMonthlyFlow = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+            // Sum netSalary from salary records for the current month/year
+            const totalSalary = salaries.reduce((sum, s) => sum + (s.netSalary || 0), 0);
+            const totalFarmerPayments = farmerStats.totalAmount || 0;
+            const totalExpense = totalSalary + totalFarmerPayments;
+            const totalProfit = totalMonthlyFlow - totalExpense;
+
+            // Format currency
+            const formatCurrency = (amount) =>
+                'LKR ' + amount.toLocaleString('en-LK', { minimumFractionDigits: 2 });
+
+            // Build new stats array
+            const newStats = [
+                {
+                    title: 'Total Sales',
+                    value: totalSales,
+                    valueColor: 'text-blue-600',
+                    icon: 'orders',
+                    iconBgColor: 'bg-blue-100',
+                },
+                {
+                    title: 'Total Monthly Flow',
+                    value: formatCurrency(totalMonthlyFlow),
+                    valueColor: 'text-green-600',
+                    icon: 'revenue',
+                    iconBgColor: 'bg-green-100',
+                },
+                {
+                    title: 'Total Expense',
+                    value: formatCurrency(totalExpense),
+                    valueColor: 'text-red-600',
+                    icon: 'inventory',
+                    iconBgColor: 'bg-red-100',
+                },
+                {
+                    title: 'Total Profit',
+                    value: formatCurrency(totalProfit),
+                    valueColor: totalProfit >= 0 ? 'text-green-600' : 'text-red-600',
+                    icon: 'revenue',
+                    iconBgColor: totalProfit >= 0 ? 'bg-green-100' : 'bg-red-100',
+                },
+            ];
+
+            // Chart 1: Income vs Expense
+            const chart1 = {
+                title: 'Income vs Expense',
+                data: {
+                    labels: ['Income', 'Expense'],
+                    datasets: [{
+                        data: [totalMonthlyFlow, totalExpense],
+                        backgroundColor: [
+                            '#10B981', // green-500
+                            '#EF4444', // red-500
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                    }]
+                }
             };
 
-            // Process salary data
-            if (salaryResponse && salaryResponse.ok) {
-                const salaryData = await salaryResponse.json();
-                if (salaryData.data) {
-                    realData.salaryBudget = {
-                        total: `LKR ${(salaryData.data.totalUsers * 50000) || 245000}`,
-                        subtitle: 'This month'
-                    };
+            // Chart 2: Monthly Expense Breakdown
+            const chart2 = {
+                title: 'Monthly Expense Breakdown',
+                data: {
+                    labels: ['Salary', 'Farmer Payments'],
+                    datasets: [{
+                        data: [totalSalary, totalFarmerPayments],
+                        backgroundColor: [
+                            '#F59E0B', // yellow-500
+                            '#8B5CF6', // purple-500
+                            '#06B6D4', // cyan-500
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                    }]
                 }
-            }
+            };
 
-            // Process farmer payment data
-            if (farmerResponse && farmerResponse.ok) {
-                const farmerData = await farmerResponse.json();
-                if (farmerData.data) {
-                    realData.farmerPayments = {
-                        pending: farmerData.data.totalFarmers || 12,
-                        subtitle: 'Awaiting approval'
-                    };
-                }
-            }
-
-            // Process customer payment issues
-            if (customerResponse && customerResponse.ok) {
-                const customerData = await customerResponse.json();
-                if (customerData.data) {
-                    const customers = customerData.data;
-                    realData.customerIssues = {
-                        count: Math.floor(customers.length * 0.1) || 8,
-                        subtitle: 'Pending resolution'
-                    };
-                    
-                    realData.totalFlow = {
-                        amount: `LKR ${(customers.length * 15000) || 1250000}`,
-                        subtitle: 'Revenue this month'
-                    };
-                }
-            }
-
-            // Update stats and charts with real data
-            setStats(updateFinanceStats(financeStatsData, realData));
-            setCharts(updateFinanceCharts(financeChartData, realData));
+            setStats(newStats);
+            setCharts([chart1, chart2]);
 
         } catch (error) {
             console.error('Error fetching finance dashboard data:', error);

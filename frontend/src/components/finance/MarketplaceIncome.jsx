@@ -53,9 +53,7 @@ const MarketplaceIncome = () => {
         const totalPayments = paymentsData.length;
         const completedPayments = paymentsData.filter(p => p.paymentStatus === 'Completed').length;
         const pendingPayments = paymentsData.filter(p => p.paymentStatus === 'Pending').length;
-        const totalIncome = paymentsData
-            .filter(p => p.paymentStatus === 'Completed')
-            .reduce((sum, payment) => sum + payment.amount, 0);
+        const totalIncome = paymentsData.reduce((sum, payment) => sum + payment.amount, 0);
 
         setStatistics({
             totalIncome,
@@ -66,9 +64,10 @@ const MarketplaceIncome = () => {
     };
 
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-LK', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'LKR',
+            minimumFractionDigits: 2
         }).format(amount);
     };
 
@@ -211,7 +210,7 @@ const MarketplaceIncome = () => {
             {/* Payments Table */}
             <div className="bg-white rounded-lg shadow border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Recent Marketplace Transactions</h3>
+                    <h3 className="text-lg font-semibold">Recent Transactions</h3>
                 </div>
                 <div className="p-6">
                     <div className="overflow-x-auto">
@@ -219,7 +218,9 @@ const MarketplaceIncome = () => {
                             <thead>
                                 <tr className="border-b">
                                     <th className="text-left p-2 font-medium">Payment ID</th>
-                                    <th className="text-left p-2 font-medium">Customer</th>
+                                    <th className="text-left p-2 font-medium">Customer Name</th>
+                                    <th className="text-left p-2 font-medium">Customer Email</th>
+                                    <th className="text-left p-2 font-medium">Customer ID</th>
                                     <th className="text-left p-2 font-medium">Amount</th>
                                     <th className="text-left p-2 font-medium">Method</th>
                                     <th className="text-left p-2 font-medium">Status</th>
@@ -232,20 +233,14 @@ const MarketplaceIncome = () => {
                                         <td className="p-2 text-sm font-mono">
                                             {payment.paymentId}
                                         </td>
-                                        <td className="p-2">
-                                            <div>
-                                                <div className="font-medium">
-                                                    {payment.customerId?.name || `Customer ID: ${payment.customerId || 'N/A'}`}
-                                                </div>
-                                                <div className="text-sm text-gray-500">
-                                                    {payment.customerId?.email || 'No email available'}
-                                                </div>
-                                                {!payment.customerId?.name && (
-                                                    <div className="text-xs text-red-500">
-                                                        Customer record missing
-                                                    </div>
-                                                )}
-                                            </div>
+                                        <td className="p-2 font-medium">
+                                            {payment.customerId?.name || 'N/A'}
+                                        </td>
+                                        <td className="p-2 text-gray-500">
+                                            {payment.customerId?.email || 'No email available'}
+                                        </td>
+                                        <td className="p-2 text-sm">
+                                            {payment.customerId?.customerId || 'N/A'}
                                         </td>
                                         <td className="p-2 font-medium">
                                             {formatCurrency(payment.amount)}

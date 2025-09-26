@@ -57,7 +57,7 @@ const StatCards = ({ statsData }) => {
     return (
         <div className="grid grid-cols-4 gap-6 mb-8">
             {statsData.map((stat, index) => (
-                <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div key={index} className="bg-red-300 border border-gray-200 rounded-lg p-6 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm">{stat.title}</p>
