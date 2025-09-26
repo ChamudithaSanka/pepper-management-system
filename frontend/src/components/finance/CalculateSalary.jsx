@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CalculateSalary = () => {
+const CalculateSalary = ({ preSelectedEmployee = null, onBack = null }) => {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -60,7 +60,12 @@ const CalculateSalary = () => {
 
     useEffect(() => {
         fetchEmployees();
-    }, []);
+        // If preSelectedEmployee is provided, set it as selected
+        if (preSelectedEmployee) {
+            setSelectedEmployee(preSelectedEmployee);
+            setSearchTerm(preSelectedEmployee.name);
+        }
+    }, [preSelectedEmployee]);
 
     useEffect(() => {
         if (selectedEmployee) {
@@ -256,39 +261,61 @@ const CalculateSalary = () => {
                 </div>
             </div>
 
-            {/* Employee Search Dropdown */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg font-medium mb-4">Select Employee</h3>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search employee by name, ID, or designation..."
-                        value={searchTerm}
-                        onChange={(e) => {
-                            setSearchTerm(e.target.value);
-                            setShowDropdown(true);
-                        }}
-                        onFocus={() => setShowDropdown(true)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                    {showDropdown && filteredEmployees.length > 0 && (
-                        <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
-                            {filteredEmployees.map((employee) => (
-                                <div
-                                    key={employee._id}
-                                    onClick={() => handleEmployeeSelect(employee)}
-                                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                >
-                                    <div className="font-medium text-gray-900">{employee.name}</div>
-                                    <div className="text-sm text-gray-500">
-                                        ID: {employee.employeeId} | {employee.designation}
+            {/* Employee Search Dropdown - Only show if no preSelectedEmployee */}
+            {!preSelectedEmployee && (
+                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <h3 className="text-lg font-medium mb-4">Select Employee</h3>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search employee by name, ID, or designation..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setShowDropdown(true);
+                            }}
+                            onFocus={() => setShowDropdown(true)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                        {showDropdown && filteredEmployees.length > 0 && (
+                            <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
+                                {filteredEmployees.map((employee) => (
+                                    <div
+                                        key={employee._id}
+                                        onClick={() => handleEmployeeSelect(employee)}
+                                        className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                    >
+                                        <div className="font-medium text-gray-900">{employee.name}</div>
+                                        <div className="text-sm text-gray-500">
+                                            ID: {employee.employeeId} | {employee.designation}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
+
+            {/* Selected Employee Info - Show when preSelectedEmployee is provided */}
+            {preSelectedEmployee && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6 shadow-sm">
+                    <h3 className="text-lg font-medium mb-4 text-green-800">Selected Employee</h3>
+                    <div className="flex items-center">
+                        <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-4">
+                            <span className="text-white font-medium text-lg">
+                                {preSelectedEmployee.name?.charAt(0)?.toUpperCase() || 'E'}
+                            </span>
+                        </div>
+                        <div>
+                            <div className="font-medium text-gray-900">{preSelectedEmployee.name}</div>
+                            <div className="text-sm text-gray-600">
+                                ID: {preSelectedEmployee.employeeId} | {preSelectedEmployee.designation}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Error Display */}
             {error && (

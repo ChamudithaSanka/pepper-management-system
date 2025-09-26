@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import Carousel from './Carousel';
 
 const Homepage = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cyan-00">
       <Header />
       
       {/* Hero Carousel Section */}
@@ -14,7 +15,7 @@ const Homepage = () => {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-teal-500">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Welcome to <span className="text-green-600">Ceylon Pepper</span>
@@ -23,9 +24,9 @@ const Homepage = () => {
             Discover the finest Ceylon pepper and pepper-based products, sourced directly from Sri Lankan farms. 
             Experience authentic flavors that have made Ceylon pepper famous worldwide.
           </p>
-          <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors">
+          <Link to="/shop" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block">
             Explore Our Products
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -90,9 +91,9 @@ const Homepage = () => {
           </div>
 
           <div className="text-center mt-12">
-            <button className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors">
+            <Link to="/shop" className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block">
               View All Products
-            </button>
+            </Link>
           </div>
         </div>
       </section>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import StatCards from '../Dashboard/StatCards';
 import PieChart from '../Dashboard/PieChart';
-import CalculateSalary from './CalculateSalary';
+import EmployeeSalary from './EmployeeSalary';
 import SalaryList from './SalaryList';
 import FarmerPayments from './FarmerPayments';
 import MarketplaceIncome from './MarketplaceIncome';
@@ -135,7 +135,7 @@ const FinanceDashboard = () => {
             case 'employee-salary':
                 return (
                     <div className="space-y-6">
-                        <CalculateSalary />
+                        <EmployeeSalary />
                     </div>
                 );
 
