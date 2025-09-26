@@ -39,6 +39,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    size: {
+        type: String,
+        required: false // Optional for backward compatibility
+    },
     price: {
         type: Number,
         required: true
@@ -61,12 +65,13 @@ const productSchema = new mongoose.Schema({
         default: "InStock"
     },
     rawMaterialRecipe: [rawMaterialRecipeSchema],
-    expiryDate: {
-        type: Date
+    imageUrl: {
+        type: String,
+        default: null
     },
     status: {
         type: String,
-        enum: ["Active", "Expiring Soon"], // Removed "Expired"
+        enum: ["Active"], // Simplified since no expiry tracking
         default: "Active"
     }
 }, {
@@ -78,30 +83,30 @@ productSchema.index({ productId: 1 });
 
 // ------------------ Pre-save hooks ------------------
 
-// Update stockStatus before save
-productSchema.pre('save', function(next) {
-    if (this.currentStock <= this.reorderLevel) {
-        this.stockStatus = "LowStock";
-    } else {
-        this.stockStatus = "InStock";
+// Generate productId before validation so required check passes
+productSchema.pre('validate', async function(next) {
+    if (!this.productId && this.isNew) {
+        try {
+            const count = await this.constructor.countDocuments({});
+            this.productId = `PID-${String(count + 1).padStart(3, '0')}`;
+        } catch (error) {
+            return next(error);
+        }
     }
     next();
 });
 
-// Expiry and status check
+// Update stockStatus before save
 productSchema.pre('save', function(next) {
-    // Existing stock status check
+    // Stock status check
     if (this.currentStock <= this.reorderLevel) {
         this.stockStatus = "LowStock";
     } else {
         this.stockStatus = "InStock";
     }
 
-    // Expiry status handling
-    if (this.expiryDate) {
-        const daysUntilExpiry = Math.ceil((this.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-        this.status = daysUntilExpiry <= 10 ? "Expiring Soon" : "Active";
-    }
+    // Status is always Active since no expiry tracking
+    this.status = "Active";
 
     next();
 });

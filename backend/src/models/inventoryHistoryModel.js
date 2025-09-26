@@ -43,12 +43,9 @@ const inventoryHistorySchema = new mongoose.Schema({
         enum: ['InStock', 'LowStock'],   
         required: true 
     },
-    expiryDate: { 
-        type: Date 
-    },
     status: { 
         type: String, 
-        enum: ['Active', 'Expiring Soon'], 
+        enum: ['Active'], 
         required: true 
     }
 }, {
