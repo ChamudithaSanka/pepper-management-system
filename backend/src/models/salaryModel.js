@@ -115,8 +115,6 @@ const salarySchema = new mongoose.Schema({
 // Compound index for unique salary per employee per month/year
 salarySchema.index({ employeeId: 1, month: 1, year: 1 }, { unique: true });
 
-// Index for querying by status
-salarySchema.index({ status: 1 });
 
 // Index for date range queries
 salarySchema.index({ year: 1, month: 1 });
