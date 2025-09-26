@@ -64,14 +64,21 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white text-gray-900 shadow-lg border-b border-gray-200">
+    <header className="bg-amber-100 text-gray-800 shadow-lg border-b border-gray-200">
       {/* Top Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-green-600">
-              Ceylon<span className="text-gray-900">Pepper</span>
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/images/logo1.png" 
+                alt="Ceylon Pepper Logo" 
+                className="h-10 w-10 mr-3"
+              />
+              <span className="text-2xl font-bold text-green-600">
+                Ceylon<span className="text-gray-900">Pepper</span>
+              </span>
             </Link>
           </div>
 

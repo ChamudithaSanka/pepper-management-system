@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const Carousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -6,31 +7,18 @@ const Carousel = () => {
   const slides = [
     {
       id: 1,
-      title: "Premium Ceylon Black Pepper",
-      subtitle: "Finest quality black pepper from Sri Lankan highlands",
-      description: "Hand-picked and sun-dried to perfection, our black pepper delivers exceptional flavor and aroma.",
-      bgColor: "bg-gradient-to-r from-green-100 to-green-200"
+      title: "Finest quality black pepper from Sri Lankan highlands",
+      image: "/images/carousel1.jpg"
     },
     {
       id: 2,
-      title: "Fresh Green Pepper",
-      subtitle: "Aromatic green pepper straight from our farms",
-      description: "Experience the fresh, vibrant taste of our premium green pepper products.",
-      bgColor: "bg-gradient-to-r from-gray-100 to-green-100"
+      title: "Aromatic green pepper straight from our farms",
+      image: "/images/carousel2.jpg"
     },
     {
       id: 3,
-      title: "Processed Pepper Products",
-      subtitle: "Value-added products for modern kitchens",
-      description: "From ground pepper to pepper sauces, discover our range of processed products.",
-      bgColor: "bg-gradient-to-r from-green-50 to-gray-100"
-    },
-    {
-      id: 4,
-      title: "Farm to Table Quality",
-      subtitle: "Direct from Sri Lankan pepper farms",
-      description: "We ensure the highest quality by maintaining direct relationships with local farmers.",
-      bgColor: "bg-gradient-to-r from-gray-50 to-green-50"
+      title: "Value-added products for modern kitchens",
+      image: "/images/carousel3.png"
     }
   ];
 
@@ -56,7 +44,8 @@ const Carousel = () => {
   };
 
   return (
-    <div className="relative h-96 overflow-hidden">
+    <div className="flex justify-center px-4 mt-6 md:mt-8">
+      <div className="relative w-full max-w-6xl h-96 md:h-96 lg:h-[480px] overflow-hidden">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -66,24 +55,19 @@ const Carousel = () => {
             index < currentSlide ? '-translate-x-full' : 'translate-x-full'
           }`}
         >
-          <div className={`${slide.bgColor} h-full flex items-center justify-center text-gray-900`}>
-            <div className="text-center max-w-4xl px-8">
-              {/* Placeholder for image */}
-              <div className="w-32 h-32 bg-green-600 mx-auto mb-6 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg font-bold">IMG</span>
-              </div>
-              
-              <h2 className="text-4xl font-bold mb-4 text-green-700">{slide.title}</h2>
-              <h3 className="text-xl mb-4 text-gray-700">{slide.subtitle}</h3>
-              <p className="text-lg text-gray-600 mb-6">{slide.description}</p>
-              
-              <div className="space-x-4">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+          <div className="h-full w-full relative">
+            {/* subtle gradient to improve text contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+            <img src={slide.image} alt={slide.title} className="w-full h-full object-cover object-center" />
+
+            {/* Overlay content pinned to bottom-center */}
+            <div className="absolute left-1/2 bottom-6 transform -translate-x-1/2 flex flex-col items-center text-center px-4">
+              <div className="max-w-3xl">
+                <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold text-white drop-shadow-lg">{slide.title}</h3>
+                <Link to="/shop" className="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md font-medium transition-colors inline-block text-center">
                   Shop Now
-                </button>
-                <button className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                  Learn More
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -120,6 +104,7 @@ const Carousel = () => {
             }`}
           />
         ))}
+      </div>
       </div>
     </div>
   );
