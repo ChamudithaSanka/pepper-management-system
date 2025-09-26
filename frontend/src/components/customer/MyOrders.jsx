@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { generateOrderConfirmationPDF } from '../../utils/generateReceipt';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -58,6 +59,15 @@ const MyOrders = () => {
     }
   };
 
+  const handleGeneratePDF = async (order) => {
+    try {
+      await generateOrderConfirmationPDF(order);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
+  };
+
   const filteredOrders = Array.isArray(orders) ? orders.filter(order => {
     if (filter === 'all') return true;
     if (filter === 'pending') return ['Pending', 'Confirmed', 'Processing', 'Shipped'].includes(order.orderStatus);
@@ -113,101 +123,65 @@ const MyOrders = () => {
           </button>
         </div>
       </div>
-
       {filteredOrders.length > 0 ? (
-        <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <div key={order.orderId} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Order #{order.orderId}
-                  </h3>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.orderStatus)}`}>
-                    {order.orderStatus}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-gray-900">
-                    LKR {order.totalAmount.toFixed(2)}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Items:</h4>
-                <div className="space-y-2">
-                  {order.items.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{item.productName}</div>
-                        <div className="text-sm text-gray-600">
-                          Quantity: {item.quantity} × LKR {item.price.toFixed(2)}
-                        </div>
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-green-50 to-white">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Items</th>
+                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Amount</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Payment</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Created</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Est. Delivery</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {filteredOrders.map((order, idx) => (
+                <tr key={order.orderId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50`}>
+                  <td className="px-4 py-3 text-sm font-mono text-gray-700">#{order.orderId}</td>
+                  <td className="px-4 py-3 text-sm text-gray-800">
+                    {order.items?.map((it, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="text-sm">{it.productName} x{it.quantity}</div>
+                        <div className="text-sm text-gray-600">LKR {it.subtotal.toFixed(2)}</div>
                       </div>
-                      <div className="font-medium text-gray-900">
-                        LKR {item.subtotal.toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Delivery Information */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium text-gray-700">Delivery Address:</span>
-                  <div className="text-gray-600 mt-1">
-                    {order.deliveryAddress?.fullAddress || 'Address not available'}
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700">Estimated Delivery:</span>
-                  <div className="text-gray-600 mt-1">
-                    {order.estimatedDeliveryDate 
-                      ? new Date(order.estimatedDeliveryDate).toLocaleDateString()
-                      : 'Not available'
-                    }
-                  </div>
-                  {order.actualDeliveryDate && (
-                    <>
-                      <span className="font-medium text-gray-700 block mt-2">Delivered On:</span>
-                      <div className="text-green-600 mt-1">
-                        {new Date(order.actualDeliveryDate).toLocaleDateString()}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Payment Status */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-700">Payment Status:</span>
+                    ))}
+                  </td>
+                  <td className="px-4 py-3 text-sm font-medium text-right text-gray-900">LKR {order.totalAmount.toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.orderStatus)}`}>
+                      {order.orderStatus}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      order.paymentStatus === 'Completed'
-                        ? 'bg-green-100 text-green-800'
-                        : order.paymentStatus === 'Failed'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-orange-100 text-orange-800'
+                      order.paymentStatus === 'Completed' ? 'bg-green-100 text-green-800' : order.paymentStatus === 'Failed' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'
                     }`}>
                       {order.paymentStatus}
                     </span>
-                  </div>
-                  {order.notes && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Notes:</span> {order.notes}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toLocaleDateString() : 'N/A'}</td>
+                  <td className="px-4 py-3 text-center text-sm font-medium">
+                    <div className="flex gap-2 justify-center">
+                      <button 
+                        onClick={() => handleGeneratePDF(order)}
+                        className="text-red-600 hover:text-red-800 inline-flex items-center"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        PDF
+                      </button>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-lg">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateSalarySlipPDF } from '../../utils/pdfGenerator';
+import { generateSalarySlipPDF } from '../../utils/salarySlipGenerator.js';
 
 const CalculateSalary = ({ preSelectedEmployee = null, onBack = null }) => {
     const [employees, setEmployees] = useState([]);
