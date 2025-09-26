@@ -16,13 +16,20 @@ const farmerSchema = new mongoose.Schema({
         required: [true, 'NIC number is required'],
         unique: true,
         trim: true,
-        match: [/^(\d{9}[vVxX]|\d{12})$/, 'Please enter a valid NIC number (9 digits + V/X or 12 digits)']
+        match: [/^(\d{8,9}[vVxX]|\d{12})$/, 'Please enter a valid NIC number (8-9 digits + V/X or 12 digits)']
     },
     phone: {
         type: String,
         required: true,
         trim: true,
-        match: [/^[0-9]{10,15}$/, 'Please enter a valid phone number']
+        match: [/^[0-9]{8,15}$/, 'Please enter a valid phone number (8-15 digits)']
+    },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: [/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'Please enter a valid email']
+        // Note: do not set unique immediately to avoid migration issues
     },
     address: {
         type: String,
@@ -31,10 +38,24 @@ const farmerSchema = new mongoose.Schema({
         maxlength: [500, 'Address cannot exceed 500 characters']
     },
     farm_location: {
-        type: String,
-        required: [false, 'Farm location is required'], //change to true later.
-        trim: true,
-        maxlength: [200, 'Farm location cannot exceed 200 characters']
+        latitude: {
+            type: Number,
+            required: true,
+            min: [-90, 'Latitude must be between -90 and 90'],
+            max: [90, 'Latitude must be between -90 and 90']
+        },
+        longitude: {
+            type: Number,
+            required: true,
+            min: [-180, 'Longitude must be between -180 and 180'],
+            max: [180, 'Longitude must be between -180 and 180']
+        },
+        address: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: [500, 'Address cannot exceed 500 characters']
+        }
     },
     pepper_capacitypermonth: {
         green: {
