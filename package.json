@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
+    "express-session": "^1.18.2"
+  }
+}
