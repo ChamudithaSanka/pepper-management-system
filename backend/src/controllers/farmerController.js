@@ -7,11 +7,11 @@ export const getAllFarmers = async (req, res) => {
         
         let query = {};
         
-        // Search by name or farm_location
+        // Search by name or farm_location address
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
-                { farm_location: { $regex: search, $options: 'i' } }
+                { 'farm_location.address': { $regex: search, $options: 'i' } }
             ];
         }
         
@@ -68,6 +68,7 @@ export const createFarmer = async (req, res) => {
             name,
             nic,
             phone, 
+            email,
             address, 
             farm_location, 
             pepper_capacitypermonth,
@@ -88,6 +89,7 @@ export const createFarmer = async (req, res) => {
             name,
             nic,
             phone,
+            email,
             address,
             farm_location,
             pepper_capacitypermonth,
@@ -127,6 +129,7 @@ export const updateFarmer = async (req, res) => {
             name,
             nic,
             phone, 
+            email,
             address, 
             farm_location, 
             pepper_capacitypermonth,
@@ -155,6 +158,7 @@ export const updateFarmer = async (req, res) => {
                 name,
                 nic,
                 phone,
+                email,
                 address,
                 farm_location,
                 pepper_capacitypermonth,
