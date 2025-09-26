@@ -128,7 +128,7 @@ const MarketplaceIncome = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium">Total Income</h3>
+                        <h3 className="text-sm font-medium">Income</h3>
                         <div className="h-4 w-4 text-green-600">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
@@ -148,7 +148,7 @@ const MarketplaceIncome = () => {
 
                 <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium">Total Payments</h3>
+                        <h3 className="text-sm font-medium"> Payments</h3>
                         <div className="h-4 w-4 text-blue-600">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
