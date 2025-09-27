@@ -128,10 +128,7 @@ export const createDeliveryTask = async (req, res) => {
             driverName: driverData ? driverData.name : null,
             pickupLocation,
             deliveryLocation,
-            assignedAt: driverData ? new Date() : null,
-            customerName: customerInfo.name,
-            customerPhone: customerInfo.phone,
-            orderDetails: orderData
+            assignedAt: driverData ? new Date() : null
         });
         
         await deliveryTask.save();

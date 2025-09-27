@@ -127,16 +127,12 @@ export const assignDriverToOrder = async (req, res) => {
             // Create delivery task
             deliveryTask = new DeliveryTask({
                 orderId,
-                customerId: customerInfo.id,
                 driverId: driver._id,
                 driverName: driver.name,
                 pickupLocation,
                 deliveryLocation,
                 status: 'Assigned',
-                assignedAt: new Date(),
-                customerName: customerInfo.name,
-                customerPhone: customerInfo.phone,
-                orderDetails: customerOrder
+                assignedAt: new Date()
             });
         } else {
             // Update existing delivery task with driver info

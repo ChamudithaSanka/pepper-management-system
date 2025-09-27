@@ -4,6 +4,7 @@ import StatCards from '../Dashboard/StatCards';
 import PieChart from '../Dashboard/PieChart';
 import DriverManagement from './DriverManagement';
 import OrdersView from './OrdersView';
+import DeliveriesView from './DeliveriesView';
 import { 
     deliverySidebarLinks, 
     deliveryUserInfo, 
@@ -125,15 +126,7 @@ const DeliveryDashboard = () => {
             case 'deliveries':
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Deliveries View</h2>
-                        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
-                            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707L15 6.586A1 1 0 0014.414 6H14v1z"/>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Deliveries View</h3>
-                            <p className="text-gray-400">Deliveries view features will be implemented here</p>
-                        </div>
+                        <DeliveriesView onStatsUpdate={fetchDashboardData} />
                     </div>
                 );
 
