@@ -25,11 +25,12 @@ const AdminDashboard = () => {
         try {
             // Fetch all dashboard data in parallel
             const [farmerResponse, userResponse, customerResponse, employeeResponse] = await Promise.all([
-                fetch('/api/farmers/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/users/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/customers/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/employees', { credentials: 'include' }).catch(() => null)
+                fetch('/api/farmers/stats', { credentials: 'include' }).catch((err) => { console.log('Farmer API error:', err); return null; }),
+                fetch('/api/users/stats', { credentials: 'include' }).catch((err) => { console.log('User API error:', err); return null; }),
+                fetch('/api/customers/stats', { credentials: 'include' }).catch((err) => { console.log('Customer API error:', err); return null; }),
+                fetch('/api/employees', { credentials: 'include' }).catch((err) => { console.log('Employee API error:', err); return null; })
             ]);
+            
 
             const realData = {
                 users: { total: 0, active: 0 },
@@ -88,17 +89,17 @@ const AdminDashboard = () => {
                         active: employees.filter(e => e.status === 'Active').length
                     };
                     
-                    // Calculate role distribution
-                    const roleCount = { admin: 0, finance: 0, inventory: 0, delivery: 0 };
+                    // Calculate designation distribution dynamically
+                    const designationCount = {};
                     employees.forEach(emp => {
-                        switch (emp.role?.toLowerCase()) {
-                            case 'admin': roleCount.admin++; break;
-                            case 'finance manager': case 'finance': roleCount.finance++; break;
-                            case 'inventory manager': case 'inventory': roleCount.inventory++; break;
-                            case 'delivery staff': case 'delivery': roleCount.delivery++; break;
-                        }
+                        const designation = emp.designation || 'Unknown';
+                        designationCount[designation] = (designationCount[designation] || 0) + 1;
                     });
-                    realData.employeeRoles = [roleCount.admin, roleCount.finance, roleCount.inventory, roleCount.delivery];
+                    
+                    // Convert to arrays for chart
+                    const designations = Object.keys(designationCount);
+                    const counts = Object.values(designationCount);
+                    realData.employeeDesignations = { designations, counts };
                 }
             }
 
@@ -161,22 +162,16 @@ const AdminDashboard = () => {
                     }
                 },
                 {
-                    title: 'Employee Role Distribution',
+                    title: 'Employee Designation Distribution',
                     data: {
-                        labels: ['Admin', 'Finance Manager', 'Inventory Manager', 'Delivery Staff'],
+                        labels: realData.employeeDesignations?.designations || [],
                         datasets: [{
-                            data: realData.employeeRoles || [0, 0, 0, 0],
+                            data: realData.employeeDesignations?.counts || [],
                             backgroundColor: [
-                                '#3B82F6', // blue-500
-                                '#10B981', // green-500
-                                '#8B5CF6', // purple-500
-                                '#F59E0B'  // yellow-500
+                                '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#06B6D4', '#84CC16'
                             ],
                             borderColor: [
-                                '#1E40AF', // blue-700
-                                '#047857', // green-700
-                                '#6D28D9', // purple-700
-                                '#D97706'  // yellow-700
+                                '#1E40AF', '#047857', '#6D28D9', '#D97706', '#DC2626', '#0891B2', '#65A30D'
                             ],
                             borderWidth: 2
                         }]

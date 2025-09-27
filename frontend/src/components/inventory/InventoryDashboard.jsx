@@ -7,16 +7,12 @@ import MaterialOrders from './MaterialOrders';
 import ProductManagement from './ProductManagement';
 import { 
     inventorySidebarLinks, 
-    inventoryUserInfo, 
-    inventoryStatsData, 
-    inventoryChartData,
-    updateInventoryStats,
-    updateInventoryCharts
+    inventoryUserInfo
 } from '../../data/inventoryData';
 
 const InventoryDashboard = () => {
-    const [stats, setStats] = useState(inventoryStatsData);
-    const [charts, setCharts] = useState(inventoryChartData);
+    const [stats, setStats] = useState([]);
+    const [charts, setCharts] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -34,12 +30,13 @@ const InventoryDashboard = () => {
             ]);
 
             const realData = {
-                rawMaterials: { total: 45, subtitle: 'Green & Black Pepper' },
-                products: { total: 28, subtitle: 'Ready for sale' },
-                lowStock: { count: 8, subtitle: 'Require restocking' },
-                pendingOrders: { count: 12, subtitle: 'Raw material orders' },
-                rawMaterialDistribution: [65, 35],
-                productStockStatus: [45, 30, 15, 10]
+                rawMaterials: { total: 0, subtitle: 'Active materials' },
+                products: { total: 0, subtitle: 'Total products' },
+                rawMaterialOrders: { total: 0, subtitle: 'All orders' },
+                lowStock: { count: 0, subtitle: 'Need attention' },
+                pendingOrders: { count: 0, subtitle: 'Awaiting delivery' },
+                rawMaterialDistribution: [0, 0],
+                productStockStatus: [0, 0, 0, 0]
             };
 
             // Process raw materials data
@@ -85,7 +82,14 @@ const InventoryDashboard = () => {
             if (ordersResponse && ordersResponse.ok) {
                 const ordersData = await ordersResponse.json();
                 if (ordersData.data) {
-                    const pendingOrders = ordersData.data.filter(order => order.status === 'Pending');
+                    const orders = ordersData.data;
+                    const pendingOrders = orders.filter(order => order.status === 'Pending');
+                    
+                    realData.rawMaterialOrders = {
+                        total: orders.length,
+                        subtitle: 'All orders'
+                    };
+                    
                     realData.pendingOrders = {
                         count: pendingOrders.length,
                         subtitle: 'Awaiting delivery'
@@ -93,9 +97,76 @@ const InventoryDashboard = () => {
                 }
             }
 
-            // Update stats and charts with real data
-            setStats(updateInventoryStats(inventoryStatsData, realData));
-            setCharts(updateInventoryCharts(inventoryChartData, realData));
+            // Build stats array with real data
+            const newStats = [
+                {
+                    title: 'Total Products',
+                    value: realData.products?.total || '0',
+                    subtitle: realData.products?.subtitle || 'Total products',
+                    icon: 'orders',
+                    iconBgColor: 'bg-blue-100',
+                    iconTextColor: 'text-blue-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Total Raw Material Orders',
+                    value: realData.rawMaterialOrders?.total || '0',
+                    subtitle: realData.rawMaterialOrders?.subtitle || 'All orders',
+                    icon: 'farmers',
+                    iconBgColor: 'bg-green-100',
+                    iconTextColor: 'text-green-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Pending Orders',
+                    value: realData.pendingOrders?.count || '0',
+                    subtitle: realData.pendingOrders?.subtitle || 'Awaiting delivery',
+                    icon: 'inventory',
+                    iconBgColor: 'bg-yellow-100',
+                    iconTextColor: 'text-yellow-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Low Stock Products',
+                    value: realData.lowStock?.count || '0',
+                    subtitle: realData.lowStock?.subtitle || 'Need attention',
+                    icon: 'users',
+                    iconBgColor: 'bg-red-100',
+                    iconTextColor: 'text-red-600',
+                    valueColor: 'text-gray-900'
+                }
+            ];
+
+            // Build charts array with real data
+            const newCharts = [
+                {
+                    title: 'Raw Material Distribution',
+                    data: {
+                        labels: ['Green Pepper', 'Black Pepper'],
+                        datasets: [{
+                            data: realData.rawMaterialDistribution || [0, 0],
+                            backgroundColor: ['#10B981', '#1F2937'],
+                            borderColor: ['#047857', '#111827'],
+                            borderWidth: 2
+                        }]
+                    }
+                },
+                {
+                    title: 'Product Stock Status',
+                    data: {
+                        labels: ['In Stock', 'Low Stock', 'Out of Stock', 'Expiring Soon'],
+                        datasets: [{
+                            data: realData.productStockStatus || [0, 0, 0, 0],
+                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#F97316'],
+                            borderColor: ['#047857', '#D97706', '#DC2626', '#EA580C'],
+                            borderWidth: 2
+                        }]
+                    }
+                }
+            ];
+
+            setStats(newStats);
+            setCharts(newCharts);
 
         } catch (error) {
             console.error('Error fetching inventory dashboard data:', error);
@@ -130,8 +201,6 @@ const InventoryDashboard = () => {
                                     key={index}
                                     title={chart.title}
                                     data={chart.data}
-                                    labels={chart.labels}
-                                    backgroundColor={chart.backgroundColor}
                                 />
                             ))}
                         </div>

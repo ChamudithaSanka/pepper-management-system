@@ -55,9 +55,17 @@ const StatCards = ({ statsData }) => {
     };
 
     return (
-        <div className="grid grid-cols-4 gap-6 mb-8">
-            {statsData.map((stat, index) => (
-                <div key={index} className="bg-red-300 border border-gray-200 rounded-lg p-6 shadow-sm">
+    <div className="grid grid-cols-4 gap-6 mb-8" style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)', borderRadius: '1rem', padding: '1rem' }}>
+            {statsData.map((stat, index) => {
+                const bgColors = [
+                    'bg-green-100',
+                    'bg-blue-100',
+                    'bg-yellow-100',
+                    'bg-pink-100'
+                ];
+                const cardBg = bgColors[index % bgColors.length];
+                return (
+                    <div key={index} className={`${cardBg} border border-gray-200 rounded-lg p-6 shadow-sm`}>
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm">{stat.title}</p>
@@ -78,8 +86,9 @@ const StatCards = ({ statsData }) => {
                             <span className="text-xs text-gray-400 ml-2">{stat.trend.period}</span>
                         </div>
                     )}
-                </div>
-            ))}
+                    </div>
+                );
+            })}
         </div>
     );
 };

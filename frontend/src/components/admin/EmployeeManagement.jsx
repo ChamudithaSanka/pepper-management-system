@@ -12,6 +12,11 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
     const [newEmployee, setNewEmployee] = useState({
         name: '',
         designation: '',
+        email: '',
+        nic: '',
+        phoneNumber: '',
+        address: '',
+        dateOfBirth: '',
         basicSalary: ''
     });
 
@@ -218,39 +223,37 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
             )}
 
             {/* Search and Filter Controls */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <div className="flex gap-4 items-center">
-                    <div className="flex-1">
-                        <input
-                            type="text"
-                            placeholder="Search employees by name, ID, designation, or EPF..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        />
-                    </div>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                    <button
-                        onClick={handleSearch}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition-colors"
-                    >
-                        Search
-                    </button>
+            <div className="flex justify-between items-center gap-4">
+                <div className="max-w-md flex-1">
+                    <input
+                        type="text"
+                        placeholder="Search employees..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
+                    />
                 </div>
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500"
+                >
+                    <option value="all">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <button
+                    onClick={handleSearch}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                    Search
+                </button>
             </div>
 
             {/* Add Employee Modal */}
             {showAddForm && createPortal(
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
                         <h3 className="text-lg font-medium mb-4">Add New Employee</h3>
                         <form onSubmit={handleAdd} className="space-y-4">
                             <input
@@ -261,11 +264,58 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
-                            <input
-                                type="text"
-                                placeholder="Designation (e.g., Sorter, Grader, Driver)"
+                            <select
                                 value={newEmployee.designation}
                                 onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            >
+                                <option value="">Select Designation</option>
+                                <option value="Drying Operator">Drying Operator</option>
+                                <option value="Cleaning Operator">Cleaning Operator</option>
+                                <option value="Grinding Operator">Grinding Operator</option>
+                                <option value="Packaging Operator">Packaging Operator</option>
+                                <option value="Machine Operator">Machine Operator</option>
+                                <option value="Helper">Helper</option>
+                                <option value="Raw Material Inspector">Raw Material Inspector</option>
+                            </select>
+                            <input
+                                type="email"
+                                placeholder="Email Address"
+                                value={newEmployee.email}
+                                onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="text"
+                                placeholder="NIC Number"
+                                value={newEmployee.nic}
+                                onChange={(e) => setNewEmployee({...newEmployee, nic: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="tel"
+                                placeholder="Phone Number"
+                                value={newEmployee.phoneNumber}
+                                onChange={(e) => setNewEmployee({...newEmployee, phoneNumber: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <textarea
+                                placeholder="Address"
+                                value={newEmployee.address}
+                                onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                rows="3"
+                                required
+                            />
+                            <input
+                                type="date"
+                                placeholder="Date of Birth"
+                                value={newEmployee.dateOfBirth}
+                                onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
@@ -302,70 +352,97 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
             )}
 
             {/* Employees Table */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="text-gray-500">Loading employees...</div>
                     </div>
                 ) : filteredEmployees.length === 0 ? (
                     <div className="p-8 text-center">
-                        <div className="text-gray-500">No employees found</div>
+                        <div className="text-gray-400">
+                            {searchTerm 
+                                ? 'No employees found matching your search.' 
+                                : 'No employees found.'
+                            }
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Employee ID</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Designation</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Address</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Date of Birth</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Salary</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredEmployees.map((employee) => (
-                                    <tr key={employee._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                            <tbody>
+                                {filteredEmployees.map((employee, idx) => (
+                                    <tr key={employee._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {employee.employeeId}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {employee.name}
+                                        </td>
+                                        <td className="px-2 py-4 whitespace-nowrap">
                                             <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
                                                 {employee.designation}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">LKR {employee.basicSalary?.toLocaleString()}</div>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.email || 'N/A'}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.nic || 'N/A'}
+                                        </td>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.phoneNumber || 'N/A'}
+                                        </td>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.address || 'N/A'}
+                                        </td>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : 'N/A'}
+                                        </td>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">LKR {employee.basicSalary?.toLocaleString()}</td>
+                                        <td className="px-2 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                                 employee.status === 'Active' 
-                                                    ? 'bg-green-100 text-green-800' 
+                                                    ? 'bg-green-100 text-green-800'
                                                     : 'bg-red-100 text-red-800'
                                             }`}>
                                                 {employee.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                             <button
                                                 onClick={() => setEditingEmployee(employee)}
-                                                className="text-green-600 hover:text-green-900 font-medium"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleStatusToggle(employee._id)}
-                                                className={`font-medium ${
+                                                className={`px-3 py-1 rounded-lg font-medium transition-colors shadow-sm ${
                                                     employee.status === 'Active' 
-                                                        ? 'text-orange-600 hover:text-orange-900' 
-                                                        : 'text-blue-600 hover:text-blue-900'
+                                                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
+                                                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                                                 }`}
                                             >
                                                 {employee.status === 'Active' ? 'Deactivate' : 'Activate'}
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(employee._id)}
-                                                className="text-red-600 hover:text-red-900 font-medium"
+                                                className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Delete
                                             </button>
@@ -381,7 +458,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
             {/* Edit Modal */}
             {editingEmployee && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
                         <h3 className="text-lg font-medium mb-4">Edit Employee</h3>
                         <form 
                             onSubmit={(e) => {
@@ -398,11 +475,57 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
-                            <input
-                                type="text"
-                                placeholder="Designation"
+                            <select
                                 value={editingEmployee.designation}
                                 onChange={(e) => setEditingEmployee({...editingEmployee, designation: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            >
+                                <option value="Drying Operator">Drying Operator</option>
+                                <option value="Cleaning Operator">Cleaning Operator</option>
+                                <option value="Grinding Operator">Grinding Operator</option>
+                                <option value="Packaging Operator">Packaging Operator</option>
+                                <option value="Machine Operator">Machine Operator</option>
+                                <option value="Helper">Helper</option>
+                                <option value="Raw Material Inspector">Raw Material Inspector</option>
+                            </select>
+                            <input
+                                type="email"
+                                placeholder="Email Address"
+                                value={editingEmployee.email || ''}
+                                onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="text"
+                                placeholder="NIC Number"
+                                value={editingEmployee.nic || ''}
+                                onChange={(e) => setEditingEmployee({...editingEmployee, nic: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <input
+                                type="tel"
+                                placeholder="Phone Number"
+                                value={editingEmployee.phoneNumber || ''}
+                                onChange={(e) => setEditingEmployee({...editingEmployee, phoneNumber: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                required
+                            />
+                            <textarea
+                                placeholder="Address"
+                                value={editingEmployee.address || ''}
+                                onChange={(e) => setEditingEmployee({...editingEmployee, address: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                rows="3"
+                                required
+                            />
+                            <input
+                                type="date"
+                                placeholder="Date of Birth"
+                                value={editingEmployee.dateOfBirth ? editingEmployee.dateOfBirth.split('T')[0] : ''}
+                                onChange={(e) => setEditingEmployee({...editingEmployee, dateOfBirth: e.target.value})}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />

@@ -39,7 +39,7 @@ const PieChart = ({ title, data, options = {} }) => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+    <div className="border border-gray-200 rounded-lg p-6 shadow-sm" style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)' }}>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">{title}</h3>
             <div className="h-64">
                 {data && data.datasets && data.datasets.length > 0 ? (

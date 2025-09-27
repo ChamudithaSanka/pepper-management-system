@@ -351,7 +351,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
 
     return (
         <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
-        <div className="space-y-6">
+    <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Farmer Management</h2>
@@ -371,14 +371,14 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                         placeholder="Search farmers by name, location, or NIC..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
                         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
                 </div>
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="border border-blue-400 bg-blue-50 text-blue-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-500"
                 >
                     <option value="all">All Status</option>
                     <option value="Active">Active</option>
@@ -414,25 +414,25 @@ const FarmerManagement = ({ onStatsUpdate }) => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Farmers</h3>
-                    <p className="text-2xl font-bold text-gray-900">{filteredFarmers.length}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Farmers</h3>
+                    <p className="text-2xl font-bold text-green-900">{filteredFarmers.length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Active</h3>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-blue-700">Active</h3>
+                    <p className="text-2xl font-bold text-blue-900">
                         {filteredFarmers.filter(farmer => farmer.status === 'Active').length}
                     </p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Inactive</h3>
-                    <p className="text-2xl font-bold text-red-600">
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-yellow-700">Inactive</h3>
+                    <p className="text-2xl font-bold text-yellow-900">
                         {filteredFarmers.filter(farmer => farmer.status === 'Inactive').length}
                     </p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Monthly Capacity</h3>
-                    <p className="text-lg font-bold text-blue-600">
+                <div className="bg-red-100 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-red-700">Monthly Capacity</h3>
+                    <p className="text-lg font-bold text-red-900">
                         {filteredFarmers.reduce((sum, farmer) => 
                             sum + (farmer.pepper_capacitypermonth?.green || 0) + (farmer.pepper_capacitypermonth?.black || 0), 0
                         )} kg
@@ -655,78 +655,48 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farmer ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        NIC
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Phone
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farm Location
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Capacity (kg/month)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Farmer ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Email</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Farm Location</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Capacity</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredFarmers.map((farmer) => (
-                                    <tr key={farmer._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {farmer.farmerId}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {farmer.name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {farmer.nic}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {farmer.phone}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {farmer.email || '—'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {farmer.farm_location?.address || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <tbody>
+                                {filteredFarmers.map((farmer, idx) => (
+                                    <tr key={farmer._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[120px]">{farmer.farmerId}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[120px]">{farmer.name}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[100px]">{farmer.nic}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[100px]">{farmer.phone}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell truncate max-w-[120px]">{farmer.email || '—'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell truncate max-w-[120px]">{farmer.farm_location?.address || 'N/A'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
                                             <div className="text-xs">
-                                                <div>Green: {farmer.pepper_capacitypermonth?.green || 0} kg</div>
-                                                <div>Black: {farmer.pepper_capacitypermonth?.black || 0} kg</div>
+                                                <div>G: {farmer.pepper_capacitypermonth?.green || 0}kg</div>
+                                                <div>B: {farmer.pepper_capacitypermonth?.black || 0}kg</div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-2 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleStatusToggle(farmer._id, farmer.status)}
                                                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors ${
                                                     farmer.status === 'Active' 
-                                                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                                        ? 'bg-green-200 text-green-900 hover:bg-green-300'
+                                                        : 'bg-red-200 text-red-900 hover:bg-red-300'
                                                 }`}
                                             >
                                                 {farmer.status}
                                             </button>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
                                             <button
                                                 onClick={() => setEditingItem(farmer)}
                                                 className="text-green-600 hover:text-green-900 mr-3 font-medium"

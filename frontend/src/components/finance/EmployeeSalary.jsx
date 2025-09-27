@@ -90,65 +90,75 @@ const EmployeeSalary = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Employee Salary Management</h2>
-        <div className="text-sm text-gray-500">
+    <div className="space-y-6 p-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">Employee Salary Management</h2>
+        <div className="bg-blue-50 rounded-lg shadow p-4 text-sm text-gray-700">
           {filteredEmployees.length} of {employees.length} employees
         </div>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-3 rounded-full bg-blue-100">
+              <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{employees.length}</div>
-              <div className="text-sm text-gray-600">Total Employees</div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">
-                {employees.filter(emp => emp.status === 'Active').length}
-              </div>
-              <div className="text-sm text-gray-600">Active Employees</div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Employees</p>
+              <p className="text-2xl font-semibold text-gray-900">{employees.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-3 rounded-full bg-green-100">
+              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Active Employees</p>
+              <p className="text-2xl font-semibold text-gray-900">{employees.filter(emp => emp.status === 'Active').length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-yellow-100">
+              <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Inactive Employees</p>
+              <p className="text-2xl font-semibold text-gray-900">{employees.filter(emp => emp.status !== 'Active').length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-purple-100 border-l-4 border-purple-500 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-purple-100">
+              <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">
-                LKR {employees.reduce((sum, emp) => sum + (emp.basicSalary || 0), 0).toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600">Total Basic Salaries</div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Basic Salaries</p>
+              <p className="text-2xl font-semibold text-gray-900">LKR {employees.reduce((sum, emp) => sum + (emp.basicSalary || 0), 0).toLocaleString()}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-blue-50 rounded-lg shadow mb-6 p-6">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
             <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +170,7 @@ const EmployeeSalary = () => {
             placeholder="Search employees"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 border border-green-400 bg-green-50 text-green-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500"
           />
         </div>
       </div>
@@ -173,24 +183,24 @@ const EmployeeSalary = () => {
       )}
 
       {/* Employee List */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-blue-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+          <table className="min-w-full w-full">
+            <thead className="bg-green-700">
               <tr>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Name</th>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Employee ID</th>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Designation</th>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Basic Salary</th>
-                <th className="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-                <th className="text-center py-4 px-6 font-medium text-gray-700">Actions</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Employee ID</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Designation</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Basic Salary</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                <th className="px-2 py-2 text-center text-xs font-bold text-white uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {filteredEmployees.length > 0 ? (
-                filteredEmployees.map((employee) => (
-                  <tr key={employee._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-6">
+                filteredEmployees.map((employee, idx) => (
+                  <tr key={employee._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                    <td className="px-2 py-2">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
                           <span className="text-green-600 font-medium text-sm">
@@ -200,30 +210,16 @@ const EmployeeSalary = () => {
                         <div className="font-medium text-gray-900">{employee.name}</div>
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="text-gray-900 font-mono">{employee.employeeId}</span>
+                    <td className="px-2 py-2 text-gray-900 font-mono">{employee.employeeId}</td>
+                    <td className="px-2 py-2 text-gray-900">{employee.designation}</td>
+                    <td className="px-2 py-2 text-gray-900 font-medium">LKR {employee.basicSalary?.toLocaleString() || '0'}</td>
+                    <td className="px-2 py-2">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${employee.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{employee.status || 'Active'}</span>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="text-gray-900">{employee.designation}</span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className="text-gray-900 font-medium">
-                        LKR {employee.basicSalary?.toLocaleString() || '0'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        employee.status === 'Active' 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {employee.status || 'Active'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="px-2 py-2 text-center">
                       <button
                         onClick={() => handleCalculateSalary(employee)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
+                        className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
                       >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

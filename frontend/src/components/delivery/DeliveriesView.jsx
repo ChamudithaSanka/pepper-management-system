@@ -145,14 +145,14 @@ const DeliveriesView = ({ onStatsUpdate }) => {
             )}
 
             {/* Filters */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-white border border-green-700 rounded-lg p-4">
                 <div className="flex items-center space-x-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="border border-green-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-700 bg-gray-50 text-gray-900"
                         >
                             <option value="all">All Status</option>
                             <option value="Pending">Pending</option>
@@ -187,50 +187,25 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Task ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Order ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Driver
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Pickup Location
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Delivery Location
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Assigned Date
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Completed Date
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Task ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Order ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Driver</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Pickup Location</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Delivery Location</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Assigned Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Completed Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredTasks.map((task) => (
                                     <tr key={task._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {task.taskId}
-                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.taskId}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <a 
-                                                href={`/orders/${task.orderId}`}
-                                                className="text-blue-600 hover:text-blue-800 underline"
-                                            >
-                                                {task.orderId}
-                                            </a>
+                                            <a href={`/orders/${task.orderId}`} className="text-blue-600 hover:text-blue-800 underline">{task.orderId}</a>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {task.status === 'Pending' ? (
@@ -238,41 +213,18 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                                             ) : (
                                                 <div>
                                                     <div className="font-medium">{task.driverName}</div>
-                                                    <div className="text-gray-500">
-                                                        {task.driverId?.vehicleNumber || 'Vehicle info not available'}
-                                                    </div>
+                                                    <div className="text-gray-500">{task.driverId?.vehicleNumber || 'Vehicle info not available'}</div>
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <div className="max-w-xs truncate">
-                                                {task.pickupLocation?.address || 'Shop location'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <div className="max-w-xs truncate">
-                                                {task.deliveryLocation?.address || 'No address available'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
-                                                {getStatusLabel(task.status)}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {task.assignedAt ? new Date(task.assignedAt).toLocaleDateString() : '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {task.deliveredAt ? new Date(task.deliveredAt).toLocaleDateString() : '-'}
-                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.pickupLocation?.address || 'Shop location'}</div></td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.deliveryLocation?.address || 'No address available'}</div></td>
+                                        <td className="px-6 py-4 whitespace-nowrap"><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>{getStatusLabel(task.status)}</span></td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.assignedAt ? new Date(task.assignedAt).toLocaleDateString() : '-'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.deliveredAt ? new Date(task.deliveredAt).toLocaleDateString() : '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             {task.status === 'Assigned' ? (
-                                                <button
-                                                    onClick={() => markTaskCompleted(task._id)}
-                                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
-                                                >
-                                                    Mark as Completed
-                                                </button>
+                                                <button onClick={() => markTaskCompleted(task._id)} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors">Mark as Completed</button>
                                             ) : task.status === 'Delivered' ? (
                                                 <span className="text-green-600 font-medium">✓ Completed</span>
                                             ) : (
