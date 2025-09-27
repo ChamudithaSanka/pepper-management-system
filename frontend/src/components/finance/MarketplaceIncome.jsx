@@ -94,176 +94,137 @@ const MarketplaceIncome = () => {
 
     if (loading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 p-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
                 <div className="animate-pulse">
-                    <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="h-8 bg-green-100 rounded w-1/4 mb-4"></div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                         {[...Array(4)].map((_, index) => (
-                            <div key={index} className="h-24 bg-gray-200 rounded"></div>
+                            <div key={index} className="h-24 bg-blue-100 rounded"></div>
                         ))}
                     </div>
-                    <div className="h-64 bg-gray-200 rounded"></div>
+                    <div className="h-64 bg-blue-50 rounded"></div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Marketplace Income</h2>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                    <option value="">All Payments</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Failed">Failed</option>
-                </select>
+        <div className="space-y-6 p-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
+            {/* Header */}
+            <div className="mb-6 flex justify-between items-center">
+                <h2 className="text-3xl font-bold text-gray-900">Marketplace Income</h2>
+                <div className="bg-blue-50 rounded-lg shadow p-4">
+                    <label className="text-sm font-medium text-gray-700 mr-2">Filter by Status:</label>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500"
+                    >
+                        <option value="">All Payments</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
             </div>
 
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium">Income</h3>
-                        <div className="h-4 w-4 text-green-600">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-blue-100">
+                            <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                             </svg>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-green-600">
-                            {formatCurrency(statistics.totalIncome)}
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">Total Income</p>
+                            <p className="text-2xl font-semibold text-gray-900">{formatCurrency(statistics.totalIncome)}</p>
                         </div>
-                        <p className="text-xs text-gray-500">
-                            From marketplace sales
-                        </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium"> Payments</h3>
-                        <div className="h-4 w-4 text-blue-600">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-green-100">
+                            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold">
-                            {statistics.totalPayments}
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">Payments</p>
+                            <p className="text-2xl font-semibold text-gray-900">{statistics.totalPayments}</p>
                         </div>
-                        <p className="text-xs text-gray-500">
-                            All marketplace orders
-                        </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium">Completed</h3>
-                        <div className="h-4 w-4 text-green-600">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                      d="M5 13l4 4L19 7"></path>
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-yellow-100">
+                            <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-green-600">
-                            {statistics.completedPayments}
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">Pending</p>
+                            <p className="text-2xl font-semibold text-gray-900">{statistics.pendingPayments}</p>
                         </div>
-                        <p className="text-xs text-gray-500">
-                            Successfully processed
-                        </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium">Pending</h3>
-                        <div className="h-4 w-4 text-yellow-600">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div className="bg-purple-100 border-l-4 border-purple-500 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-purple-100">
+                            <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                             </svg>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-yellow-600">
-                            {statistics.pendingPayments}
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">Completed</p>
+                            <p className="text-2xl font-semibold text-gray-900">{statistics.completedPayments}</p>
                         </div>
-                        <p className="text-xs text-gray-500">
-                            Awaiting processing
-                        </p>
                     </div>
                 </div>
             </div>
 
             {/* Payments Table */}
-            <div className="bg-white rounded-lg shadow border border-gray-200">
+            <div className="bg-blue-50 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Recent Transactions</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
                 </div>
                 <div className="p-6">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left p-2 font-medium">Payment ID</th>
-                                    <th className="text-left p-2 font-medium">Customer Name</th>
-                                    <th className="text-left p-2 font-medium">Customer Email</th>
-                                    <th className="text-left p-2 font-medium">Customer ID</th>
-                                    <th className="text-left p-2 font-medium">Amount</th>
-                                    <th className="text-left p-2 font-medium">Method</th>
-                                    <th className="text-left p-2 font-medium">Status</th>
-                                    <th className="text-left p-2 font-medium">Date</th>
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
+                                <tr>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Payment ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Customer Name</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Customer Email</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Customer ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Amount</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Method</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {payments.length > 0 ? payments.map((payment) => (
-                                    <tr key={payment._id} className="border-b hover:bg-gray-50">
-                                        <td className="p-2 text-sm font-mono">
-                                            {payment.paymentId}
+                                {payments.length > 0 ? payments.map((payment, idx) => (
+                                    <tr key={payment._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-2 text-sm font-mono text-gray-900">{payment.paymentId}</td>
+                                        <td className="px-2 py-2 font-medium text-gray-900">{payment.customerId?.name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-gray-500">{payment.customerId?.email || 'No email available'}</td>
+                                        <td className="px-2 py-2 text-sm text-gray-900">{payment.customerId?.customerId || 'N/A'}</td>
+                                        <td className="px-2 py-2 font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
+                                        <td className="px-2 py-2">
+                                            <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{payment.paymentMethod}</span>
                                         </td>
-                                        <td className="p-2 font-medium">
-                                            {payment.customerId?.name || 'N/A'}
+                                        <td className="px-2 py-2">
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' : payment.paymentStatus === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{payment.paymentStatus}</span>
                                         </td>
-                                        <td className="p-2 text-gray-500">
-                                            {payment.customerId?.email || 'No email available'}
-                                        </td>
-                                        <td className="p-2 text-sm">
-                                            {payment.customerId?.customerId || 'N/A'}
-                                        </td>
-                                        <td className="p-2 font-medium">
-                                            {formatCurrency(payment.amount)}
-                                        </td>
-                                        <td className="p-2">
-                                            <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                                {payment.paymentMethod}
-                                            </span>
-                                        </td>
-                                        <td className="p-2">
-                                            <span className={`px-2 py-1 text-xs rounded-full border ${getStatusBadgeColor(payment.paymentStatus)}`}>
-                                                {payment.paymentStatus}
-                                            </span>
-                                        </td>
-                                        <td className="p-2 text-sm text-gray-600">
-                                            {payment.paymentDate ? formatDate(payment.paymentDate) : formatDate(payment.createdAt)}
-                                        </td>
+                                        <td className="px-2 py-2 text-sm text-gray-600">{payment.paymentDate ? formatDate(payment.paymentDate) : formatDate(payment.createdAt)}</td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="6" className="p-8 text-center text-gray-500">
-                                            No payments found
-                                        </td>
+                                        <td colSpan="8" className="p-8 text-center text-gray-500">No payments found</td>
                                     </tr>
                                 )}
                             </tbody>

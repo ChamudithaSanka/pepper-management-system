@@ -30,25 +30,25 @@ export const getAllProducts = async (req, res) => {
     try {
         const products = await Product.find();
         
-        // Ensure stock status is up to date for all products
-        const updatedProducts = await Promise.all(
-            products.map(async (product) => {
-                // Recalculate stock status
-                if (product.currentStock <= product.reorderLevel) {
-                    product.stockStatus = "LowStock";
-                } else {
-                    product.stockStatus = "InStock";
-                }
-                return product.save();
-            })
-        );
+        // Update stock status without saving to database (just for response)
+        const productsWithUpdatedStatus = products.map(product => {
+            const updatedProduct = product.toObject();
+            // Recalculate stock status
+            if (updatedProduct.currentStock <= updatedProduct.reorderLevel) {
+                updatedProduct.stockStatus = "LowStock";
+            } else {
+                updatedProduct.stockStatus = "InStock";
+            }
+            return updatedProduct;
+        });
         
         res.status(200).json({
             success: true,
-            count: updatedProducts.length,
-            data: updatedProducts
+            count: productsWithUpdatedStatus.length,
+            data: productsWithUpdatedStatus
         });
     } catch (error) {
+        console.error('Error fetching products:', error);
         res.status(500).json({
             success: false,
             error: error.message

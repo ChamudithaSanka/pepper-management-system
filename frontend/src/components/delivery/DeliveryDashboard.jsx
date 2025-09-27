@@ -187,10 +187,12 @@ const DeliveryDashboard = () => {
                         </div>
                         
                         {/* Stats Cards */}
-                        <StatCards statsData={stats} />
+                        <div className="rounded-xl p-2" style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)' }}>
+                            <StatCards statsData={stats} />
+                        </div>
 
                         {/* Charts Section */}
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-2 gap-6 rounded-xl p-2" style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)' }}>
                             {charts.map((chart, index) => (
                                 <PieChart 
                                     key={index}

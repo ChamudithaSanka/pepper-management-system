@@ -298,7 +298,7 @@ const CustomerManagement = ({ onStatsUpdate }) => {
     );
 
     return (
-        <div className="space-y-6">
+    <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
@@ -311,14 +311,15 @@ const CustomerManagement = ({ onStatsUpdate }) => {
             </div>
 
             {/* Search */}
-            <div className="flex justify-between items-center">
-                <div className="max-w-md">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <div className="flex-1 max-w-md">
                     <input
                         type="text"
                         placeholder="Search customers..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
+                        onKeyPress={(e) => e.key === 'Enter' && fetchCustomers()}
                     />
                 </div>
                 <button
@@ -345,21 +346,19 @@ const CustomerManagement = ({ onStatsUpdate }) => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">
-                        Total Customers
-                    </h3>
-                    <p className="text-2xl font-bold text-gray-900">{filteredCustomers.length}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Customers</h3>
+                    <p className="text-2xl font-bold text-green-900">{filteredCustomers.length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Active</h3>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-blue-700">Active</h3>
+                    <p className="text-2xl font-bold text-blue-900">
                         {filteredCustomers.filter(item => item.status === 'Active').length}
                     </p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Inactive</h3>
-                    <p className="text-2xl font-bold text-red-600">
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-yellow-700">Inactive</h3>
+                    <p className="text-2xl font-bold text-yellow-900">
                         {filteredCustomers.filter(item => item.status === 'Inactive').length}
                     </p>
                 </div>
@@ -506,54 +505,36 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Customer ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Phone
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Address
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Orders
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Registered
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Customer ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Address</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Orders</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Registered</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredCustomers.map((customer) => (
-                                    <tr key={customer._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <tbody>
+                                {filteredCustomers.map((customer, idx) => (
+                                    <tr key={customer._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {customer.customerId}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer.name}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer.email}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer.phone}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                        <td className="px-2 py-4 text-sm text-gray-500 max-w-xs truncate">
                                             {customer.deliveryAddress?.address 
                                                 || customer.deliveryAddress?.fullAddress 
                                                 || [customer.deliveryAddress?.street, customer.deliveryAddress?.city, customer.deliveryAddress?.zipCode]
@@ -561,7 +542,7 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                                                     .join(', ') 
                                                 || 'No address'}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-4 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleStatusToggle(customer.customerId, customer.status)}
                                                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors ${
@@ -573,22 +554,22 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                                                 {customer.status}
                                             </button>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer.totalOrders || 0}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {new Date(customer.registrationDate).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium">
                                             <button
                                                 onClick={() => setEditingItem(customer)}
-                                                className="text-green-600 hover:text-green-900 mr-3 font-medium"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm mr-2"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(customer.customerId)}
-                                                className="text-red-600 hover:text-red-900 font-medium"
+                                                className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Delete
                                             </button>

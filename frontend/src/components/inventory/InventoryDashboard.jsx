@@ -7,16 +7,12 @@ import MaterialOrders from './MaterialOrders';
 import ProductManagement from './ProductManagement';
 import { 
     inventorySidebarLinks, 
-    inventoryUserInfo, 
-    inventoryStatsData, 
-    inventoryChartData,
-    updateInventoryStats,
-    updateInventoryCharts
+    inventoryUserInfo
 } from '../../data/inventoryData';
 
 const InventoryDashboard = () => {
-    const [stats, setStats] = useState(inventoryStatsData);
-    const [charts, setCharts] = useState(inventoryChartData);
+    const [stats, setStats] = useState([]);
+    const [charts, setCharts] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -34,12 +30,13 @@ const InventoryDashboard = () => {
             ]);
 
             const realData = {
-                rawMaterials: { total: 45, subtitle: 'Green & Black Pepper' },
-                products: { total: 28, subtitle: 'Ready for sale' },
-                lowStock: { count: 8, subtitle: 'Require restocking' },
-                pendingOrders: { count: 12, subtitle: 'Raw material orders' },
-                rawMaterialDistribution: [65, 35],
-                productStockStatus: [45, 30, 15, 10]
+                rawMaterials: { total: 0, subtitle: 'Active materials' },
+                products: { total: 0, subtitle: 'Total products' },
+                rawMaterialOrders: { total: 0, subtitle: 'All orders' },
+                lowStock: { count: 0, subtitle: 'Need attention' },
+                pendingOrders: { count: 0, subtitle: 'Awaiting delivery' },
+                rawMaterialDistribution: [0, 0],
+                productStockStatus: [0, 0, 0, 0]
             };
 
             // Process raw materials data
@@ -85,7 +82,14 @@ const InventoryDashboard = () => {
             if (ordersResponse && ordersResponse.ok) {
                 const ordersData = await ordersResponse.json();
                 if (ordersData.data) {
-                    const pendingOrders = ordersData.data.filter(order => order.status === 'Pending');
+                    const orders = ordersData.data;
+                    const pendingOrders = orders.filter(order => order.status === 'Pending');
+                    
+                    realData.rawMaterialOrders = {
+                        total: orders.length,
+                        subtitle: 'All orders'
+                    };
+                    
                     realData.pendingOrders = {
                         count: pendingOrders.length,
                         subtitle: 'Awaiting delivery'
@@ -93,9 +97,76 @@ const InventoryDashboard = () => {
                 }
             }
 
-            // Update stats and charts with real data
-            setStats(updateInventoryStats(inventoryStatsData, realData));
-            setCharts(updateInventoryCharts(inventoryChartData, realData));
+            // Build stats array with real data
+            const newStats = [
+                {
+                    title: 'Total Products',
+                    value: realData.products?.total || '0',
+                    subtitle: realData.products?.subtitle || 'Total products',
+                    icon: 'orders',
+                    iconBgColor: 'bg-blue-100',
+                    iconTextColor: 'text-blue-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Total Raw Material Orders',
+                    value: realData.rawMaterialOrders?.total || '0',
+                    subtitle: realData.rawMaterialOrders?.subtitle || 'All orders',
+                    icon: 'farmers',
+                    iconBgColor: 'bg-green-100',
+                    iconTextColor: 'text-green-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Pending Orders',
+                    value: realData.pendingOrders?.count || '0',
+                    subtitle: realData.pendingOrders?.subtitle || 'Awaiting delivery',
+                    icon: 'inventory',
+                    iconBgColor: 'bg-yellow-100',
+                    iconTextColor: 'text-yellow-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Low Stock Products',
+                    value: realData.lowStock?.count || '0',
+                    subtitle: realData.lowStock?.subtitle || 'Need attention',
+                    icon: 'users',
+                    iconBgColor: 'bg-red-100',
+                    iconTextColor: 'text-red-600',
+                    valueColor: 'text-gray-900'
+                }
+            ];
+
+            // Build charts array with real data
+            const newCharts = [
+                {
+                    title: 'Raw Material Distribution',
+                    data: {
+                        labels: ['Green Pepper', 'Black Pepper'],
+                        datasets: [{
+                            data: realData.rawMaterialDistribution || [0, 0],
+                            backgroundColor: ['#10B981', '#1F2937'],
+                            borderColor: ['#047857', '#111827'],
+                            borderWidth: 2
+                        }]
+                    }
+                },
+                {
+                    title: 'Product Stock Status',
+                    data: {
+                        labels: ['In Stock', 'Low Stock', 'Out of Stock', 'Expiring Soon'],
+                        datasets: [{
+                            data: realData.productStockStatus || [0, 0, 0, 0],
+                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#F97316'],
+                            borderColor: ['#047857', '#D97706', '#DC2626', '#EA580C'],
+                            borderWidth: 2
+                        }]
+                    }
+                }
+            ];
+
+            setStats(newStats);
+            setCharts(newCharts);
 
         } catch (error) {
             console.error('Error fetching inventory dashboard data:', error);
@@ -130,51 +201,10 @@ const InventoryDashboard = () => {
                                     key={index}
                                     title={chart.title}
                                     data={chart.data}
-                                    labels={chart.labels}
-                                    backgroundColor={chart.backgroundColor}
                                 />
                             ))}
                         </div>
 
-                        {/* Quick Actions */}
-                        <div className="grid grid-cols-4 gap-4">
-                            <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                                    <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                                    </svg>
-                                </div>
-                                <p className="text-sm font-medium text-gray-700">Add Raw Material</p>
-                            </div>
-                            
-                            <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                                    <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                                    </svg>
-                                </div>
-                                <p className="text-sm font-medium text-gray-700">Create Product</p>
-                            </div>
-                            
-                            <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                                    <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                                    </svg>
-                                </div>
-                                <p className="text-sm font-medium text-gray-700">Place Order</p>
-                            </div>
-                            
-                            <div className="bg-white border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                                    <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                        <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 012 2v6.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v3.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v4.5a.5.5 0 001 0V5a2 2 0 00-2-2V3a2 2 0 00-2-2H6a2 2 0 00-2 2v2z" clipRule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <p className="text-sm font-medium text-gray-700">View History</p>
-                            </div>
-                        </div>
                     </div>
                 );
 

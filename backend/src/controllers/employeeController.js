@@ -78,24 +78,34 @@ const getEmployeeById = async (req, res) => {
 // Create new employee
 const createEmployee = async (req, res) => {
     try {
-        const { name, designation, basicSalary, epfNo } = req.body;
-        
-        // Generate employee ID if not provided
+        const {
+            name,
+            designation,
+            email,
+            nic,
+            phoneNumber,
+            address,
+            dateOfBirth,
+            basicSalary
+        } = req.body;
+
+        // Generate employee ID
         const employeeId = await generateEmployeeId();
-        
-        // Use provided EPF number or default to employee ID
-        const finalEpfNo = epfNo || employeeId;
-        
+
         const employee = new Employee({
             employeeId,
             name,
             designation,
-            basicSalary,
-            epfNo: finalEpfNo
+            email,
+            nic,
+            phoneNumber,
+            address,
+            dateOfBirth,
+            basicSalary
         });
-        
+
         await employee.save();
-        
+
         res.status(201).json({
             success: true,
             message: 'Employee created successfully',
@@ -109,7 +119,7 @@ const createEmployee = async (req, res) => {
                 message: `${field} already exists`
             });
         }
-        
+
         res.status(400).json({
             success: false,
             message: 'Failed to create employee',
@@ -121,27 +131,41 @@ const createEmployee = async (req, res) => {
 // Update employee
 const updateEmployee = async (req, res) => {
     try {
-        const { name, designation, basicSalary, epfNo, status } = req.body;
-        
+        const {
+            name,
+            designation,
+            email,
+            nic,
+            phoneNumber,
+            address,
+            dateOfBirth,
+            basicSalary,
+            status
+        } = req.body;
+
         const employee = await Employee.findByIdAndUpdate(
             req.params.id,
             {
                 name,
                 designation,
+                email,
+                nic,
+                phoneNumber,
+                address,
+                dateOfBirth,
                 basicSalary,
-                epfNo,
                 status
             },
             { new: true, runValidators: true }
         );
-        
+
         if (!employee) {
             return res.status(404).json({
                 success: false,
                 message: 'Employee not found'
             });
         }
-        
+
         res.status(200).json({
             success: true,
             message: 'Employee updated successfully',
@@ -155,7 +179,7 @@ const updateEmployee = async (req, res) => {
                 message: `${field} already exists`
             });
         }
-        
+
         res.status(400).json({
             success: false,
             message: 'Failed to update employee',

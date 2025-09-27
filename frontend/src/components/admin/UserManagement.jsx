@@ -192,11 +192,14 @@ const UserManagement = ({ onStatsUpdate }) => {
         }
     };
 
-    const filteredUsers = users.filter(user =>
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Sort by userId ascending
+    const filteredUsers = users
+        .filter(user =>
+            user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.role?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => (a.userId ?? 0) - (b.userId ?? 0));
 
     return (
         <div className="space-y-6">
@@ -212,14 +215,14 @@ const UserManagement = ({ onStatsUpdate }) => {
             </div>
 
             {/* Search */}
-            <div className="flex justify-between items-center">
-                <div className="max-w-md">
+            <div className="flex justify-between items-center gap-4">
+                <div className="max-w-md flex-1">
                     <input
                         type="text"
                         placeholder="Search users..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
                     />
                 </div>
                 <button
@@ -246,21 +249,19 @@ const UserManagement = ({ onStatsUpdate }) => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">
-                        Total Users
-                    </h3>
-                    <p className="text-2xl font-bold text-gray-900">{filteredUsers.length}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Users</h3>
+                    <p className="text-2xl font-bold text-green-900">{filteredUsers.length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Active</h3>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-blue-700">Active</h3>
+                    <p className="text-2xl font-bold text-blue-900">
                         {filteredUsers.filter(item => item.status === 'Active').length}
                     </p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Inactive</h3>
-                    <p className="text-2xl font-bold text-red-600">
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-yellow-700">Inactive</h3>
+                    <p className="text-2xl font-bold text-yellow-900">
                         {filteredUsers.filter(item => item.status === 'Inactive').length}
                     </p>
                 </div>
@@ -346,35 +347,21 @@ const UserManagement = ({ onStatsUpdate }) => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        User ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Role
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Created
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">User ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Role</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Created</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredUsers.map((item) => (
-                                    <tr key={item._id} className="hover:bg-gray-50">
+                            <tbody>
+                                {filteredUsers.map((item, idx) => (
+                                    <tr key={item._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {item.userId}
                                         </td>

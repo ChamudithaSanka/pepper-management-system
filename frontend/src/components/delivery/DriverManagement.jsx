@@ -224,27 +224,27 @@ const DriverManagement = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Drivers</h3>
-                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <div className="bg-gradient-to-br from-green-400 to-green-700 text-white rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium">Total Drivers</h3>
+                    <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Available</h3>
-                    <p className="text-2xl font-bold text-green-600">{stats.available}</p>
+                <div className="bg-gradient-to-br from-green-200 to-green-500 text-white rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium">Available</h3>
+                    <p className="text-2xl font-bold">{stats.available}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Busy</h3>
-                    <p className="text-2xl font-bold text-red-600">{stats.busy}</p>
+                <div className="bg-gradient-to-br from-red-400 to-red-700 text-white rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium">Busy</h3>
+                    <p className="text-2xl font-bold">{stats.busy}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Assigned</h3>
-                    <p className="text-2xl font-bold text-blue-600">{stats.assigned}</p>
+                <div className="bg-gradient-to-br from-blue-400 to-blue-700 text-white rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium">Assigned</h3>
+                    <p className="text-2xl font-bold">{stats.assigned}</p>
                 </div>
             </div>
 
             {/* Filter Buttons */}
             <div className="flex space-x-2">
-                {[
+                {[ 
                     { key: 'all', label: 'All Drivers' },
                     { key: 'Available', label: 'Available' },
                     { key: 'Busy', label: 'Busy' },
@@ -253,10 +253,10 @@ const DriverManagement = () => {
                     <button
                         key={filter.key}
                         onClick={() => setFilterStatus(filter.key)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
                             filterStatus === filter.key 
-                                ? 'bg-green-600 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                ? 'bg-green-600 text-white border-green-700' 
+                                : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
                         }`}
                     >
                         {filter.label}
@@ -266,8 +266,8 @@ const DriverManagement = () => {
 
             {/* Drivers Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-900">Driver List</h3>
+                <div className="px-6 py-4 border-b border-green-700 bg-green-700">
+                    <h3 className="text-lg font-semibold text-white">Driver List</h3>
                 </div>
                 
                 {filteredDrivers.length === 0 ? (
@@ -286,35 +286,17 @@ const DriverManagement = () => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        NIC
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Phone
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        License
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vehicle Number
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">NIC</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Phone</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">License</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Vehicle Number</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -350,13 +332,13 @@ const DriverManagement = () => {
                                             <div className="flex space-x-2">
                                                 <button 
                                                     onClick={() => handleEdit(driver)}
-                                                    className="text-blue-600 hover:text-blue-900"
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
                                                 >
                                                     Edit
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(driver._id)}
-                                                    className="text-red-600 hover:text-red-900"
+                                                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
                                                 >
                                                     Delete
                                                 </button>
