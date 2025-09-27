@@ -66,36 +66,8 @@ const deliveryTaskSchema = new mongoose.Schema({
     assignedAt: {
         type: Date
     },
-    startedAt: {
-        type: Date
-    },
     deliveredAt: {
         type: Date
-    },
-    estimatedDeliveryTime: {
-        type: Date
-    },
-    actualDeliveryTime: {
-        type: Date
-    },
-    distance: {
-        type: Number, // in kilometers
-        default: 0
-    },
-    notes: {
-        type: String
-    },
-    deliveryProof: {
-        type: String // URL to delivery proof image
-    },
-    customerName: {
-        type: String
-    },
-    customerPhone: {
-        type: String
-    },
-    orderDetails: {
-        type: mongoose.Schema.Types.Mixed // Store order-specific details
     }
 }, {
     timestamps: true
@@ -128,13 +100,9 @@ deliveryTaskSchema.methods.assignDriver = function(driverId, driverName) {
 };
 
 // Marks delivery as completed and sets delivery timestamp
-deliveryTaskSchema.methods.completeDelivery = function(deliveryProof = null) {
+deliveryTaskSchema.methods.completeDelivery = function() {
     this.status = 'Delivered';
     this.deliveredAt = new Date();
-    this.actualDeliveryTime = new Date();
-    if (deliveryProof) {
-        this.deliveryProof = deliveryProof;
-    }
     return this.save();
 };
 
