@@ -167,6 +167,17 @@ const ProductManagement = () => {
         setError(''); // Clear any previous errors
 
         try {
+            // Validate raw material recipe is required and not empty
+            const validRecipes = formData.rawMaterialRecipe.filter(recipe => 
+                recipe.type && recipe.qtyPerUnitKg && recipe.wastePercentage
+            );
+
+            if (validRecipes.length === 0) {
+                setError('Raw Material Recipe is required. Please add at least one raw material.');
+                setLoading(false);
+                return;
+            }
+
             // Upload image first if there's one
             let imageUrl = editingProduct?.imageUrl || null;
             if (imageFile) {
@@ -180,9 +191,7 @@ const ProductManagement = () => {
                 currentStock: parseInt(formData.currentStock) || 0,
                 safetyStock: parseInt(formData.safetyStock) || 0,
                 reorderLevel: parseInt(formData.reorderLevel),
-                rawMaterialRecipe: formData.rawMaterialRecipe.filter(recipe => 
-                    recipe.type && recipe.qtyPerUnitKg && recipe.wastePercentage
-                )
+                rawMaterialRecipe: validRecipes
             };
 
             console.log('Sending product data:', productData); // Debug log
@@ -913,7 +922,7 @@ const ProductManagement = () => {
                                 <div>
                                     <div className="flex justify-between items-center mb-3">
                                         <label className="block text-sm font-medium text-gray-700">
-                                            Raw Material Recipe
+                                            Raw Material Recipe *
                                         </label>
                                         <button
                                             type="button"
@@ -971,6 +980,13 @@ const ProductManagement = () => {
                                             </div>
                                         </div>
                                     ))}
+                                    
+                                    {formData.rawMaterialRecipe.length === 0 && (
+                                        <div className="text-center py-6 bg-gray-50 border border-gray-200 rounded-md">
+                                            <p className="text-gray-500 text-sm">No raw materials added yet</p>
+                                            <p className="text-red-600 text-xs mt-1">* At least one raw material is required</p>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <div className="flex justify-end space-x-3 pt-4">
