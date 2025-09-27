@@ -1,13 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LoadScript, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import { LoadScript, GoogleMap, Marker, InfoWindow, DirectionsRenderer } from '@react-google-maps/api';
 
 // Static libraries array to prevent LoadScript reloading
-const GOOGLE_MAPS_LIBRARIES = ['places'];
+const GOOGLE_MAPS_LIBRARIES = ['places', 'geometry'];
+
+// Shop location (from delivery config)
+const SHOP_LOCATION = {
+    lat: 6.9271, // Colombo coordinates
+    lng: 79.8612,
+    address: 'Main Shop Location, Colombo, Sri Lanka'
+};
 
 // Map component to display multiple order markers
 const OrdersMap = ({ orders, mapCenter }) => {
     const mapRef = useRef(null);
+    const directionsServiceRef = useRef(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [directions, setDirections] = useState(null);
 
     const mapOptions = {
         disableDefaultUI: false,
@@ -17,6 +26,33 @@ const OrdersMap = ({ orders, mapCenter }) => {
 
     const onLoad = (map) => {
         mapRef.current = map;
+        directionsServiceRef.current = new window.google.maps.DirectionsService();
+    };
+
+    const showRouteToOrder = (order) => {
+        if (!directionsServiceRef.current || !order.location) return;
+
+        const destination = {
+            lat: order.location.latitude,
+            lng: order.location.longitude
+        };
+
+        directionsServiceRef.current.route({
+            origin: SHOP_LOCATION,
+            destination: destination,
+            travelMode: window.google.maps.TravelMode.DRIVING,
+        }, (result, status) => {
+            if (status === 'OK') {
+                setDirections(result);
+            } else {
+                console.error('Directions request failed:', status);
+            }
+        });
+    };
+
+    const handleMarkerClick = (order) => {
+        setSelectedOrder(order);
+        showRouteToOrder(order);
     };
 
     const getMarkerIcon = (status) => {
@@ -64,6 +100,22 @@ const OrdersMap = ({ orders, mapCenter }) => {
             onLoad={onLoad}
             options={mapOptions}
         >
+            {/* Shop Location Marker */}
+            <Marker
+                position={SHOP_LOCATION}
+                icon={{
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="#DC2626"/>
+                            <circle cx="12" cy="12" r="8" fill="#DC2626" stroke="white" stroke-width="2"/>
+                        </svg>
+                    `),
+                    scaledSize: new window.google.maps.Size(24, 24)
+                }}
+                title="Shop Location"
+            />
+            
+            {/* Order Markers */}
             {orders.map((order, index) => (
                 <Marker
                     key={index}
@@ -72,9 +124,12 @@ const OrdersMap = ({ orders, mapCenter }) => {
                         lng: order.location?.longitude || 79.8612
                     }}
                     icon={getMarkerIcon(order.status)}
-                    onClick={() => setSelectedOrder(order)}
+                    onClick={() => handleMarkerClick(order)}
                 />
             ))}
+            
+            {/* Directions Route */}
+            {directions && <DirectionsRenderer directions={directions} />}
             
             {selectedOrder && (
                 <InfoWindow
@@ -82,7 +137,10 @@ const OrdersMap = ({ orders, mapCenter }) => {
                         lat: selectedOrder.location?.latitude || 6.9271,
                         lng: selectedOrder.location?.longitude || 79.8612
                     }}
-                    onCloseClick={() => setSelectedOrder(null)}
+                    onCloseClick={() => {
+                        setSelectedOrder(null);
+                        setDirections(null);
+                    }}
                 >
                     <div className="p-2">
                         <h4 className="font-semibold text-gray-900">{selectedOrder.orderId}</h4>
