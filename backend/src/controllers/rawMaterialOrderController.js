@@ -259,13 +259,6 @@ export const deleteOrder = async (req, res) => {
             });
         }
 
-        if (order.status === "Delivered") {
-            return res.status(400).json({
-                success: false,
-                error: 'Cannot delete delivered orders'
-            });
-        }
-
         await RawMaterialOrder.findByIdAndDelete(order._id);
 
         res.status(200).json({
