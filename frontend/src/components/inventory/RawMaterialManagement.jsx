@@ -8,12 +8,20 @@ const RawMaterialManagement = () => {
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showAddMaterialForm, setShowAddMaterialForm] = useState(false);
+    const [showEditMaterialForm, setShowEditMaterialForm] = useState(false);
+    const [editingMaterial, setEditingMaterial] = useState(null);
     const [newMaterial, setNewMaterial] = useState({
         type: '',
         quantity: '',
         reorderLevel: ''
     });
+    const [editMaterial, setEditMaterial] = useState({
+        type: '',
+        quantity: '',
+        reorderLevel: ''
+    });
     const [error, setError] = useState('');
+    const [editError, setEditError] = useState('');
 
     useEffect(() => {
         fetchRawMaterials();
@@ -47,6 +55,17 @@ const RawMaterialManagement = () => {
     const handleOrderClick = (material) => {
         setSelectedMaterial(material);
         setShowOrderModal(true);
+    };
+
+    const handleEditClick = (material) => {
+        setEditingMaterial(material);
+        setEditMaterial({
+            type: material.type,
+            quantity: material.quantityKg.toString(),
+            reorderLevel: material.reorderLevelKg.toString()
+        });
+        setEditError(''); // Clear any previous errors
+        setShowEditMaterialForm(true);
     };
 
     const handleAddMaterial = async (e) => {
@@ -106,6 +125,69 @@ const RawMaterialManagement = () => {
         } catch (error) {
             console.error('Error adding raw material:', error);
             setError('Error adding raw material');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEditMaterial = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setEditError('');
+
+        // Frontend validation
+        const errors = [];
+
+        if (!editMaterial.type.trim()) {
+            errors.push('Material type is required');
+        }
+
+        if (!editMaterial.quantity || parseFloat(editMaterial.quantity) <= 0) {
+            errors.push('Quantity must be greater than 0');
+        }
+
+        if (!editMaterial.reorderLevel || parseFloat(editMaterial.reorderLevel) < 0) {
+            errors.push('Reorder level must be 0 or greater');
+        }
+
+        if (errors.length > 0) {
+            setEditError(errors.join('. '));
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const payload = {
+                type: editMaterial.type.trim(),
+                quantityKg: parseFloat(editMaterial.quantity),
+                reorderLevelKg: parseFloat(editMaterial.reorderLevel)
+            };
+
+            const response = await fetch(`/api/raw-materials/${editingMaterial._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                setEditMaterial({
+                    type: '',
+                    quantity: '',
+                    reorderLevel: ''
+                });
+                setShowEditMaterialForm(false);
+                setEditingMaterial(null);
+                fetchRawMaterials();
+            } else {
+                const data = await response.json();
+                setEditError(data.message || 'Failed to update raw material');
+            }
+        } catch (error) {
+            console.error('Error updating raw material:', error);
+            setEditError('Error updating raw material');
         } finally {
             setLoading(false);
         }
@@ -294,7 +376,10 @@ const RawMaterialManagement = () => {
                                                         Order
                                                     </button>
                                                     <span className="text-gray-300">|</span>
-                                                    <button className="text-blue-600 hover:text-blue-900 font-medium">
+                                                    <button 
+                                                        onClick={() => handleEditClick(material)}
+                                                        className="text-blue-600 hover:text-blue-900 font-medium"
+                                                    >
                                                         Edit
                                                     </button>
                                                 </div>
@@ -419,6 +504,100 @@ const RawMaterialManagement = () => {
                                         setShowAddMaterialForm(false);
                                         setError('');
                                         setNewMaterial({
+                                            type: '',
+                                            quantity: '',
+                                            reorderLevel: ''
+                                        });
+                                    }}
+                                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Edit Raw Material Modal */}
+            {showEditMaterialForm && editingMaterial && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Edit Raw Material</h3>
+                        <form onSubmit={handleEditMaterial} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Material Type *
+                                </label>
+                                <select
+                                    value={editMaterial.type}
+                                    onChange={(e) => setEditMaterial({...editMaterial, type: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                >
+                                    <option value="">Select Material Type</option>
+                                    <option value="Green Pepper">Green Pepper</option>
+                                    <option value="Black Pepper">Black Pepper</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Current Quantity (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter quantity in kg"
+                                    value={editMaterial.quantity}
+                                    onChange={(e) => setEditMaterial({...editMaterial, quantity: e.target.value})}
+                                    min="0"
+                                    step="0.1"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Reorder Level (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Minimum stock level to trigger reorder"
+                                    value={editMaterial.reorderLevel}
+                                    onChange={(e) => setEditMaterial({...editMaterial, reorderLevel: e.target.value})}
+                                    min="0"
+                                    step="0.1"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Alert will show when stock falls below this level
+                                </p>
+                            </div>
+                            
+                            {editError && (
+                                <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                                    {editError}
+                                </div>
+                            )}
+                            
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    {loading ? 'Updating...' : 'Update Material'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowEditMaterialForm(false);
+                                        setEditingMaterial(null);
+                                        setEditError('');
+                                        setEditMaterial({
                                             type: '',
                                             quantity: '',
                                             reorderLevel: ''
