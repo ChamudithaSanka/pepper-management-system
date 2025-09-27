@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
     const [orderData, setOrderData] = useState({
         quantity: '',
-        unit: material?.unit || 'kg',
         deliveryDate: '',
         notes: '',
         farmerId: ''
@@ -18,7 +17,6 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
             // Reset form when modal opens
             setOrderData({
                 quantity: '',
-                unit: material.unit || 'kg',
                 deliveryDate: '',
                 notes: '',
                 farmerId: ''
@@ -171,9 +169,9 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                     {/* Quantity Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Quantity to Order *
+                            Quantity to Order (kg) *
                         </label>
-                        <div className="flex space-x-2">
+                        <div className="relative">
                             <input
                                 type="number"
                                 name="quantity"
@@ -182,19 +180,12 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                                 min="1"
                                 step="0.1"
                                 required
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                placeholder="Enter quantity"
+                                className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                placeholder="Enter quantity in kg"
                             />
-                            <select
-                                name="unit"
-                                value={orderData.unit}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            >
-                                <option value="kg">kg</option>
-                                <option value="tons">tons</option>
-                                <option value="pounds">pounds</option>
-                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <span className="text-gray-500 text-sm">kg</span>
+                            </div>
                         </div>
                     </div>
 
