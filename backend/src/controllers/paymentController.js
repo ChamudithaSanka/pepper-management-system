@@ -106,68 +106,35 @@ export const processPayment = async (req, res) => {
             payment = new CustomerPayment(paymentData);
         }
 
-        // Simulate payment processing
-        try {
-            // In a real application, you would integrate with a payment gateway here
-            // For demo purposes, we'll simulate different outcomes
-
-            if (paymentMethod === 'Cash on Delivery') {
-                payment.paymentStatus = 'Pending';
-                payment.notes = 'Payment will be collected on delivery';
-            } else {
-                // Simulate payment gateway response
-                const isPaymentSuccessful = Math.random() > 0.1; // 90% success rate for demo
-
-                if (isPaymentSuccessful) {
-                    payment.paymentStatus = 'Completed';
-                    payment.transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-                    payment.paymentDate = new Date();
-
-                    // Update order payment status
-                    order.paymentStatus = 'Completed';
-                    order.orderStatus = 'Confirmed';
-                    console.log('💳 About to save order:', order.orderId);
-                    await order.save();
-                    console.log('💳 Order saved successfully');
-                } else {
-                    payment.paymentStatus = 'Failed';
-                    payment.failureReason = 'Payment declined by bank';
-                }
-            }
-
-            console.log('💳 About to save payment:', payment);
-            await payment.save();
-            console.log('💳 Payment saved successfully');
-
-            res.status(200).json({
-                success: true,
-                message: payment.paymentStatus === 'Completed' 
-                    ? 'Payment processed successfully' 
-                    : payment.paymentStatus === 'Failed'
-                    ? 'Payment failed'
-                    : 'Payment initiated successfully',
-                data: {
-                    paymentId: payment.paymentId,
-                    orderId: payment.orderId,
-                    amount: payment.amount,
-                    paymentStatus: payment.paymentStatus,
-                    transactionId: payment.transactionId,
-                    paymentMethod: payment.paymentMethod
-                }
-            });
-
-        } catch (paymentError) {
-            // Payment processing failed
-            payment.paymentStatus = 'Failed';
-            payment.failureReason = paymentError.message;
-            await payment.save();
-
-            res.status(400).json({
-                success: false,
-                message: 'Payment processing failed',
-                error: paymentError.message
-            });
+        // Set payment status based on method
+        if (paymentMethod === 'Cash on Delivery' || paymentMethod === 'Bank Transfer') {
+            payment.paymentStatus = 'Pending';
+            payment.notes = 'Payment will be collected on delivery or transferred via bank.';
+            order.paymentStatus = 'Pending';
+        } else {
+            payment.paymentStatus = 'Completed';
+            payment.transactionId = `TXN${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+            payment.paymentDate = new Date();
+            order.paymentStatus = 'Completed';
         }
+
+        await order.save();
+        await payment.save();
+
+        res.status(200).json({
+            success: true,
+            message: payment.paymentStatus === 'Completed'
+                ? 'Payment processed successfully'
+                : 'Payment initiated successfully',
+            data: {
+                paymentId: payment.paymentId,
+                orderId: payment.orderId,
+                amount: payment.amount,
+                paymentStatus: payment.paymentStatus,
+                transactionId: payment.transactionId,
+                paymentMethod: payment.paymentMethod
+            }
+        });
 
     } catch (error) {
         console.error('💳 Error in processPayment:', error);
@@ -260,7 +227,7 @@ export const getCustomerPayments = async (req, res) => {
 export const updatePaymentStatus = async (req, res) => {
     try {
         const { paymentId } = req.params;
-        const { paymentStatus, transactionId, failureReason } = req.body;
+        const { paymentStatus, transactionId } = req.body;
 
         const payment = await CustomerPayment.findOne({ paymentId });
         if (!payment) {
@@ -272,22 +239,16 @@ export const updatePaymentStatus = async (req, res) => {
 
         // Update payment status
         payment.paymentStatus = paymentStatus;
-        
         if (paymentStatus === 'Completed') {
             payment.transactionId = transactionId || payment.transactionId;
             payment.paymentDate = new Date();
-            
             // Update corresponding order
             await Order.findOneAndUpdate(
                 { orderId: payment.orderId },
-                { paymentStatus: 'Completed', orderStatus: 'Confirmed' }
+                { paymentStatus: 'Completed' }
             );
-        } else if (paymentStatus === 'Failed') {
-            payment.failureReason = failureReason;
         }
-
         await payment.save();
-
         res.status(200).json({
             success: true,
             message: 'Payment status updated successfully',
@@ -356,54 +317,6 @@ export const getAllPayments = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching payments',
-            error: error.message
-        });
-    }
-};
-
-// PROCESS REFUND (Admin only)
-export const processRefund = async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        const { refundAmount, reason } = req.body;
-
-        const payment = await CustomerPayment.findOne({ paymentId });
-        if (!payment) {
-            return res.status(404).json({
-                success: false,
-                message: 'Payment not found'
-            });
-        }
-
-        if (payment.paymentStatus !== 'Completed') {
-            return res.status(400).json({
-                success: false,
-                message: 'Can only refund completed payments'
-            });
-        }
-
-        const refundAmountToProcess = refundAmount || payment.amount;
-        
-        if (refundAmountToProcess > payment.amount) {
-            return res.status(400).json({
-                success: false,
-                message: 'Refund amount cannot exceed payment amount'
-            });
-        }
-
-        // Process refund
-        await payment.processRefund(refundAmountToProcess, reason);
-
-        res.status(200).json({
-            success: true,
-            message: 'Refund processed successfully',
-            data: payment
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error processing refund',
             error: error.message
         });
     }

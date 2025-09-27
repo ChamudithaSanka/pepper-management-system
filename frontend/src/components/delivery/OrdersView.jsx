@@ -10,7 +10,6 @@ const OrdersView = ({ onStatsUpdate }) => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedDriver, setSelectedDriver] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [filterType, setFilterType] = useState('all');
 
     useEffect(() => {
         fetchOrders();
@@ -109,16 +108,10 @@ const OrdersView = ({ onStatsUpdate }) => {
         }
     };
 
-    const getOrderTypeColor = (orderType) => {
-        return orderType === 'FarmerOrder' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-blue-100 text-blue-800';
-    };
 
     const filteredOrders = orders.filter(order => {
         const statusMatch = filterStatus === 'all' || order.status === filterStatus;
-        const typeMatch = filterType === 'all' || order.orderType === filterType;
-        return statusMatch && typeMatch;
+        return statusMatch;
     });
 
     const availableDrivers = drivers.filter(driver => driver.status === 'Available');
@@ -129,7 +122,7 @@ const OrdersView = ({ onStatsUpdate }) => {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">Orders Management</h2>
-                    <p className="text-gray-600 mt-1">View and assign drivers to orders</p>
+                    <p className="text-gray-600 mt-1">View and assign drivers to customer orders</p>
                 </div>
                 <div className="flex items-center space-x-4">
                     <button
@@ -181,18 +174,6 @@ const OrdersView = ({ onStatsUpdate }) => {
                             <option value="Delivered">Delivered</option>
                         </select>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Order Type</label>
-                        <select
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        >
-                            <option value="all">All Types</option>
-                            <option value="FarmerOrder">Farmer Orders</option>
-                            <option value="CustomerOrder">Customer Orders</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
@@ -220,9 +201,9 @@ const OrdersView = ({ onStatsUpdate }) => {
                             </svg>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
                             <p className="text-gray-500">
-                                {filterStatus === 'all' && filterType === 'all' 
-                                    ? 'No orders available'
-                                    : `No ${filterStatus === 'all' ? '' : filterStatus.toLowerCase() + ' '}${filterType === 'all' ? '' : filterType.toLowerCase()} orders found`
+                                {filterStatus === 'all' 
+                                    ? 'No customer orders available'
+                                    : `No ${filterStatus.toLowerCase()} customer orders found`
                                 }
                             </p>
                         </div>
@@ -238,10 +219,7 @@ const OrdersView = ({ onStatsUpdate }) => {
                                             Items
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Type
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Contact
+                                            Customer
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Address
@@ -250,7 +228,7 @@ const OrdersView = ({ onStatsUpdate }) => {
                                             Status
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Date
+                                            Order Date
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
@@ -264,21 +242,10 @@ const OrdersView = ({ onStatsUpdate }) => {
                                                 {order.orderId}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {order.orderType === 'FarmerOrder' 
-                                                    ? `${order.details.materialType} - ${order.details.requestedQty}kg`
-                                                    : order.details.items?.map(item => `${item.name} (${item.quantity})`).join(', ') || 'No items'
-                                                }
+                                                {order.details.items?.map(item => `${item.name} (${item.quantity})`).join(', ') || 'No items'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderTypeColor(order.orderType)}`}>
-                                                    {order.orderType === 'FarmerOrder' ? 'Farmer' : 'Customer'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
-                                                    {order.orderType === 'FarmerOrder' ? 'Farmer (Supplier)' : 'Customer'}
-                                                </div>
-                                                <div className="text-sm text-gray-500">{order.customerName}</div>
+                                                <div className="text-sm text-gray-900">{order.customerName}</div>
                                                 <div className="text-sm text-gray-500">{order.customerPhone}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

@@ -202,7 +202,7 @@ export const updateOrderStatus = async (req, res) => {
         const { orderStatus, notes } = req.body;
 
         // Validate status
-        const validStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+        const validStatuses = ['Pending', 'Shipped', 'Delivered'];
         if (!validStatuses.includes(orderStatus)) {
             return res.status(400).json({
                 success: false,
@@ -327,7 +327,7 @@ export const getOrderStatistics = async (req, res) => {
     try {
         const totalOrders = await Order.countDocuments();
         const pendingOrders = await Order.countDocuments({ orderStatus: 'Pending' });
-        const processingOrders = await Order.countDocuments({ orderStatus: 'Processing' });
+        const shippedOrders = await Order.countDocuments({ orderStatus: 'Shipped' });
         const deliveredOrders = await Order.countDocuments({ orderStatus: 'Delivered' });
 
         // Calculate total revenue from delivered orders
@@ -349,7 +349,7 @@ export const getOrderStatistics = async (req, res) => {
             data: {
                 totalOrders,
                 pendingOrders,
-                processingOrders,
+                shippedOrders,
                 deliveredOrders,
                 totalRevenue,
                 recentOrders
