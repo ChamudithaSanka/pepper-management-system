@@ -303,9 +303,6 @@ const MaterialOrders = () => {
                                                         Mark Delivered
                                                     </button>
                                                 )}
-                                                <button className="text-blue-600 hover:text-blue-900 font-medium">
-                                                    View Details
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
