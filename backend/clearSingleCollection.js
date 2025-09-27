@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-
+//node clearSingleCollection.js users
 // Load environment variables
 dotenv.config();
 

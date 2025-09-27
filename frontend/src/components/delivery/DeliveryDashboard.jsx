@@ -7,16 +7,12 @@ import OrdersView from './OrdersView';
 import DeliveriesView from './DeliveriesView';
 import { 
     deliverySidebarLinks, 
-    deliveryUserInfo, 
-    deliveryStatsData, 
-    deliveryChartData,
-    updateDeliveryStats,
-    updateDeliveryCharts
+    deliveryUserInfo
 } from '../../data/deliveryData';
 
 const DeliveryDashboard = () => {
-    const [stats, setStats] = useState(deliveryStatsData);
-    const [charts, setCharts] = useState(deliveryChartData);
+    const [stats, setStats] = useState([]);
+    const [charts, setCharts] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -35,15 +31,20 @@ const DeliveryDashboard = () => {
 
             const realData = {
                 drivers: { total: 0, available: 0, busy: 0, assigned: 0 },
-                orders: { total: 0, farmerOrders: 0, customerOrders: 0 },
-                deliveryTasks: { pending: 0, assigned: 0, delivered: 0 }
+                orders: { total: 0, pending: 0 },
+                deliveryTasks: { pending: 0, delivered: 0 }
             };
 
             // Process driver data
             if (driverResponse && driverResponse.ok) {
                 const driverData = await driverResponse.json();
                 if (driverData.data) {
-                    realData.drivers = driverData.data;
+                    realData.drivers = {
+                        total: driverData.data.total_drivers || 0,
+                        available: driverData.data.available_drivers || 0,
+                        busy: driverData.data.busy_drivers || 0,
+                        assigned: driverData.data.assigned_drivers || 0
+                    };
                 }
             }
 
@@ -53,7 +54,8 @@ const DeliveryDashboard = () => {
                 if (orderData.data) {
                     const orders = orderData.data.orders || [];
                     realData.orders = {
-                        total: orders.length
+                        total: orders.length,
+                        pending: orders.filter(o => o.status === 'Pending').length
                     };
                 }
             }
@@ -62,13 +64,104 @@ const DeliveryDashboard = () => {
             if (taskResponse && taskResponse.ok) {
                 const taskData = await taskResponse.json();
                 if (taskData.data) {
-                    realData.deliveryTasks = taskData.data;
+                    realData.deliveryTasks = {
+                        pending: taskData.data.pending_tasks || 0,
+                        assigned: taskData.data.assigned_tasks || 0,
+                        delivered: taskData.data.delivered_tasks || 0
+                    };
                 }
             }
 
-            // Update stats and charts with real data
-            setStats(updateDeliveryStats(deliveryStatsData, realData));
-            setCharts(updateDeliveryCharts(deliveryChartData, realData));
+            // Build stats array with real data
+            const newStats = [
+                {
+                    title: 'Total Drivers',
+                    value: realData.drivers?.total || '0',
+                    subtitle: `Available: ${realData.drivers?.available || '0'}`,
+                    valueColor: 'text-blue-600',
+                    icon: 'deliveries',
+                    iconBgColor: 'bg-blue-100'
+                },
+                {
+                    title: 'Total Orders',
+                    value: realData.orders?.total || '0',
+                    subtitle: `Total customer orders`,
+                    valueColor: 'text-green-600',
+                    icon: 'orders',
+                    iconBgColor: 'bg-green-100'
+                },
+                {
+                    title: 'Pending Orders',
+                    value: realData.orders?.pending || '0',
+                    subtitle: 'Awaiting delivery assignment',
+                    valueColor: 'text-orange-600',
+                    icon: 'orders',
+                    iconBgColor: 'bg-orange-100'
+                },
+                {
+                    title: 'Completed Deliveries',
+                    value: realData.deliveryTasks?.delivered || '0',
+                    subtitle: 'Successfully delivered',
+                    valueColor: 'text-purple-600',
+                    icon: 'deliveries',
+                    iconBgColor: 'bg-purple-100'
+                }
+            ];
+
+            // Build charts array with real data
+            const newCharts = [
+                {
+                    title: 'Driver Status Distribution',
+                    data: {
+                        labels: ['Available', 'Busy', 'Assigned'],
+                        datasets: [{
+                            data: [
+                                realData.drivers?.available || 0,
+                                realData.drivers?.busy || 0,
+                                realData.drivers?.assigned || 0
+                            ],
+                            backgroundColor: [
+                                '#10B981', // green-500
+                                '#EF4444', // red-500
+                                '#3B82F6'  // blue-500
+                            ],
+                            borderColor: [
+                                '#047857', // green-700
+                                '#DC2626', // red-700
+                                '#1E40AF'  // blue-700
+                            ],
+                            borderWidth: 2
+                        }]
+                    }
+                },
+                {
+                    title: 'Order Status Distribution',
+                    data: {
+                        labels: ['Pending', 'Shipped', 'Delivered'],
+                        datasets: [{
+                            data: [
+                                realData.orders?.pending || 0,
+                                realData.deliveryTasks?.assigned || 0,
+                                realData.deliveryTasks?.delivered || 0
+                            ],
+                            backgroundColor: [
+                                '#F59E0B', // yellow-500
+                                '#3B82F6', // blue-500
+                                '#10B981'  // green-500
+                            ],
+                            borderColor: [
+                                '#D97706', // yellow-700
+                                '#1E40AF', // blue-700
+                                '#047857'  // green-700
+                            ],
+                            borderWidth: 2
+                        }]
+                    }
+                }
+            ];
+
+            setStats(newStats);
+            setCharts(newCharts);
 
         } catch (error) {
             console.error('Error fetching dashboard data:', error);

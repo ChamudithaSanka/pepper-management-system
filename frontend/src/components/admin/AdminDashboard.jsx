@@ -8,16 +8,12 @@ import FarmerManagement from './FarmerManagement';
 import EmployeeManagement from './EmployeeManagement';
 import { 
     adminSidebarLinks, 
-    adminUserInfo, 
-    adminStatsData, 
-    adminChartData,
-    updateAdminStats,
-    updateAdminCharts
+    adminUserInfo
 } from '../../data/adminData';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState(adminStatsData);
-    const [charts, setCharts] = useState(adminChartData);
+    const [stats, setStats] = useState([]);
+    const [charts, setCharts] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -28,31 +24,34 @@ const AdminDashboard = () => {
         setLoading(true);
         try {
             // Fetch all dashboard data in parallel
-            const [farmerResponse, userResponse, customerResponse] = await Promise.all([
+            const [farmerResponse, userResponse, customerResponse, employeeResponse] = await Promise.all([
                 fetch('/api/farmers/stats', { credentials: 'include' }).catch(() => null),
                 fetch('/api/users/stats', { credentials: 'include' }).catch(() => null),
-                fetch('/api/customers', { credentials: 'include' }).catch(() => null)
+                fetch('/api/customers/stats', { credentials: 'include' }).catch(() => null),
+                fetch('/api/employees', { credentials: 'include' }).catch(() => null)
             ]);
 
             const realData = {
                 users: { total: 0, active: 0 },
                 farmers: { total: 0, active: 0 },
                 customers: { total: 0, active: 0 },
-                orders: { total: 0, subtitle: 'This month' },
-                revenue: { total: 'LKR 0', subtitle: 'This month' },
-                userRoles: [1, 0, 0, 0], // Admin, Finance, Inventory, Delivery
-                farmerStatus: [0, 0, 0] // Active, Inactive, Pending
+                employees: { total: 0, active: 0 },
+                farmerStatus: [0, 0, 0], // Active, Inactive, Pending
+                employeeRoles: [0, 0, 0, 0] // Admin, Finance, Inventory, Delivery
             };
 
             // Process farmer data
             if (farmerResponse && farmerResponse.ok) {
                 const farmerData = await farmerResponse.json();
                 if (farmerData.data) {
-                    realData.farmers = farmerData.data;
+                    realData.farmers = {
+                        total: farmerData.data.total_farmers || 0,
+                        active: farmerData.data.active_farmers || 0
+                    };
                     realData.farmerStatus = [
-                        farmerData.data.active || 0,
-                        farmerData.data.inactive || 0,
-                        farmerData.data.pending || 0
+                        farmerData.data.active_farmers || 0,
+                        farmerData.data.inactive_farmers || 0,
+                        0 // No pending field in API response
                     ];
                 }
             }
@@ -61,8 +60,10 @@ const AdminDashboard = () => {
             if (userResponse && userResponse.ok) {
                 const userData = await userResponse.json();
                 if (userData.data) {
-                    realData.users = userData.data;
-                    realData.userRoles = userData.data.roleDistribution || [1, 0, 0, 0];
+                    realData.users = {
+                        total: userData.data.totalUsers || 0,
+                        active: userData.data.activeUsers || 0
+                    };
                 }
             }
 
@@ -70,17 +71,121 @@ const AdminDashboard = () => {
             if (customerResponse && customerResponse.ok) {
                 const customerData = await customerResponse.json();
                 if (customerData.data) {
-                    const customers = customerData.data;
                     realData.customers = {
-                        total: customers.length,
-                        active: customers.filter(c => c.status === 'Active').length
+                        total: customerData.data.totalCustomers || 0,
+                        active: customerData.data.activeCustomers || 0
                     };
                 }
             }
 
-            // Update stats and charts with real data
-            setStats(updateAdminStats(adminStatsData, realData));
-            setCharts(updateAdminCharts(adminChartData, realData));
+            // Process employee data
+            if (employeeResponse && employeeResponse.ok) {
+                const employeeData = await employeeResponse.json();
+                if (employeeData.data) {
+                    const employees = employeeData.data;
+                    realData.employees = {
+                        total: employees.length,
+                        active: employees.filter(e => e.status === 'Active').length
+                    };
+                    
+                    // Calculate role distribution
+                    const roleCount = { admin: 0, finance: 0, inventory: 0, delivery: 0 };
+                    employees.forEach(emp => {
+                        switch (emp.role?.toLowerCase()) {
+                            case 'admin': roleCount.admin++; break;
+                            case 'finance manager': case 'finance': roleCount.finance++; break;
+                            case 'inventory manager': case 'inventory': roleCount.inventory++; break;
+                            case 'delivery staff': case 'delivery': roleCount.delivery++; break;
+                        }
+                    });
+                    realData.employeeRoles = [roleCount.admin, roleCount.finance, roleCount.inventory, roleCount.delivery];
+                }
+            }
+
+            // Build stats array with real data
+            const newStats = [
+                {
+                    title: 'Total Users',
+                    value: realData.users?.total || '0',
+                    subtitle: `Active: ${realData.users?.active || '0'}`,
+                    valueColor: 'text-blue-600',
+                    icon: 'users',
+                    iconBgColor: 'bg-blue-100'
+                },
+                {
+                    title: 'Total Farmers',
+                    value: realData.farmers?.total || '0',
+                    subtitle: `Active: ${realData.farmers?.active || '0'}`,
+                    valueColor: 'text-green-600',
+                    icon: 'farmers',
+                    iconBgColor: 'bg-green-100'
+                },
+                {
+                    title: 'Total Customers',
+                    value: realData.customers?.total || '0',
+                    subtitle: `Active: ${realData.customers?.active || '0'}`,
+                    valueColor: 'text-purple-600',
+                    icon: 'customers',
+                    iconBgColor: 'bg-purple-100'
+                },
+                {
+                    title: 'Total Employees',
+                    value: realData.employees?.total || '0',
+                    subtitle: `Active: ${realData.employees?.active || '0'}`,
+                    valueColor: 'text-orange-600',
+                    icon: 'employees',
+                    iconBgColor: 'bg-orange-100'
+                }
+            ];
+
+            // Build charts array with real data
+            const newCharts = [
+                {
+                    title: 'Farmer Status Distribution',
+                    data: {
+                        labels: ['Active Farmers', 'Inactive Farmers', 'Pending Approval'],
+                        datasets: [{
+                            data: realData.farmerStatus || [0, 0, 0],
+                            backgroundColor: [
+                                '#10B981', // green-500
+                                '#EF4444', // red-500
+                                '#F59E0B'  // yellow-500
+                            ],
+                            borderColor: [
+                                '#047857', // green-700
+                                '#DC2626', // red-700
+                                '#D97706'  // yellow-700
+                            ],
+                            borderWidth: 2
+                        }]
+                    }
+                },
+                {
+                    title: 'Employee Role Distribution',
+                    data: {
+                        labels: ['Admin', 'Finance Manager', 'Inventory Manager', 'Delivery Staff'],
+                        datasets: [{
+                            data: realData.employeeRoles || [0, 0, 0, 0],
+                            backgroundColor: [
+                                '#3B82F6', // blue-500
+                                '#10B981', // green-500
+                                '#8B5CF6', // purple-500
+                                '#F59E0B'  // yellow-500
+                            ],
+                            borderColor: [
+                                '#1E40AF', // blue-700
+                                '#047857', // green-700
+                                '#6D28D9', // purple-700
+                                '#D97706'  // yellow-700
+                            ],
+                            borderWidth: 2
+                        }]
+                    }
+                }
+            ];
+
+            setStats(newStats);
+            setCharts(newCharts);
 
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
