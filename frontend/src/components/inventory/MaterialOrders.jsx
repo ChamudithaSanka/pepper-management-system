@@ -80,6 +80,33 @@ const MaterialOrders = () => {
         }
     };
 
+    const deleteOrder = async (rmOrderId, materialType) => {
+        // Show confirmation dialog
+        const confirmed = window.confirm(`Are you sure you want to delete this ${materialType} order?\n\nThis action cannot be undone.`);
+        
+        if (!confirmed) {
+            return; // User cancelled
+        }
+
+        try {
+            const response = await fetch(`/api/rm-orders/${rmOrderId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                fetchOrders(); // Refresh the orders list
+                alert('Order deleted successfully');
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to delete order');
+            }
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            alert('Error deleting order');
+        }
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending':
@@ -303,6 +330,12 @@ const MaterialOrders = () => {
                                                         Mark Delivered
                                                     </button>
                                                 )}
+                                                <button 
+                                                    onClick={() => deleteOrder(order.rmOrderId, order.rawMaterialType)}
+                                                    className="text-red-600 hover:text-red-900 font-medium"
+                                                >
+                                                    Delete
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
