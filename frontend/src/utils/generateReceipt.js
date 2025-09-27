@@ -113,36 +113,64 @@ export const generateOrderConfirmationPDF = async (orderData) => {
     doc.setFont('helvetica', 'bold');
     doc.text('Items:', 20, startY);
     
-    // Add items box
-    const boxY = startY + 5;
-    const boxHeight = 25;
+    let currentY = startY + 10;
+    let subtotal = 0;
     
-    // Draw light gray background
-    doc.setFillColor(...lightGray);
-    doc.rect(20, boxY, pageWidth - 40, boxHeight, 'F');
+    // Add each item
+    orderData.items.forEach((item, index) => {
+      const itemPrice = item.price || item.unitPrice || (item.subtotal / item.quantity);
+      const itemTotal = item.subtotal || (item.quantity * itemPrice);
+      subtotal += itemTotal;
+      
+      // Add item box
+      const boxHeight = 20;
+      
+      // Draw light gray background
+      doc.setFillColor(...lightGray);
+      doc.rect(20, currentY - 5, pageWidth - 40, boxHeight, 'F');
+      
+      // Add item details
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(item.productName || 'Product', 25, currentY);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Qty: ${item.quantity} × LKR ${itemPrice.toFixed(2)}`, 25, currentY + 8);
+      
+      // Add item total on the right
+      doc.setFont('helvetica', 'bold');
+      doc.text(`LKR ${itemTotal.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
+      
+      currentY += 25;
+    });
     
-    // Add item details
+    // Add subtotal line
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text(orderData.items[0]?.productName || 'Product', 25, boxY + 8);
+    doc.text('Subtotal:', pageWidth - 50, currentY);
+    doc.text(`LKR ${subtotal.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
     
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Quantity: ${orderData.items[0]?.quantity || 1} × LKR ${orderData.items[0]?.unitPrice?.toFixed(2) || orderData.totalAmount.toFixed(2)}`, 25, boxY + 15);
+    // Add total line
+    currentY += 8;
+    doc.setFontSize(12);
+    doc.text('Total:', pageWidth - 50, currentY);
+    doc.text(`LKR ${orderData.totalAmount.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
     
-    // Add item total on the right
-    doc.setFont('helvetica', 'bold');
-    doc.text(`LKR ${orderData.totalAmount.toFixed(2)}`, pageWidth - 30, boxY + 8, { align: 'right' });
+    return currentY + 15; // Return the Y position for next section
   };
 
   // Helper function to add delivery address
-  const addDeliveryAddress = () => {
-    const startY = 110;
-    
+  const addDeliveryAddress = (startY) => {
     // Add section title
     doc.setFontSize(12);
     doc.setTextColor(...darkColor);
     doc.setFont('helvetica', 'bold');
     doc.text('Delivery Address:', 20, startY);
+    
+    // Add address box
+    const boxHeight = 25;
+    doc.setFillColor(...lightGray);
+    doc.rect(20, startY + 5, pageWidth - 40, boxHeight, 'F');
     
     // Add address
     doc.setFontSize(10);
@@ -162,13 +190,17 @@ export const generateOrderConfirmationPDF = async (orderData) => {
       }
     }
     
-    doc.text(address, 20, startY + 8);
+    // Split long addresses into multiple lines
+    const maxWidth = pageWidth - 50;
+    const addressLines = doc.splitTextToSize(address, maxWidth);
+    
+    addressLines.forEach((line, index) => {
+      doc.text(line, 25, startY + 12 + (index * 6));
+    });
   };
 
   // Helper function to add estimated delivery
-  const addEstimatedDelivery = () => {
-    const startY = 110;
-    
+  const addEstimatedDelivery = (startY) => {
     // Add section title
     doc.setFontSize(12);
     doc.setTextColor(...darkColor);
@@ -220,9 +252,9 @@ export const generateOrderConfirmationPDF = async (orderData) => {
     await addLogo();
     addCompanyDetails();
     addOrderHeader();
-    addItemsSection();
-    addDeliveryAddress();
-    addEstimatedDelivery();
+    const itemsEndY = addItemsSection();
+    addDeliveryAddress(itemsEndY + 10);
+    addEstimatedDelivery(itemsEndY + 10);
     addFooter();
     
     // Save the PDF

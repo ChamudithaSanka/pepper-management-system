@@ -178,10 +178,6 @@ const GoogleMapSelector = ({ onLocationSelect, initialLocation, address, showSea
 
     return (
         <div className="space-y-4">
-            <div className="text-sm text-gray-600">
-                Click on the map, drag the marker, or search to select location
-            </div>
-
             {showSearch && (
                 <div className="relative">
                     {window.google && window.google.maps ? (

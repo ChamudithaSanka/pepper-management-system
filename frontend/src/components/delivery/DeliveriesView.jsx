@@ -34,7 +34,15 @@ const DeliveriesView = ({ onStatsUpdate }) => {
 
     const markTaskCompleted = async (taskId) => {
         try {
-            const response = await fetch(`/api/delivery/tasks/${taskId}/status`, {
+            // Find the task to get the orderId
+            const task = tasks.find(t => t._id === taskId);
+            if (!task) {
+                alert('Task not found');
+                return;
+            }
+
+            // Update delivery task status
+            const taskResponse = await fetch(`/api/delivery/tasks/${taskId}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -43,15 +51,35 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                 body: JSON.stringify({ status: 'Delivered' })
             });
 
-            const responseData = await response.json();
-
-            if (response.ok) {
-                fetchDeliveryTasks();
-                if (onStatsUpdate) onStatsUpdate();
-                alert('Delivery task marked as completed successfully!');
-            } else {
-                alert(responseData.message || 'Failed to mark task as completed');
+            if (!taskResponse.ok) {
+                const taskError = await taskResponse.json();
+                alert(taskError.message || 'Failed to mark task as completed');
+                return;
             }
+
+            // Update order status to delivered
+            const orderResponse = await fetch(`/api/orders/${task.orderId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ 
+                    orderStatus: 'Delivered',
+                    paymentStatus: 'Completed'
+                })
+            });
+
+            if (!orderResponse.ok) {
+                const orderError = await orderResponse.json();
+                alert(orderError.message || 'Task completed but failed to update order status');
+            }
+
+            // Refresh data and show success message
+            fetchDeliveryTasks();
+            if (onStatsUpdate) onStatsUpdate();
+            alert('Delivery task and order marked as completed successfully!');
+
         } catch (error) {
             console.error('Error marking task as completed:', error);
             alert('Error marking task as completed');
