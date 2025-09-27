@@ -22,6 +22,7 @@ const RawMaterialManagement = () => {
     });
     const [error, setError] = useState('');
     const [editError, setEditError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         fetchRawMaterials();
@@ -65,6 +66,7 @@ const RawMaterialManagement = () => {
             reorderLevel: material.reorderLevelKg.toString()
         });
         setEditError(''); // Clear any previous errors
+        setSuccessMessage(''); // Clear any success messages
         setShowEditMaterialForm(true);
     };
 
@@ -111,13 +113,19 @@ const RawMaterialManagement = () => {
             });
 
             if (response.ok) {
+                const data = await response.json();
                 setNewMaterial({
                     type: '',
                     quantity: '',
                     reorderLevel: ''
                 });
                 setShowAddMaterialForm(false);
+                setSuccessMessage(`Raw material "${data.data.type}" has been successfully added!`);
                 fetchRawMaterials();
+                // Clear success message after 5 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 5000);
             } else {
                 const data = await response.json();
                 setError(data.message || 'Failed to add raw material');
@@ -173,6 +181,7 @@ const RawMaterialManagement = () => {
             });
 
             if (response.ok) {
+                const data = await response.json();
                 setEditMaterial({
                     type: '',
                     quantity: '',
@@ -180,7 +189,12 @@ const RawMaterialManagement = () => {
                 });
                 setShowEditMaterialForm(false);
                 setEditingMaterial(null);
+                setSuccessMessage(`Raw material "${data.data.type}" has been successfully updated!`);
                 fetchRawMaterials();
+                // Clear success message after 5 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 5000);
             } else {
                 const data = await response.json();
                 setEditError(data.message || 'Failed to update raw material');
@@ -223,7 +237,11 @@ const RawMaterialManagement = () => {
                 </div>
                 <div className="flex space-x-3">
                     <button
-                        onClick={() => setShowAddMaterialForm(true)}
+                        onClick={() => {
+                            setShowAddMaterialForm(true);
+                            setSuccessMessage(''); // Clear any success messages
+                            setError(''); // Clear any error messages
+                        }}
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
                         + Add Raw Material
@@ -247,6 +265,24 @@ const RawMaterialManagement = () => {
                     >
                         ×
                     </button>
+                </div>
+            )}
+
+            {/* Success Message Display */}
+            {successMessage && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                        {successMessage}
+                        <button 
+                            onClick={() => setSuccessMessage('')}
+                            className="ml-auto text-green-500 hover:text-green-700"
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -292,7 +328,11 @@ const RawMaterialManagement = () => {
                         <h3 className="text-xl font-semibold text-gray-600 mb-2">No Raw Materials Found</h3>
                         <p className="text-gray-500 mb-4">Start by adding raw materials to your inventory</p>
                         <button
-                            onClick={() => setShowAddMaterialForm(true)}
+                            onClick={() => {
+                                setShowAddMaterialForm(true);
+                                setSuccessMessage(''); // Clear any success messages
+                                setError(''); // Clear any error messages
+                            }}
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                         >
                             + Add Your First Raw Material
