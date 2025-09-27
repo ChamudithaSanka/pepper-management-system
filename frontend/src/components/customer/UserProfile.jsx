@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { LoadScript } from '@react-google-maps/api';
+import GoogleMapSelector from '../GoogleMapSelector';
+
+// Static libraries array to prevent LoadScript reloading
+const GOOGLE_MAPS_LIBRARIES = ['places', 'geometry'];
 
 const UserProfile = () => {
   const [customer, setCustomer] = useState(null);
@@ -11,7 +16,9 @@ const UserProfile = () => {
       street: '',
       city: '',
       zipCode: '',
-      fullAddress: ''
+      fullAddress: '',
+      latitude: 6.9271,
+      longitude: 79.8612
     }
   });
   const [loading, setLoading] = useState(true);
@@ -75,6 +82,44 @@ const UserProfile = () => {
         [name]: value
       }));
     }
+  };
+
+  const handleLocationSelect = (location) => {
+    // Use structured address_components from Google
+    const getComponent = (type) => {
+      const comp = location.address_components?.find(c => c.types.includes(type));
+      return comp ? comp.long_name : '';
+    };
+
+    let street = getComponent('route');
+    let city = getComponent('locality');
+    let zipCode = getComponent('postal_code');
+    const fullAddress = location.address || location.formatted_address || '';
+
+    // Fallback: if street/city missing, use parts of formatted address
+    if (!street || !city) {
+      const parts = fullAddress.split(',').map(p => p.trim());
+      if (!street && parts.length > 0) street = parts[0];
+      if (!city && parts.length > 1) city = parts[1];
+    }
+
+    // Default zipCode if not found
+    if (!zipCode) {
+      zipCode = '00000';
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      deliveryAddress: {
+        ...prev.deliveryAddress,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        street,
+        city,
+        zipCode,
+        fullAddress
+      }
+    }));
   };
 
   const handleSave = async () => {
@@ -292,36 +337,38 @@ const UserProfile = () => {
                 <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.fullAddress}</div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Account Stats */}
-      <div className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Statistics</h3>
-        <div className="grid grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{customer.totalOrders}</div>
-            <div className="text-sm text-gray-600">Total Orders</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {customer.status === 'Active' ? '✅' : '❌'}
-            </div>
-            <div className="text-sm text-gray-600">Account Status: {customer.status}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {customer.lastOrderDate 
-                ? new Date(customer.lastOrderDate).toLocaleDateString()
-                : 'N/A'
-              }
-            </div>
-            <div className="text-sm text-gray-600">Last Order</div>
           </div>
         </div>
+     
       </div>
-    </div>
+      <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Select Location on Map</label>
+          <div className="border border-gray-300 rounded-lg overflow-hidden">
+            <LoadScript
+              key="profile-map-script"
+              googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}
+              libraries={GOOGLE_MAPS_LIBRARIES}
+            >
+              <GoogleMapSelector
+                onLocationSelect={handleLocationSelect}
+                initialLocation={{
+                  latitude: formData.deliveryAddress.latitude,
+                  longitude: formData.deliveryAddress.longitude
+                }}
+                address={
+                  [formData.deliveryAddress.street,
+                   formData.deliveryAddress.city,
+                   formData.deliveryAddress.zipCode,
+                   formData.deliveryAddress.fullAddress]
+                    .filter(Boolean)
+                    .join(', ')
+                }
+              />
+            </LoadScript>
+          </div>
+      </div>
+</div>
   );
 };
 
