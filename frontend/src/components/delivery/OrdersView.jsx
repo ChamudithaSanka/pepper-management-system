@@ -67,7 +67,7 @@ const OrdersView = ({ onStatsUpdate }) => {
 
         setLoading(true);
         try {
-            const response = await fetch(`/api/delivery/orders/${selectedOrder.id}/assign`, {
+            const response = await fetch(`/api/delivery/orders/${selectedOrder.orderId}/assign`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -82,12 +82,14 @@ export const getAllOrdersForDelivery = async (req, res) => {
 
 // Assign driver to order (creates delivery task)
 export const assignDriverToOrder = async (req, res) => {
+    console.log('assignDriverToOrder called', req.params.orderId, req.body);
     try {
         const { orderId } = req.params;
-        const { driverId, customerId } = req.body;
+        const { driverId } = req.body;
 
         // Validate driver
         const driver = await DeliveryDriver.findById(driverId);
+        console.log('Driver:', driver);
         if (!driver) {
             return res.status(404).json({ success: false, message: 'Driver not found' });
         }
@@ -95,62 +97,69 @@ export const assignDriverToOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Driver is not available' });
         }
 
-        // Check if delivery task already exists
-        const existingTask = await DeliveryTask.findOne({ orderId });
-        if (existingTask) {
-            return res.status(400).json({ success: false, message: 'Delivery task already exists for this order' });
-        }
-
         // Get customer order details
         const customerOrder = await Order.findOne({ orderId }).populate('customerId', 'name phone');
+        console.log('CustomerOrder:', customerOrder);
         if (!customerOrder) {
             return res.status(404).json({ success: false, message: 'Customer order not found' });
         }
 
-        const orderData = customerOrder;
-        const deliveryLocation = {
-            latitude: customerOrder.deliveryLocation.latitude,
-            longitude: customerOrder.deliveryLocation.longitude,
-            address: customerOrder.deliveryAddress.fullAddress
-        };
-        const customerInfo = {
-            id: customerOrder.customerId?._id || customerOrder.customerId,
-            name: customerOrder.customerId.name,
-            phone: customerOrder.customerId.phone
-        };
-
-        // Create pickup location (shop location)
-        const pickupLocation = {
-            latitude: SHOP_LOCATION.coordinates.latitude,
-            longitude: SHOP_LOCATION.coordinates.longitude,
-            address: SHOP_LOCATION.address
-        };
-
-        // Create delivery task
-        const deliveryTask = new DeliveryTask({
-            orderId,
-            customerId: customerInfo.id,
-            driverId: driver._id,
-            driverName: driver.name,
-            pickupLocation,
-            deliveryLocation,
-            status: 'Assigned',
-            assignedAt: new Date(),
-            customerName: customerInfo.name,
-            customerPhone: customerInfo.phone,
-            orderDetails: orderData
-        });
+        // Check if delivery task already exists
+        let deliveryTask = await DeliveryTask.findOne({ orderId });
+        console.log('ExistingTask:', deliveryTask);
+        if (!deliveryTask) {
+            // Create pickup location (shop location)
+            const pickupLocation = {
+                latitude: SHOP_LOCATION.coordinates.latitude,
+                longitude: SHOP_LOCATION.coordinates.longitude,
+                address: SHOP_LOCATION.address
+            };
+            const deliveryLocation = {
+                latitude: customerOrder.deliveryLocation.latitude,
+                longitude: customerOrder.deliveryLocation.longitude,
+                address: customerOrder.deliveryAddress.fullAddress
+            };
+            const customerInfo = {
+                id: customerOrder.customerId?._id || customerOrder.customerId,
+                name: customerOrder.customerId.name,
+                phone: customerOrder.customerId.phone
+            };
+            // Create delivery task
+            deliveryTask = new DeliveryTask({
+                orderId,
+                customerId: customerInfo.id,
+                driverId: driver._id,
+                driverName: driver.name,
+                pickupLocation,
+                deliveryLocation,
+                status: 'Assigned',
+                assignedAt: new Date(),
+                customerName: customerInfo.name,
+                customerPhone: customerInfo.phone,
+                orderDetails: customerOrder
+            });
+        } else {
+            // Update existing delivery task with driver info
+            deliveryTask.driverId = driver._id;
+            deliveryTask.driverName = driver.name;
+            deliveryTask.status = 'Assigned';
+            deliveryTask.assignedAt = new Date();
+        }
 
         await deliveryTask.save();
+        console.log('SavedTask:', deliveryTask);
 
         // Update driver status
         await DeliveryDriver.findByIdAndUpdate(driver._id, { status: 'Busy' });
+        console.log('Driver status updated to Busy');
 
         // Update customer order status to Shipped when driver assigned
         await Order.findOneAndUpdate({ orderId }, { orderStatus: 'Shipped' });
+        console.log('Order status updated to Shipped');
 
         res.status(201).json({ success: true, message: 'Driver assigned successfully', data: deliveryTask });
     } catch (error) {
+        console.error('Error in assignDriverToOrder:', error);
         res.status(500).json({ success: false, message: 'Error assigning driver', error: error.message });
     }
 };

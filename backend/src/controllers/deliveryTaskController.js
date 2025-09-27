@@ -1,9 +1,6 @@
 import DeliveryTask from '../models/deliveryTaskModel.js';
 import DeliveryDriver from '../models/deliveryDriverModel.js';
 import Order from '../models/orderModel.js';
-import RawMaterialOrder from '../models/rawMaterialOrderModel.js';
-import Farmer from '../models/farmerModel.js';
-import Customer from '../models/customerModel.js';
 import { SHOP_LOCATION } from '../config/deliveryConfig.js';
 
 // Get all delivery tasks
@@ -19,14 +16,7 @@ export const getAllDeliveryTasks = async (req, res) => {
         }
         
         // Filter by driver
-        if (driverId) {
-            query.driverId = driverId;
-        }
-        
-        // Filter by order type
-        if (orderType && orderType !== 'all') {
-            query.orderType = orderType;
-        }
+
         
         // Calculate pagination
         const skip = (page - 1) * limit;
@@ -90,86 +80,38 @@ export const getDeliveryTaskById = async (req, res) => {
 // Create delivery task from order
 export const createDeliveryTask = async (req, res) => {
     try {
-        const { orderType, orderId, driverId } = req.body;
-        
+        const { orderId, driverId } = req.body;
+
         let orderData = null;
         let deliveryLocation = null;
         let customerInfo = null;
-        
-        if (orderType === 'FarmerOrder') {
-            // Get farmer order details
-            const farmerOrder = await RawMaterialOrder.findOne({ rmOrderId: orderId })
-                .populate('farmerId', 'name phone farm_location');
-            
-            if (!farmerOrder) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Farmer order not found'
-                });
-            }
-            
-            orderData = farmerOrder;
-            deliveryLocation = {
-                latitude: farmerOrder.farmerId.farm_location.latitude,
-                longitude: farmerOrder.farmerId.farm_location.longitude,
-                address: farmerOrder.farmerId.farm_location.address
-            };
-            customerInfo = {
-                name: farmerOrder.farmerId.name,
-                phone: farmerOrder.farmerId.phone
-            };
-        } else if (orderType === 'CustomerOrder') {
-            // Get customer order details
-            const customerOrder = await Order.findOne({ orderId })
-                .populate('customerId', 'name phone');
-            
-            if (!customerOrder) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Customer order not found'
-                });
-            }
-            
-            orderData = customerOrder;
-            deliveryLocation = {
-                latitude: customerOrder.deliveryLocation.latitude,
-                longitude: customerOrder.deliveryLocation.longitude,
-                address: customerOrder.deliveryAddress.fullAddress
-            };
-            customerInfo = {
-                name: customerOrder.customerId.name,
-                phone: customerOrder.customerId.phone
-            };
-        } else {
-            return res.status(400).json({
+
+        // Only handle customer orders
+        const customerOrder = await Order.findOne({ orderId }).populate('customerId', 'name phone');
+        if (!customerOrder) {
+            return res.status(404).json({
                 success: false,
-                message: 'Invalid order type'
+                message: 'Customer order not found'
             });
         }
-        
+        orderData = customerOrder;
+        deliveryLocation = {
+            latitude: customerOrder.deliveryLocation.latitude,
+            longitude: customerOrder.deliveryLocation.longitude,
+            address: customerOrder.deliveryAddress.fullAddress
+        };
+        customerInfo = {
+            name: customerOrder.customerId.name,
+            phone: customerOrder.customerId.phone
+        };
+
         // Check if task already exists for this order
-        const existingTask = await DeliveryTask.findOne({ 
-            orderType, 
-            orderId 
-        });
-        
+        const existingTask = await DeliveryTask.findOne({ orderId });
         if (existingTask) {
             return res.status(400).json({
                 success: false,
                 message: 'Delivery task already exists for this order'
             });
-        }
-        
-        // Get driver details if provided
-        let driverData = null;
-        if (driverId) {
-            driverData = await DeliveryDriver.findById(driverId);
-            if (!driverData) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Driver not found'
-                });
-            }
         }
         
         // Create pickup location (shop location)
@@ -181,13 +123,11 @@ export const createDeliveryTask = async (req, res) => {
         
         // Create delivery task
         const deliveryTask = new DeliveryTask({
-            orderType,
             orderId,
             driverId: driverData ? driverData._id : null,
             driverName: driverData ? driverData.name : null,
             pickupLocation,
             deliveryLocation,
-            status: driverData ? 'Assigned' : 'Pending',
             assignedAt: driverData ? new Date() : null,
             customerName: customerInfo.name,
             customerPhone: customerInfo.phone,

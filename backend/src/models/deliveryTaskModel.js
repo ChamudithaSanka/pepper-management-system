@@ -5,11 +5,6 @@ const deliveryTaskSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    orderType: {
-        type: String,
-        required: true,
-        enum: ['FarmerOrder', 'CustomerOrder']
-    },
     orderId: {
         type: String,
         required: true
@@ -109,7 +104,6 @@ const deliveryTaskSchema = new mongoose.Schema({
 // Create indexes for better search performance
 deliveryTaskSchema.index({ status: 1 });
 deliveryTaskSchema.index({ driverId: 1 });
-deliveryTaskSchema.index({ orderType: 1 });
 
 // Pre-save middleware to generate taskId
 deliveryTaskSchema.pre('save', async function(next) {

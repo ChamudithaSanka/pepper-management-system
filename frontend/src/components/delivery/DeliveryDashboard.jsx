@@ -52,9 +52,7 @@ const DeliveryDashboard = () => {
                 if (orderData.data) {
                     const orders = orderData.data.orders || [];
                     realData.orders = {
-                        total: orders.length,
-                        farmerOrders: orders.filter(o => o.orderType === 'FarmerOrder').length,
-                        customerOrders: orders.filter(o => o.orderType === 'CustomerOrder').length
+                        total: orders.length
                     };
                 }
             }
