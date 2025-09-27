@@ -5,7 +5,6 @@ import {
     getCustomerPayments,
     updatePaymentStatus,
     getAllPayments,
-    processRefund,
     getPaymentStatistics
 } from '../controllers/paymentController.js';
 
@@ -19,7 +18,6 @@ router.get('/:paymentId', getPaymentById);
 // Admin payment management routes
 router.get('/', getAllPayments);
 router.put('/:paymentId/status', updatePaymentStatus);
-router.post('/:paymentId/refund', processRefund);
 router.get('/admin/statistics', getPaymentStatistics);
 
 export default router;
