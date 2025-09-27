@@ -1,4 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { LoadScript, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+
+// Static libraries array to prevent LoadScript reloading
+const GOOGLE_MAPS_LIBRARIES = ['places'];
+
+// Map component to display multiple order markers
+const OrdersMap = ({ orders, mapCenter }) => {
+    const mapRef = useRef(null);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+    const mapOptions = {
+        disableDefaultUI: false,
+        clickableIcons: true,
+        scrollwheel: true
+    };
+
+    const onLoad = (map) => {
+        mapRef.current = map;
+    };
+
+    const getMarkerIcon = (status) => {
+        switch (status) {
+            case 'Pending':
+                return {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="8" fill="#F59E0B" stroke="white" stroke-width="2"/>
+                            <circle cx="10" cy="10" r="3" fill="white"/>
+                        </svg>
+                    `),
+                    scaledSize: new window.google.maps.Size(20, 20)
+                };
+            case 'Shipped':
+                return {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="8" fill="#3B82F6" stroke="white" stroke-width="2"/>
+                            <circle cx="10" cy="10" r="3" fill="white"/>
+                        </svg>
+                    `),
+                    scaledSize: new window.google.maps.Size(20, 20)
+                };
+            case 'Delivered':
+                return {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="8" fill="#10B981" stroke="white" stroke-width="2"/>
+                            <circle cx="10" cy="10" r="3" fill="white"/>
+                        </svg>
+                    `),
+                    scaledSize: new window.google.maps.Size(20, 20)
+                };
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '400px' }}
+            center={mapCenter}
+            zoom={10}
+            onLoad={onLoad}
+            options={mapOptions}
+        >
+            {orders.map((order, index) => (
+                <Marker
+                    key={index}
+                    position={{
+                        lat: order.location?.latitude || 6.9271,
+                        lng: order.location?.longitude || 79.8612
+                    }}
+                    icon={getMarkerIcon(order.status)}
+                    onClick={() => setSelectedOrder(order)}
+                />
+            ))}
+            
+            {selectedOrder && (
+                <InfoWindow
+                    position={{
+                        lat: selectedOrder.location?.latitude || 6.9271,
+                        lng: selectedOrder.location?.longitude || 79.8612
+                    }}
+                    onCloseClick={() => setSelectedOrder(null)}
+                >
+                    <div className="p-2">
+                        <h4 className="font-semibold text-gray-900">{selectedOrder.orderId}</h4>
+                        <p className="text-sm text-gray-600">{selectedOrder.customerName}</p>
+                        <p className="text-xs text-gray-500 mt-1">{selectedOrder.location?.address}</p>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2 ${
+                            selectedOrder.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                            selectedOrder.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                            'bg-green-100 text-green-800'
+                        }`}>
+                            {selectedOrder.status}
+                        </span>
+                    </div>
+                </InfoWindow>
+            )}
+        </GoogleMap>
+    );
+};
 
 const OrdersView = ({ onStatsUpdate }) => {
     const [orders, setOrders] = useState([]);
@@ -10,6 +112,7 @@ const OrdersView = ({ onStatsUpdate }) => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedDriver, setSelectedDriver] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [mapCenter, setMapCenter] = useState({ lat: 6.9271, lng: 79.8612 }); // Colombo, Sri Lanka
 
     useEffect(() => {
         fetchOrders();
@@ -116,6 +219,22 @@ const OrdersView = ({ onStatsUpdate }) => {
 
     const availableDrivers = drivers.filter(driver => driver.status === 'Available');
 
+    // Prepare map markers data from orders
+    const mapMarkers = filteredOrders.map(order => ({
+        position: {
+            lat: order.location?.latitude || 6.9271,
+            lng: order.location?.longitude || 79.8612
+        },
+        title: `Order ${order.orderId}`,
+        info: {
+            orderId: order.orderId,
+            customerName: order.customerName,
+            status: order.status,
+            address: order.location?.address || 'No address available',
+            items: order.details.items?.map(item => `${item.name} (${item.quantity})`).join(', ') || 'No items'
+        }
+    }));
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -179,12 +298,51 @@ const OrdersView = ({ onStatsUpdate }) => {
 
             {/* Content */}
             {showMap ? (
-                <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                    </svg>
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">Map View</h3>
-                    <p className="text-gray-400">Map view will be implemented here</p>
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div className="p-4 border-b border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900">Orders Map View</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                            Showing {mapMarkers.length} order{mapMarkers.length !== 1 ? 's' : ''} on map
+                        </p>
+                    </div>
+                    <div className="p-4">
+                        {mapMarkers.length === 0 ? (
+                            <div className="text-center py-8">
+                                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                                </svg>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders to display</h3>
+                                <p className="text-gray-500">No orders available for map view</p>
+                            </div>
+                        ) : (
+                            <div>
+                                <LoadScript
+                                    key="orders-map-script"
+                                googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}
+                                libraries={GOOGLE_MAPS_LIBRARIES}
+                                >
+                                    <div className="h-96 w-full">
+                                        <OrdersMap orders={filteredOrders} mapCenter={mapCenter} />
+                                    </div>
+                                </LoadScript>
+                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {mapMarkers.map((marker, index) => (
+                                        <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="font-medium text-gray-900">{marker.info.orderId}</h4>
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(marker.info.status)}`}>
+                                                    {marker.info.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-1">{marker.info.customerName}</p>
+                                            <p className="text-xs text-gray-500 mb-2 truncate">{marker.info.address}</p>
+                                            <p className="text-xs text-gray-500">{marker.info.items}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             ) : (
                 /* Table View */
