@@ -389,13 +389,13 @@ const UserManagement = ({ onStatsUpdate }) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <button
                                                 onClick={() => setEditingItem(item)}
-                                                className="text-green-600 hover:text-green-900 mr-3 font-medium"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm mr-2"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(item._id)}
-                                                className="text-red-600 hover:text-red-900 font-medium"
+                                                className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Delete
                                             </button>
