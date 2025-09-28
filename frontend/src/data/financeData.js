@@ -4,7 +4,8 @@ export const financeSidebarLinks = [
     { id: 'farmer-payments', label: 'Farmer Payments', icon: 'farmers' },
     { id: 'employee-salary', label: 'Employee Salary', icon: 'employees' },
     { id: 'salary-records', label: 'Salary Records', icon: 'finance' },
-    { id: 'customer-payments', label: 'Marketplace Income', icon: 'customers' }
+    { id: 'customer-payments', label: 'Marketplace Income', icon: 'customers' },
+    { id: 'other-expenses', label: 'Other Expenses', icon: 'expenses' }
 ];
 
 export const financeUserInfo = {
