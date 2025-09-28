@@ -21,55 +21,6 @@ const CustomerManagement = ({ onStatsUpdate }) => {
         }
     });
     const [showMapSelector, setShowMapSelector] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState({});
-
-    // Validation helper function
-    const validateField = (field, value) => {
-        const errors = { ...fieldErrors };
-        
-        switch (field) {
-            case 'email':
-                if (!value.trim()) {
-                    errors.email = 'Email is required';
-                } else if (!/^\S+@\S+\.\S+$/.test(value.trim())) {
-                    errors.email = 'Please enter a valid email address';
-                } else {
-                    delete errors.email;
-                }
-                break;
-            case 'phone':
-                if (!value.trim()) {
-                    errors.phone = 'Phone number is required';
-                } else if (!/^[0-9]{8,15}$/.test(value.trim())) {
-                    errors.phone = 'Enter valid phone number (8-15 digits)';
-                } else {
-                    delete errors.phone;
-                }
-                break;
-            case 'name':
-                if (!value.trim()) {
-                    errors.name = 'Name is required';
-                } else if (value.length > 100) {
-                    errors.name = 'Name cannot exceed 100 characters';
-                } else {
-                    delete errors.name;
-                }
-                break;
-            case 'password':
-                if (!value.trim()) {
-                    errors.password = 'Password is required';
-                } else if (value.length < 6) {
-                    errors.password = 'Password must be at least 6 characters';
-                } else {
-                    delete errors.password;
-                }
-                break;
-            default:
-                break;
-        }
-        
-        setFieldErrors(errors);
-    };
 
     const handleLocationSelect = (location) => {
         setNewItem({
@@ -138,43 +89,29 @@ const CustomerManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         setError('');
 
-        // Frontend validation
+        // Basic required field validation
         const errors = [];
 
-        // Name validation
         if (!newItem.name.trim()) {
             errors.push('Name is required');
-        } else if (newItem.name.length > 100) {
-            errors.push('Name cannot exceed 100 characters');
         }
 
-        // Email validation
         if (!newItem.email.trim()) {
             errors.push('Email is required');
-        } else if (!/^\S+@\S+\.\S+$/.test(newItem.email.trim())) {
-            errors.push('Please enter a valid email address');
         }
 
-        // Password validation
         if (!newItem.password.trim()) {
             errors.push('Password is required');
-        } else if (newItem.password.length < 6) {
-            errors.push('Password must be at least 6 characters');
         }
 
-        // Phone validation
         if (!newItem.phone.trim()) {
             errors.push('Phone number is required');
-        } else if (!/^[0-9]{8,15}$/.test(newItem.phone.trim())) {
-            errors.push('Please enter a valid phone number (8-15 digits)');
         }
 
-        // Delivery address validation
         if (!newItem.deliveryAddress.latitude || !newItem.deliveryAddress.longitude || !newItem.deliveryAddress.address) {
             errors.push('Please select a delivery address on the map');
         }
 
-        // If there are validation errors, show them and stop
         if (errors.length > 0) {
             setError(errors.join('. '));
             setLoading(false);
@@ -217,7 +154,6 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                         address: ''
                     }
                 });
-                setFieldErrors({});
                 setShowAddForm(false);
                 fetchCustomers();
             } else {
@@ -371,76 +307,83 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                         <h3 className="text-lg font-medium mb-4">Add New Customer</h3>
                         <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
                                 <input
                                     type="text"
-                                    placeholder="Full Name"
+                                    placeholder="Enter full name"
                                     value={newItem.name}
+                                    maxLength={100}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, name: e.target.value});
-                                        validateField('name', e.target.value);
+                                        // Only letters and spaces, max 100 chars
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setNewItem({...newItem, name: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.name ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.name && <p className="text-red-500 text-sm mt-1">{fieldErrors.name}</p>}
                             </div>
                             
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
                                 <input
                                     type="email"
-                                    placeholder="Email"
+                                    placeholder="Enter email address"
                                     value={newItem.email}
-                                    onChange={(e) => {
-                                        setNewItem({...newItem, email: e.target.value});
-                                        validateField('email', e.target.value);
-                                    }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.email ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    maxLength={100}
+                                    onChange={(e) => setNewItem({...newItem, email: e.target.value})}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.email && <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>}
                             </div>
                             
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Password *
+                                </label>
                                 <input
                                     type="password"
-                                    placeholder="Password (min 6 characters)"
+                                    placeholder="Enter password (8-32 characters)"
                                     value={newItem.password}
+                                    minLength={8}
+                                    maxLength={32}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, password: e.target.value});
-                                        validateField('password', e.target.value);
+                                        // Only allow 8-32 chars, no spaces
+                                        const value = e.target.value.replace(/\s/g, '').slice(0, 32);
+                                        setNewItem({...newItem, password: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.password ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.password && <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>}
                             </div>
                             
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mobile Number *
+                                </label>
                                 <input
                                     type="tel"
-                                    placeholder="Phone Number"
+                                    placeholder="Enter mobile number (10 digits)"
                                     value={newItem.phone}
+                                    maxLength={10}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, phone: e.target.value});
-                                        validateField('phone', e.target.value);
+                                        // Only digits, exactly 10 chars for Sri Lankan mobile
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setNewItem({...newItem, phone: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.phone ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.phone && <p className="text-red-500 text-sm mt-1">{fieldErrors.phone}</p>}
                             </div>
                             
                             <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Delivery Address *
+                                </label>
                                 <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50">
-                                    <div className="text-sm text-gray-600 mb-2">Delivery Address</div>
                                     {newItem.deliveryAddress.address ? (
                                         <div className="text-sm text-green-700 mb-2">{newItem.deliveryAddress.address}</div>
                                     ) : (
@@ -474,7 +417,6 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                                     type="button"
                                     onClick={() => {
                                         setShowAddForm(false);
-                                        setFieldErrors({});
                                         setError('');
                                     }}
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
@@ -596,52 +538,87 @@ const CustomerManagement = ({ onStatsUpdate }) => {
                             }}
                             className="space-y-4"
                         >
-                            <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={editingItem.name}
-                                onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={editingItem.email}
-                                onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={editingItem.phone}
-                                onChange={(e) => setEditingItem({...editingItem, phone: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <textarea
-                                placeholder="Delivery Address"
-                                value={editingItem.deliveryAddress?.address || ''}
-                                onChange={(e) => setEditingItem({
-                                    ...editingItem,
-                                    deliveryAddress: {
-                                        ...(editingItem.deliveryAddress || {}),
-                                        address: e.target.value
-                                    }
-                                })}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                rows="3"
-                                required
-                            />
-                            <select
-                                value={editingItem.status}
-                                onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter full name"
+                                    value={editingItem.name}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setEditingItem({...editingItem, name: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={editingItem.email}
+                                    maxLength={100}
+                                    onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mobile Number *
+                                </label>
+                                <input
+                                    type="tel"
+                                    placeholder="Enter mobile number (10 digits)"
+                                    value={editingItem.phone}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setEditingItem({...editingItem, phone: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Delivery Address *
+                                </label>
+                                <textarea
+                                    placeholder="Enter delivery address (letters, numbers, spaces, punctuation allowed)"
+                                    value={editingItem.deliveryAddress?.address || ''}
+                                    maxLength={500}
+                                    onChange={(e) => setEditingItem({
+                                        ...editingItem,
+                                        deliveryAddress: {
+                                            ...(editingItem.deliveryAddress || {}),
+                                            address: e.target.value.slice(0, 500)
+                                        }
+                                    })}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    rows="3"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                </label>
+                                <select
+                                    value={editingItem.status}
+                                    onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                >
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"

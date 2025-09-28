@@ -36,7 +36,7 @@ const InventoryDashboard = () => {
                 lowStock: { count: 0, subtitle: 'Need attention' },
                 pendingOrders: { count: 0, subtitle: 'Awaiting delivery' },
                 rawMaterialDistribution: [0, 0],
-                productStockStatus: [0, 0, 0, 0]
+                productCategories: [0, 0, 0, 0]
             };
 
             // Process raw materials data
@@ -66,11 +66,16 @@ const InventoryDashboard = () => {
                         subtitle: 'Total products'
                     };
                     
-                    // Calculate stock status
-                    const inStock = products.filter(p => p.stockStatus === 'InStock').length;
-                    const lowStock = products.filter(p => p.stockStatus === 'LowStock').length;
+                    // Calculate product categories
+                    const groundPepper = products.filter(p => p.category === 'Ground Pepper').length;
+                    const wholePepper = products.filter(p => p.category === 'Whole Pepper').length;
+                    const pepperPowder = products.filter(p => p.category === 'Pepper Powder').length;
+                    const otherProducts = products.filter(p => !['Ground Pepper', 'Whole Pepper', 'Pepper Powder'].includes(p.category)).length;
                     
-                    realData.productStockStatus = [inStock, lowStock];
+                    realData.productCategories = [groundPepper, wholePepper, pepperPowder, otherProducts];
+                    
+                    // Calculate low stock
+                    const lowStock = products.filter(p => p.stockStatus === 'LowStock').length;
                     realData.lowStock = {
                         count: lowStock,
                         subtitle: 'Need attention'
@@ -97,7 +102,7 @@ const InventoryDashboard = () => {
                 }
             }
 
-            // Build stats array with real data
+            // Build stats array with real data - organized as requested
             const newStats = [
                 {
                     title: 'Total Products',
@@ -106,6 +111,15 @@ const InventoryDashboard = () => {
                     icon: 'orders',
                     iconBgColor: 'bg-blue-100',
                     iconTextColor: 'text-blue-600',
+                    valueColor: 'text-gray-900'
+                },
+                {
+                    title: 'Low Stock Products',
+                    value: realData.lowStock?.count || '0',
+                    subtitle: realData.lowStock?.subtitle || 'Need attention',
+                    icon: 'users',
+                    iconBgColor: 'bg-red-100',
+                    iconTextColor: 'text-red-600',
                     valueColor: 'text-gray-900'
                 },
                 {
@@ -118,21 +132,12 @@ const InventoryDashboard = () => {
                     valueColor: 'text-gray-900'
                 },
                 {
-                    title: 'Pending Orders',
+                    title: 'Pending Raw Material Orders',
                     value: realData.pendingOrders?.count || '0',
                     subtitle: realData.pendingOrders?.subtitle || 'Awaiting delivery',
                     icon: 'inventory',
                     iconBgColor: 'bg-yellow-100',
                     iconTextColor: 'text-yellow-600',
-                    valueColor: 'text-gray-900'
-                },
-                {
-                    title: 'Low Stock Products',
-                    value: realData.lowStock?.count || '0',
-                    subtitle: realData.lowStock?.subtitle || 'Need attention',
-                    icon: 'users',
-                    iconBgColor: 'bg-red-100',
-                    iconTextColor: 'text-red-600',
                     valueColor: 'text-gray-900'
                 }
             ];
@@ -152,13 +157,13 @@ const InventoryDashboard = () => {
                     }
                 },
                 {
-                    title: 'Product Stock Status',
+                    title: 'Product Categories',
                     data: {
-                        labels: ['In Stock', 'Low Stock', 'Out of Stock', 'Expiring Soon'],
+                        labels: ['Ground Pepper', 'Whole Pepper', 'Pepper Powder', 'Other Products'],
                         datasets: [{
-                            data: realData.productStockStatus || [0, 0, 0, 0],
-                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#F97316'],
-                            borderColor: ['#047857', '#D97706', '#DC2626', '#EA580C'],
+                            data: realData.productCategories || [0, 0, 0, 0],
+                            backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B'],
+                            borderColor: ['#047857', '#1D4ED8', '#7C3AED', '#D97706'],
                             borderWidth: 2
                         }]
                     }
