@@ -13,6 +13,7 @@ const ProductManagement = () => {
     const [restockAmount, setRestockAmount] = useState('');
     const [rawMaterials, setRawMaterials] = useState([]);
     const [filterStatus, setFilterStatus] = useState('all');
+    const [formErrors, setFormErrors] = useState({});
 
     // Category-based size and unit options
     const getSizeOptions = (category) => {
@@ -66,6 +67,116 @@ const ProductManagement = () => {
         if (!imageUrl) return null;
         if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) return imageUrl;
         return `/uploads/${imageUrl}`;
+    };
+
+    // Validation functions
+    const validateField = (field, value) => {
+        const errors = { ...formErrors };
+        
+        switch (field) {
+            case 'productName':
+                if (!value.trim()) {
+                    errors.productName = 'Product name is required';
+                } else {
+                    delete errors.productName;
+                }
+                break;
+            case 'category':
+                if (!value) {
+                    errors.category = 'Category is required';
+                } else {
+                    delete errors.category;
+                }
+                break;
+            case 'size':
+                if (!value) {
+                    errors.size = 'Size is required';
+                } else {
+                    delete errors.size;
+                }
+                break;
+            case 'unit':
+                if (!value) {
+                    errors.unit = 'Unit is required';
+                } else {
+                    delete errors.unit;
+                }
+                break;
+            case 'price':
+                const price = parseFloat(value);
+                if (isNaN(price) || price < 0) {
+                    errors.price = 'Price must be 0 or greater';
+                } else {
+                    delete errors.price;
+                }
+                break;
+            case 'currentStock':
+                const stock = parseInt(value);
+                if (isNaN(stock) || stock < 0) {
+                    errors.currentStock = 'Current stock must be 0 or greater';
+                } else {
+                    delete errors.currentStock;
+                }
+                break;
+            case 'safetyStock':
+                const safetyStock = parseInt(value);
+                if (value && (isNaN(safetyStock) || safetyStock < 0)) {
+                    errors.safetyStock = 'Safety stock must be 0 or greater';
+                } else {
+                    delete errors.safetyStock;
+                }
+                break;
+            case 'reorderLevel':
+                const reorderLevel = parseInt(value);
+                if (isNaN(reorderLevel) || reorderLevel < 0) {
+                    errors.reorderLevel = 'Reorder level must be 0 or greater';
+                } else {
+                    delete errors.reorderLevel;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const isFormValid = () => {
+        return Object.keys(formErrors).length === 0 && 
+               formData.productName.trim() && 
+               formData.category && 
+               formData.size && 
+               formData.unit && 
+               parseFloat(formData.price) >= 0 && 
+               parseInt(formData.currentStock) >= 0 && 
+               parseInt(formData.reorderLevel) >= 0;
+    };
+
+    // Prevent negative values from being entered
+    const handleKeyDown = (e) => {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110) {
+            e.preventDefault();
+        }
+    };
+
+    const handlePaste = (e) => {
+        const pastedText = e.clipboardData.getData('text');
+        if (isNaN(parseFloat(pastedText)) || parseFloat(pastedText) < 0) {
+            e.preventDefault();
+        }
     };
 
     // Form state
@@ -167,6 +278,24 @@ const ProductManagement = () => {
         setLoading(true);
         setError(''); // Clear any previous errors
 
+        // Check if form is valid using our validation state
+        if (!isFormValid()) {
+            setError('Please fix the validation errors before submitting');
+            setLoading(false);
+            return;
+        }
+
+        // Validate raw material recipe
+        const validRecipes = formData.rawMaterialRecipe.filter(recipe => 
+            recipe.type && recipe.qtyPerUnitKg && recipe.wastePercentage
+        );
+        
+        if (validRecipes.length === 0) {
+            setError('At least one raw material recipe item is required');
+            setLoading(false);
+            return;
+        }
+
         try {
             // Validate raw material recipe is required and not empty
             const validRecipes = formData.rawMaterialRecipe.filter(recipe => 
@@ -232,6 +361,7 @@ const ProductManagement = () => {
 
     const handleEdit = (product) => {
         setError(''); // Clear any errors when opening edit modal
+        setFormErrors({}); // Clear validation errors
         setEditingProduct(product);
         setFormData({
             productName: product.productName,
@@ -312,16 +442,11 @@ const ProductManagement = () => {
     const submitRestock = async (e) => {
         e.preventDefault();
         
-        const amount = parseInt(restockAmount);
-        if (isNaN(amount) || amount <= 0) {
-            setError('Please enter a valid positive number');
-            return;
-        }
-
         setLoading(true);
         setError('');
 
         try {
+            const amount = parseInt(restockAmount);
             const newStock = restockingProduct.currentStock + amount;
             const response = await fetch(`/api/products/${restockingProduct._id}`, {
                 method: 'PUT',
@@ -380,6 +505,7 @@ const ProductManagement = () => {
             reorderLevel: '',
             rawMaterialRecipe: []
         });
+        setFormErrors({});
         setImageFile(null);
         setImagePreview(null);
         setShowAddModal(false);
@@ -759,7 +885,10 @@ const ProductManagement = () => {
                                             type="text"
                                             required
                                             value={formData.productName}
-                                            onChange={(e) => setFormData(prev => ({...prev, productName: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, productName: e.target.value}));
+                                                validateField('productName', e.target.value);
+                                            }}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -780,6 +909,7 @@ const ProductManagement = () => {
                                                     size: '', // Reset size when category changes
                                                     unit: autoUnit // Auto-set unit based on category
                                                 }));
+                                                validateField('category', selectedCategory);
                                             }}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         >
@@ -800,7 +930,10 @@ const ProductManagement = () => {
                                         <select
                                             required
                                             value={formData.size}
-                                            onChange={(e) => setFormData(prev => ({...prev, size: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, size: e.target.value}));
+                                                validateField('size', e.target.value);
+                                            }}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                             disabled={!formData.category}
                                         >
@@ -831,7 +964,10 @@ const ProductManagement = () => {
                                             <select
                                                 required
                                                 value={formData.unit}
-                                                onChange={(e) => setFormData(prev => ({...prev, unit: e.target.value}))}
+                                                onChange={(e) => {
+                                                    setFormData(prev => ({...prev, unit: e.target.value}));
+                                                    validateField('unit', e.target.value);
+                                                }}
                                                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                                 disabled={!formData.category}
                                             >
@@ -854,7 +990,13 @@ const ProductManagement = () => {
                                             step="0.01"
                                             required
                                             value={formData.price}
-                                            onChange={(e) => setFormData(prev => ({...prev, price: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, price: e.target.value}));
+                                                validateField('price', e.target.value);
+                                            }}
+                                            onKeyDown={handleKeyDown}
+                                            onPaste={handlePaste}
+                                            min="0"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -867,7 +1009,13 @@ const ProductManagement = () => {
                                             type="number"
                                             required
                                             value={formData.currentStock}
-                                            onChange={(e) => setFormData(prev => ({...prev, currentStock: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, currentStock: e.target.value}));
+                                                validateField('currentStock', e.target.value);
+                                            }}
+                                            onKeyDown={handleKeyDown}
+                                            onPaste={handlePaste}
+                                            min="0"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -879,7 +1027,13 @@ const ProductManagement = () => {
                                         <input
                                             type="number"
                                             value={formData.safetyStock}
-                                            onChange={(e) => setFormData(prev => ({...prev, safetyStock: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, safetyStock: e.target.value}));
+                                                validateField('safetyStock', e.target.value);
+                                            }}
+                                            onKeyDown={handleKeyDown}
+                                            onPaste={handlePaste}
+                                            min="0"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -892,7 +1046,13 @@ const ProductManagement = () => {
                                             type="number"
                                             required
                                             value={formData.reorderLevel}
-                                            onChange={(e) => setFormData(prev => ({...prev, reorderLevel: e.target.value}))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({...prev, reorderLevel: e.target.value}));
+                                                validateField('reorderLevel', e.target.value);
+                                            }}
+                                            onKeyDown={handleKeyDown}
+                                            onPaste={handlePaste}
+                                            min="0"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -989,6 +1149,9 @@ const ProductManagement = () => {
                                                     placeholder="Qty per unit (kg)"
                                                     value={recipe.qtyPerUnitKg}
                                                     onChange={(e) => updateRecipeItem(index, 'qtyPerUnitKg', e.target.value)}
+                                                    onKeyDown={handleKeyDown}
+                                                    onPaste={handlePaste}
+                                                    min="0"
                                                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                                 />
                                             </div>
@@ -999,6 +1162,9 @@ const ProductManagement = () => {
                                                     placeholder="Waste %"
                                                     value={recipe.wastePercentage}
                                                     onChange={(e) => updateRecipeItem(index, 'wastePercentage', e.target.value)}
+                                                    onKeyDown={handleKeyDown}
+                                                    onPaste={handlePaste}
+                                                    min="0"
                                                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                                 />
                                             </div>
@@ -1032,7 +1198,7 @@ const ProductManagement = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || !isFormValid()}
                                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400"
                                     >
                                         {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Add Product')}
@@ -1075,6 +1241,8 @@ const ProductManagement = () => {
                                         required
                                         value={restockAmount}
                                         onChange={(e) => setRestockAmount(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        onPaste={handlePaste}
                                         placeholder={`Enter amount in ${restockingProduct.unit}`}
                                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                     />

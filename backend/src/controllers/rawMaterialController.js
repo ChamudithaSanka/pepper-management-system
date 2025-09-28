@@ -92,6 +92,31 @@ export const updateRawMaterial = async (req, res) => {
     }
 };
 
+// Delete raw material
+export const deleteRawMaterial = async (req, res) => {
+    try {
+        const rawMaterial = await RawMaterial.findByIdAndDelete(req.params.id);
+
+        if (!rawMaterial) {
+            return res.status(404).json({
+                success: false,
+                error: 'Raw material not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Raw material deleted successfully',
+            data: rawMaterial
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 // Get low stock raw materials
 export const getLowStockRawMaterials = async (req, res) => {
     try {

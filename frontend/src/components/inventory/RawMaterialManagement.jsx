@@ -53,6 +53,69 @@ const RawMaterialManagement = () => {
         return { status: 'In Stock', color: 'text-green-600 bg-green-100' };
     };
 
+    // Validation functions
+    const validateField = (field, value, isEdit = false) => {
+        const errors = isEdit ? { ...editMaterialErrors } : { ...newMaterialErrors };
+        
+        switch (field) {
+            case 'type':
+                if (!value.trim()) {
+                    errors.type = 'Material type is required';
+                } else {
+                    delete errors.type;
+                }
+                break;
+            case 'quantity':
+            case 'reorderLevel':
+                const numValue = parseFloat(value);
+                if (isNaN(numValue) || numValue < 0) {
+                    errors[field] = field === 'quantity' ? 'Quantity must be 0 or greater' : 'Reorder level must be 0 or greater';
+                } else {
+                    delete errors[field];
+                }
+                break;
+            default:
+                break;
+        }
+        
+        if (isEdit) {
+            setEditMaterialErrors(errors);
+        } else {
+            setNewMaterialErrors(errors);
+        }
+        return Object.keys(errors).length === 0;
+    };
+
+    const isFormValid = (errors) => {
+        return Object.keys(errors).length === 0;
+    };
+
+    // Prevent negative values from being entered
+    const handleKeyDown = (e) => {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110) {
+            e.preventDefault();
+        }
+    };
+
+    const handlePaste = (e) => {
+        const pastedText = e.clipboardData.getData('text');
+        if (isNaN(parseFloat(pastedText)) || parseFloat(pastedText) < 0) {
+            e.preventDefault();
+        }
+    };
+
     const handleOrderClick = (material) => {
         setSelectedMaterial(material);
         setShowOrderModal(true);
@@ -75,23 +138,9 @@ const RawMaterialManagement = () => {
         setLoading(true);
         setError('');
 
-        // Frontend validation
-        const errors = [];
-
-        if (!newMaterial.type.trim()) {
-            errors.push('Material type is required');
-        }
-
-        if (!newMaterial.quantity || parseFloat(newMaterial.quantity) <= 0) {
-            errors.push('Quantity must be greater than 0');
-        }
-
-        if (!newMaterial.reorderLevel || parseFloat(newMaterial.reorderLevel) < 0) {
-            errors.push('Reorder level must be 0 or greater');
-        }
-
-        if (errors.length > 0) {
-            setError(errors.join('. '));
+        // Check if form is valid using our validation state
+        if (!isFormValid(newMaterialErrors)) {
+            setError('Please fix the validation errors before submitting');
             setLoading(false);
             return;
         }
@@ -119,6 +168,7 @@ const RawMaterialManagement = () => {
                     quantity: '',
                     reorderLevel: ''
                 });
+                setNewMaterialErrors({});
                 setShowAddMaterialForm(false);
                 setSuccessMessage(`Raw material "${data.data.type}" has been successfully added!`);
                 fetchRawMaterials();
@@ -488,8 +538,15 @@ const RawMaterialManagement = () => {
                                 </label>
                                 <select
                                     value={newMaterial.type}
-                                    onChange={(e) => setNewMaterial({...newMaterial, type: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, type: e.target.value});
+                                        validateField('type', e.target.value, false);
+                                    }}
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.type 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 >
                                     <option value="">Select Material Type</option>
@@ -518,12 +575,24 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Enter quantity in kg"
                                     value={newMaterial.quantity}
-                                    onChange={(e) => setNewMaterial({...newMaterial, quantity: e.target.value})}
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, quantity: e.target.value});
+                                        validateField('quantity', e.target.value, false);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.quantity 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 />
+                                {newMaterialErrors.quantity && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.quantity}</p>
+                                )}
                             </div>
                             
                             <div>
@@ -534,12 +603,24 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock level to trigger reorder"
                                     value={newMaterial.reorderLevel}
-                                    onChange={(e) => setNewMaterial({...newMaterial, reorderLevel: e.target.value})}
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, reorderLevel: e.target.value});
+                                        validateField('reorderLevel', e.target.value, false);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.reorderLevel 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 />
+                                {newMaterialErrors.reorderLevel && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.reorderLevel}</p>
+                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     Alert will show when stock falls below this level
                                 </p>
@@ -554,7 +635,7 @@ const RawMaterialManagement = () => {
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={loading || !isFormValid(newMaterialErrors)}
                                     className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
                                 >
                                     {loading ? 'Adding...' : 'Add Material'}
@@ -564,6 +645,7 @@ const RawMaterialManagement = () => {
                                     onClick={() => {
                                         setShowAddMaterialForm(false);
                                         setError('');
+                                        setNewMaterialErrors({});
                                         setNewMaterial({
                                             type: '',
                                             quantity: '',

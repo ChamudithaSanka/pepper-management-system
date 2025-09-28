@@ -4,6 +4,7 @@ import {
     getRawMaterial,
     createRawMaterial,
     updateRawMaterial,
+    deleteRawMaterial,
     getLowStockRawMaterials
 } from '../controllers/rawMaterialController.js';
 
@@ -17,6 +18,7 @@ router.get('/low-stock', getLowStockRawMaterials);
 
 router.route('/:id')
     .get(getRawMaterial)
-    .put(updateRawMaterial);
+    .put(updateRawMaterial)
+    .delete(deleteRawMaterial);
 
 export default router;
