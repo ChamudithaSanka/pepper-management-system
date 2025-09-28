@@ -12,7 +12,7 @@ const SHOP_LOCATION = {
 };
 
 // Map component to display multiple order markers
-const OrdersMap = ({ orders, mapCenter }) => {
+const OrdersMap = ({ orders, mapCenter, onAssignDriver }) => {
     const mapRef = useRef(null);
     const directionsServiceRef = useRef(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -142,7 +142,7 @@ const OrdersMap = ({ orders, mapCenter }) => {
                         setDirections(null);
                     }}
                 >
-                    <div className="p-2">
+                    <div className="p-2 min-w-[200px]">
                         <h4 className="font-semibold text-gray-900">{selectedOrder.orderId}</h4>
                         <p className="text-sm text-gray-600">{selectedOrder.customerName}</p>
                         <p className="text-xs text-gray-500 mt-1">{selectedOrder.location?.address}</p>
@@ -153,6 +153,18 @@ const OrdersMap = ({ orders, mapCenter }) => {
                         }`}>
                             {selectedOrder.status}
                         </span>
+                        {selectedOrder.status === 'Pending' && onAssignDriver && (
+                            <button
+                                onClick={() => {
+                                    onAssignDriver(selectedOrder);
+                                    setSelectedOrder(null);
+                                    setDirections(null);
+                                }}
+                                className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                            >
+                                Assign Driver
+                            </button>
+                        )}
                     </div>
                 </InfoWindow>
             )}
@@ -380,24 +392,13 @@ const OrdersView = ({ onStatsUpdate }) => {
                                 libraries={GOOGLE_MAPS_LIBRARIES}
                                 >
                                     <div className="h-96 w-full">
-                                        <OrdersMap orders={filteredOrders} mapCenter={mapCenter} />
+                                        <OrdersMap 
+                                            orders={filteredOrders} 
+                                            mapCenter={mapCenter} 
+                                            onAssignDriver={handleAssignDriver}
+                                        />
                                     </div>
                                 </LoadScript>
-                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {mapMarkers.map((marker, index) => (
-                                        <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <h4 className="font-medium text-gray-900">{marker.info.orderId}</h4>
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(marker.info.status)}`}>
-                                                    {marker.info.status}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-gray-600 mb-1">{marker.info.customerName}</p>
-                                            <p className="text-xs text-gray-500 mb-2 truncate">{marker.info.address}</p>
-                                            <p className="text-xs text-gray-500">{marker.info.items}</p>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         )}
                     </div>
