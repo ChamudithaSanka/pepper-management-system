@@ -14,6 +14,7 @@ const ProductManagement = () => {
     const [rawMaterials, setRawMaterials] = useState([]);
     const [filterStatus, setFilterStatus] = useState('all');
     const [formErrors, setFormErrors] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Category-based size and unit options
     const getSizeOptions = (category) => {
@@ -566,11 +567,21 @@ const ProductManagement = () => {
     };
 
     const filteredProducts = products.filter(product => {
-        if (filterStatus === 'all') return true;
-        if (filterStatus === 'low-stock') return product.stockStatus === 'LowStock';
-        if (filterStatus === 'active') return product.status === 'Active';
-        if (filterStatus === 'inactive') return product.status === 'Inactive';
-        return product.status === filterStatus;
+        // Apply search filter
+        const matchesSearch = searchTerm === '' || 
+            product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.productId.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        // Apply status filter
+        let matchesStatus = true;
+        if (filterStatus === 'all') matchesStatus = true;
+        else if (filterStatus === 'low-stock') matchesStatus = product.stockStatus === 'LowStock';
+        else if (filterStatus === 'active') matchesStatus = product.status === 'Active';
+        else if (filterStatus === 'inactive') matchesStatus = product.status === 'Inactive';
+        else matchesStatus = product.status === filterStatus;
+        
+        return matchesSearch && matchesStatus;
     });
 
     const stats = {
@@ -582,7 +593,7 @@ const ProductManagement = () => {
 
     if (loading && products.length === 0) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
                 <h2 className="text-2xl font-bold text-gray-900">Product Management</h2>
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                     <div className="flex justify-center">
@@ -595,7 +606,7 @@ const ProductManagement = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -642,178 +653,149 @@ const ProductManagement = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Products</h3>
-                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Products</h3>
+                    <p className="text-2xl font-bold text-green-900">{stats.total}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Active Products</h3>
-                    <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Active Products</h3>
+                    <p className="text-2xl font-bold text-green-900">{stats.active}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Inactive Products</h3>
-                    <p className="text-2xl font-bold text-orange-600">{stats.inactive}</p>
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-yellow-700">Inactive Products</h3>
+                    <p className="text-2xl font-bold text-yellow-900">{stats.inactive}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Low Stock</h3>
-                    <p className="text-2xl font-bold text-red-600">{stats.lowStock}</p>
+                <div className="bg-red-100 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-red-700">Low Stock</h3>
+                    <p className="text-2xl font-bold text-red-900">{stats.lowStock}</p>
                 </div>
             </div>
 
-            {/* Filter Buttons */}
-            <div className="flex space-x-2">
-                {[
-                    { key: 'all', label: 'All Products' },
-                    { key: 'active', label: 'Active' },
-                    { key: 'inactive', label: 'Inactive' },
-                    { key: 'low-stock', label: 'Low Stock' }
-                ].map(filter => (
-                    <button
-                        key={filter.key}
-                        onClick={() => setFilterStatus(filter.key)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                            filterStatus === filter.key 
-                                ? 'bg-green-600 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                    >
-                        {filter.label}
-                    </button>
-                ))}
+            {/* Search and Filter Section */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                {/* Search Bar */}
+                <div className="flex-1 max-w-md">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search products by name, category, or ID..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Filter Buttons */}
+                <div className="flex space-x-2">
+                    {[
+                        { key: 'all', label: 'All Products' },
+                        { key: 'active', label: 'Active' },
+                        { key: 'inactive', label: 'Inactive' },
+                        { key: 'low-stock', label: 'Low Stock' }
+                    ].map(filter => (
+                        <button
+                            key={filter.key}
+                            onClick={() => setFilterStatus(filter.key)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                filterStatus === filter.key 
+                                    ? 'bg-green-600 text-white' 
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                        >
+                            {filter.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Products Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-900">Product Inventory</h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-blue-50 bg-blue-50">
+                    <h3 className="text-lg font-semibold text-black">Product Inventory</h3>
                 </div>
                 
                 {filteredProducts.length === 0 ? (
                     <div className="p-8 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
-                        <p className="text-gray-500">
-                            {filterStatus === 'all' 
-                                ? 'No products have been added yet' 
-                                : `No ${filterStatus.replace('-', ' ')} products found`
+                        <div className="text-gray-400">
+                            {searchTerm 
+                                ? `No products found matching "${searchTerm}"`
+                                : filterStatus === 'all' 
+                                    ? 'No products have been added yet' 
+                                    : `No ${filterStatus.replace('-', ' ')} products found`
                             }
-                        </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Product
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Category
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Size
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Unit
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Price ($)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Description
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Current Stock
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Safety Stock
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        ROL
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Stock Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Category</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Size</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Unit</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Price ($)</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Description</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Current Stock</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Safety Stock</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">ROL</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Stock Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredProducts.map((product) => (
-                                    <tr key={product._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                            <tbody>
+                                {filteredProducts.map((product, idx) => (
+                                    <tr key={product._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-2 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-12 w-12">
+                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                                     {product.imageUrl ? (
                                                         <img 
                                                             src={getImageSrc(product.imageUrl)}
                                                             alt={product.productName}
-                                                            className="h-12 w-12 rounded-lg object-cover"
+                                                            className="h-10 w-10 rounded-lg object-cover"
                                                         />
                                                     ) : (
-                                                        <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                            <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                                                            </svg>
-                                                        </div>
+                                                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                                                        </svg>
                                                     )}
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {product.productName}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        ID: {product.productId}
-                                                    </div>
+                                                    <div className="text-sm font-medium text-gray-900">{product.productName}</div>
+                                                    <div className="text-sm text-gray-500">ID: {product.productId}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {product.category}
-                                            </span>
+                                        <td className="px-2 py-2 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{product.category}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {product.size || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {product.unit}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            ${product.price.toFixed(2)}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{product.size || 'N/A'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{product.unit}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${product.price.toFixed(2)}</td>
+                                        <td className="px-2 py-2 text-sm text-gray-500">
                                             <div className="max-w-xs truncate">
                                                 {product.description || 'No description'}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {product.currentStock} {product.unit}
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{product.currentStock} {product.unit}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{product.safetyStock || 0} {product.unit}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{product.reorderLevel} {product.unit}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStockStatusColor(product.stockStatus)}`}>{product.stockStatus}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {product.safetyStock || 0} {product.unit}
+                                        <td className="px-2 py-2 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>{product.status}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {product.reorderLevel} {product.unit}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStockStatusColor(product.stockStatus)}`}>
-                                                {product.stockStatus}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
-                                                {product.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="flex space-x-2">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-1">
                                                 <button 
                                                     onClick={() => handleEdit(product)}
                                                     className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"

@@ -175,7 +175,7 @@ const DriverManagement = () => {
 
     if (loading && drivers.length === 0) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
                 <h2 className="text-2xl font-bold text-gray-900">Driver Management</h2>
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                     <div className="flex justify-center">
@@ -188,7 +188,7 @@ const DriverManagement = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -222,23 +222,23 @@ const DriverManagement = () => {
                 </div>
             )}
 
-            {/* Stats Cards */}
+            {/* Stats Summary (styled like CustomerManagement) */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-green-400 to-green-700 text-white rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium">Total Drivers</h3>
-                    <p className="text-2xl font-bold">{stats.total}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Drivers</h3>
+                    <p className="text-2xl font-bold text-green-900">{stats.total}</p>
                 </div>
-                <div className="bg-gradient-to-br from-green-200 to-green-500 text-white rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium">Available</h3>
-                    <p className="text-2xl font-bold">{stats.available}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Available</h3>
+                    <p className="text-2xl font-bold text-green-900">{stats.available}</p>
                 </div>
-                <div className="bg-gradient-to-br from-red-400 to-red-700 text-white rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium">Busy</h3>
-                    <p className="text-2xl font-bold">{stats.busy}</p>
+                <div className="bg-red-100 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-red-700">Busy</h3>
+                    <p className="text-2xl font-bold text-red-900">{stats.busy}</p>
                 </div>
-                <div className="bg-gradient-to-br from-blue-400 to-blue-700 text-white rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium">Assigned</h3>
-                    <p className="text-2xl font-bold">{stats.assigned}</p>
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-blue-700">Assigned</h3>
+                    <p className="text-2xl font-bold text-blue-900">{stats.assigned}</p>
                 </div>
             </div>
 
@@ -265,70 +265,66 @@ const DriverManagement = () => {
             </div>
 
             {/* Drivers Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-green-700 bg-green-700">
-                    <h3 className="text-lg font-semibold text-white">Driver List</h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-blue-50 bg-blue-50">
+                    <h3 className="text-lg font-semibold text-black">Driver List</h3>
                 </div>
-                
+
                 {filteredDrivers.length === 0 ? (
                     <div className="p-8 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No Drivers Found</h3>
-                        <p className="text-gray-500">
-                            {filterStatus === 'all' 
-                                ? 'No drivers have been added yet' 
-                                : `No ${filterStatus.toLowerCase()} drivers found`
+                        <div className="text-gray-400">
+                            {filterStatus !== 'all'
+                                ? `No ${filterStatus.toLowerCase()} drivers found.`
+                                : 'No drivers found.'
                             }
-                        </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="min-w-full w-full">
                             <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">NIC</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Phone</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">License</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Vehicle Number</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">License</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Vehicle Number</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredDrivers.map((driver) => (
-                                    <tr key={driver._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <tbody>
+                                {filteredDrivers.map((driver, idx) => (
+                                    <tr key={driver._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {driver.driverId}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.name}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.nic}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.phone}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.email}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.licenseNumber}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {driver.vehicleNumber}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-2 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(driver.status)}`}>
                                                 {driver.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium">
                                             <div className="flex space-x-2">
                                                 <button 
                                                     onClick={() => handleEdit(driver)}
