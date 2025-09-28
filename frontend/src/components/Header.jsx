@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -86,19 +86,29 @@ const Header = () => {
           <nav className="flex-1 flex justify-center">
             <ul className="flex space-x-8">
               <li>
-                <Link to="/" className="text-green-600 hover:text-green-700 font-medium border-b-2 border-green-600 pb-1">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) => `font-medium pb-1 ${isActive ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-700 hover:text-green-600'}`}
+                >
                   Home
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link to="/shop" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+                <NavLink
+                  to="/shop"
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                >
                   Shop
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                >
                   About
-                </a>
+                </NavLink>
               </li>
               <li>
                 <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
@@ -106,9 +116,12 @@ const Header = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+                <NavLink
+                  to="/faq"
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                >
                   FAQ
-                </a>
+                </NavLink>
               </li>
             </ul>
           </nav>
