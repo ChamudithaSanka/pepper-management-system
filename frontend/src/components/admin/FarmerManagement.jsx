@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GoogleMapSelector from '../GoogleMapSelector';
 import { LoadScript } from '@react-google-maps/api';
+import { generateFarmerReportPDF } from '../../utils/farmerReportGenerator';
 
 const FarmerManagement = ({ onStatsUpdate }) => {
     const [farmers, setFarmers] = useState([]);
@@ -10,6 +11,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [showAddForm, setShowAddForm] = useState(false);
+    const [generatingReport, setGeneratingReport] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [newItem, setNewItem] = useState({
         name: '',
@@ -348,6 +350,30 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         farmer.nic?.includes(searchTerm)
     );
 
+    const generateReport = async () => {
+        setGeneratingReport(true);
+        try {
+            const filters = {
+                status: statusFilter === 'all' ? 'All Status' : statusFilter,
+                search: searchTerm || 'None',
+                location: 'All Locations'
+            };
+            
+            const result = await generateFarmerReportPDF(filteredFarmers, filters);
+            
+            if (result.success) {
+                alert('Farmer report generated successfully!');
+            } else {
+                alert('Failed to generate report: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error generating report:', error);
+            alert('Error generating report');
+        } finally {
+            setGeneratingReport(false);
+        }
+    };
+
 
     return (
         <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
@@ -355,12 +381,21 @@ const FarmerManagement = ({ onStatsUpdate }) => {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Farmer Management</h2>
-                <button
-                    onClick={() => setShowAddForm(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                    + Add Farmer
-                </button>
+                <div className="flex items-center space-x-4">
+                    <button
+                        onClick={generateReport}
+                        disabled={generatingReport || filteredFarmers.length === 0}
+                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        {generatingReport ? 'Generating...' : 'Generate PDF Report'}
+                    </button>
+                    <button
+                        onClick={() => setShowAddForm(true)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        + Add Farmer
+                    </button>
+                </div>
             </div>
 
             {/* Search and Filter */}
@@ -662,9 +697,10 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
-                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Email</th>
-                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Farm Location</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Farm Location</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Capacity</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Prices</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -676,12 +712,18 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[120px]">{farmer.name}</td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[100px]">{farmer.nic}</td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 truncate max-w-[100px]">{farmer.phone}</td>
-                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell truncate max-w-[120px]">{farmer.email || '—'}</td>
-                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell truncate max-w-[120px]">{farmer.farm_location?.address || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-sm text-gray-500 break-words whitespace-normal truncate max-w-[200px]">{farmer.email || '—'}</td>
+                                        <td className="px-2 py-2 text-sm text-gray-500 break-words whitespace-normal truncate max-w-[200px]">{farmer.farm_location?.address || 'N/A'}</td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
                                             <div className="text-xs">
                                                 <div>G: {farmer.pepper_capacitypermonth?.green || 0}kg</div>
                                                 <div>B: {farmer.pepper_capacitypermonth?.black || 0}kg</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="text-xs">
+                                                <div>G: {farmer.price_per_unit?.green ? `Rs. ${farmer.price_per_unit.green}` : '—'}</div>
+                                                <div>B: {farmer.price_per_unit?.black ? `Rs. ${farmer.price_per_unit.black}` : '—'}</div>
                                             </div>
                                         </td>
                                         <td className="px-2 py-2 whitespace-nowrap">
@@ -699,13 +741,13 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                         <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
                                             <button
                                                 onClick={() => setEditingItem(farmer)}
-                                                className="text-green-600 hover:text-green-900 mr-3 font-medium"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm mr-2"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(farmer._id)}
-                                                className="text-red-600 hover:text-red-900 font-medium"
+                                                className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Delete
                                             </button>

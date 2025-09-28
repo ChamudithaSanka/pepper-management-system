@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { generateDeliveryTaskReportPDF } from '../../utils/deliveryTaskReportGenerator';
 
 const DeliveriesView = ({ onStatsUpdate }) => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [generatingReport, setGeneratingReport] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchDeliveryTasks();
@@ -109,8 +112,43 @@ const DeliveriesView = ({ onStatsUpdate }) => {
     };
 
     const filteredTasks = tasks.filter(task => {
-        return filterStatus === 'all' || task.status === filterStatus;
+        const statusMatch = filterStatus === 'all' || task.status === filterStatus;
+        
+        if (!searchTerm) return statusMatch;
+        
+        const searchLower = searchTerm.toLowerCase();
+        const taskIdMatch = task.taskId?.toLowerCase().includes(searchLower);
+        const orderIdMatch = task.orderId?.toLowerCase().includes(searchLower);
+        const driverNameMatch = task.driverName?.toLowerCase().includes(searchLower);
+        const pickupAddressMatch = task.pickupLocation?.address?.toLowerCase().includes(searchLower);
+        const deliveryAddressMatch = task.deliveryLocation?.address?.toLowerCase().includes(searchLower);
+        
+        return statusMatch && (taskIdMatch || orderIdMatch || driverNameMatch || pickupAddressMatch || deliveryAddressMatch);
     });
+
+    const generateReport = async () => {
+        setGeneratingReport(true);
+        try {
+            const filters = {
+                status: filterStatus === 'all' ? 'All Status' : filterStatus,
+                dateRange: 'All Time',
+                driver: 'All Drivers'
+            };
+            
+            const result = await generateDeliveryTaskReportPDF(filteredTasks, filters);
+            
+            if (result.success) {
+                alert('Delivery task report generated successfully!');
+            } else {
+                alert('Failed to generate report: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error generating report:', error);
+            alert('Error generating report');
+        } finally {
+            setGeneratingReport(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -121,6 +159,13 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                     <p className="text-gray-600 mt-1">Track and manage delivery tasks</p>
                 </div>
                 <div className="flex items-center space-x-4">
+                    <button
+                        onClick={generateReport}
+                        disabled={generatingReport || filteredTasks.length === 0}
+                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                    >
+                        {generatingReport ? 'Generating...' : 'Generate PDF Report'}
+                    </button>
                     <button
                         onClick={fetchDeliveryTasks}
                         disabled={loading}
@@ -144,7 +189,7 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                 </div>
             )}
 
-            {/* Filters */}
+            {/* Filters and Search */}
             <div className="bg-white border border-green-700 rounded-lg p-4">
                 <div className="flex items-center space-x-6">
                     <div>
@@ -159,6 +204,16 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                             <option value="Assigned">In Progress</option>
                             <option value="Delivered">Delivered</option>
                         </select>
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Search Tasks</label>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by Task ID, Order ID, Driver, or Address..."
+                            className="w-full border border-green-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-700 bg-gray-50 text-gray-900"
+                        />
                     </div>
                 </div>
             </div>
@@ -178,9 +233,9 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                         </svg>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">No delivery tasks found</h3>
                         <p className="text-gray-500">
-                            {filterStatus === 'all' 
+                            {filterStatus === 'all' && !searchTerm
                                 ? 'No delivery tasks available'
-                                : `No ${filterStatus.toLowerCase()} delivery tasks found`
+                                : `No delivery tasks found matching your criteria`
                             }
                         </p>
                     </div>
