@@ -666,7 +666,7 @@ const OtherExpensesView = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(expense.expenseId || expense._id)}
-                                                className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
+                                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
                                             >
                                                 Delete
                                             </button>

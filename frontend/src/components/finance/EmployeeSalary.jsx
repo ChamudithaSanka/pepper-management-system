@@ -92,7 +92,7 @@ const EmployeeSalary = () => {
   return (
     <div className="space-y-6 p-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Employee Salary Management</h2>
+        <h2 className="text-3xl font-bold text-gray-900">Employees</h2>
         <div className="bg-blue-50 rounded-lg shadow p-4 text-sm text-gray-700">
           {filteredEmployees.length} of {employees.length} employees
         </div>
@@ -191,6 +191,11 @@ const EmployeeSalary = () => {
                 <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
                 <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Employee ID</th>
                 <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Designation</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Address</th>
+                <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Date of Birth</th>
                 <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Basic Salary</th>
                 <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                 <th className="px-2 py-2 text-center text-xs font-bold text-white uppercase tracking-wider">Actions</th>
@@ -200,18 +205,19 @@ const EmployeeSalary = () => {
               {filteredEmployees.length > 0 ? (
                 filteredEmployees.map((employee, idx) => (
                   <tr key={employee._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
-                    <td className="px-2 py-2">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                          <span className="text-green-600 font-medium text-sm">
-                            {employee.name?.charAt(0)?.toUpperCase() || 'E'}
-                          </span>
-                        </div>
-                        <div className="font-medium text-gray-900">{employee.name}</div>
-                      </div>
-                    </td>
+                   
+                    <td className="px-2 py-2 text-gray-900 font-mono">{employee.name}</td>
                     <td className="px-2 py-2 text-gray-900 font-mono">{employee.employeeId}</td>
                     <td className="px-2 py-2 text-gray-900">{employee.designation}</td>
+                    <td className="px-2 py-2 text-gray-500 text-sm">{employee.email || 'N/A'}</td>
+                    <td className="px-2 py-2 text-gray-500 text-sm">{employee.nic || 'N/A'}</td>
+                    <td className="px-2 py-2 text-gray-500 text-sm">{employee.phoneNumber || 'N/A'}</td>
+                    <td className="px-2 py-2 text-gray-500 text-sm max-w-xs truncate" title={employee.address || 'N/A'}>
+                      {employee.address || 'N/A'}
+                    </td>
+                    <td className="px-2 py-2 text-gray-500 text-sm">
+                      {employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : 'N/A'}
+                    </td>
                     <td className="px-2 py-2 text-gray-900 font-medium">LKR {employee.basicSalary?.toLocaleString() || '0'}</td>
                     <td className="px-2 py-2">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${employee.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{employee.status || 'Active'}</span>
@@ -231,7 +237,7 @@ const EmployeeSalary = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-gray-500">
+                  <td colSpan="11" className="py-12 text-center text-gray-500">
                     {searchTerm ? 'No employees found matching your search.' : 'No employees found.'}
                   </td>
                 </tr>

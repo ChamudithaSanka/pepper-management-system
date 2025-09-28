@@ -108,6 +108,33 @@ export const updateFarmerPaymentStatus = async (req, res) => {
     }
 };
 
+// Delete farmer payment
+export const deleteFarmerPayment = async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+
+        const payment = await FarmerPayment.findOneAndDelete({ paymentId });
+
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Payment not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting farmer payment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete farmer payment'
+        });
+    }
+};
+
 // Get farmer payment statistics
 export const getFarmerPaymentStatistics = async (req, res) => {
     try {

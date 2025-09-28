@@ -183,7 +183,7 @@ export const generateSalarySlipPDF = async (salaryData, employeeData) => {
       const y = startY + 15 + (index * 7);
       doc.text(allowance.label, 25, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(`LKR ${allowance.value.toLocaleString()}`, 25 + 25, y);
+      doc.text(`LKR ${allowance.value.toFixed(2)}`, 25 + 25, y);
       doc.setFont('helvetica', 'normal');
     });
   };
@@ -213,7 +213,7 @@ export const generateSalarySlipPDF = async (salaryData, employeeData) => {
       const y = startY + 15 + (index * 7);
       doc.text(deduction.label, 115, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(`LKR ${deduction.value.toLocaleString()}`, 115 + 35, y);
+      doc.text(`LKR ${deduction.value.toFixed(2)}`, 115 + 35, y);
       doc.setFont('helvetica', 'normal');
     });
   };
@@ -244,7 +244,7 @@ export const generateSalarySlipPDF = async (salaryData, employeeData) => {
       doc.setFontSize(12);
       doc.setTextColor(...box.color);
       doc.setFont('helvetica', 'bold');
-      doc.text(`LKR ${box.value.toLocaleString()}`, x + 2, startY + 20);
+      doc.text(`LKR ${box.value.toFixed(2)}`, x + 2, startY + 20);
     });
   };
 
