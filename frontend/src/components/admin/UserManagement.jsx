@@ -418,19 +418,32 @@ const UserManagement = ({ onStatsUpdate }) => {
                         <form 
                             onSubmit={(e) => {
                                 e.preventDefault();
-                                
+
                                 if (!editingItem.name.trim() || !editingItem.email.trim()) {
                                     setError('Please fill in all required fields');
                                     return;
                                 }
-                                
+
                                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingItem.email)) {
                                     setError('Please enter a valid email address');
                                     return;
                                 }
-                                
+
+                                // Validate password only if admin provided one
+                                if (editingItem.password && editingItem.password.length > 0 && editingItem.password.length < 6) {
+                                    setError('Password must be at least 6 characters long');
+                                    return;
+                                }
+
                                 setError('');
-                                handleUpdate(editingItem._id, editingItem);
+
+                                // Build update payload: only include password if provided
+                                const payload = { ...editingItem };
+                                if (!payload.password) {
+                                    delete payload.password;
+                                }
+
+                                handleUpdate(editingItem._id, payload);
                             }}
                             className="space-y-4"
                         >
@@ -461,6 +474,13 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 <option value="Inventory Manager">Inventory Manager</option>
                                 <option value="Delivery Staff">Delivery Staff</option>
                             </select>
+                            <input
+                                type="password"
+                                placeholder="New Password (leave blank to keep current)"
+                                value={editingItem.password || ''}
+                                onChange={(e) => setEditingItem({...editingItem, password: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
                             <select
                                 value={editingItem.status}
                                 onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}

@@ -6,6 +6,7 @@ import EmployeeSalary from './EmployeeSalary';
 import SalaryList from './SalaryList';
 import FarmerPayments from './FarmerPayments';
 import MarketplaceIncome from './MarketplaceIncome';
+import OtherExpensesView from './OtherExpensesView';
 import { 
     financeSidebarLinks, 
     financeUserInfo
@@ -207,6 +208,13 @@ const FinanceDashboard = () => {
                 return (
                     <div className="space-y-6">
                         <MarketplaceIncome />
+                    </div>
+                );
+
+            case 'other-expenses':
+                return (
+                    <div className="space-y-6">
+                        <OtherExpensesView />
                     </div>
                 );
 
