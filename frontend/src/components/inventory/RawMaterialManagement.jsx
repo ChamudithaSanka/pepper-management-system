@@ -8,12 +8,22 @@ const RawMaterialManagement = () => {
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showAddMaterialForm, setShowAddMaterialForm] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingMaterial, setEditingMaterial] = useState(null);
     const [newMaterial, setNewMaterial] = useState({
         type: '',
         quantity: '',
         reorderLevel: ''
     });
+    const [editMaterial, setEditMaterial] = useState({
+        type: '',
+        quantity: '',
+        reorderLevel: ''
+    });
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [newMaterialErrors, setNewMaterialErrors] = useState({});
+    const [editMaterialErrors, setEditMaterialErrors] = useState({});
 
     useEffect(() => {
         fetchRawMaterials();
@@ -44,9 +54,83 @@ const RawMaterialManagement = () => {
         return { status: 'In Stock', color: 'text-green-600 bg-green-100' };
     };
 
+    // Validation functions
+    const validateField = (field, value, isEdit = false) => {
+        const errors = isEdit ? { ...editMaterialErrors } : { ...newMaterialErrors };
+        
+        switch (field) {
+            case 'type':
+                if (!value.trim()) {
+                    errors.type = 'Material type is required';
+                } else {
+                    delete errors.type;
+                }
+                break;
+            case 'quantity':
+            case 'reorderLevel':
+                const numValue = parseFloat(value);
+                if (isNaN(numValue) || numValue < 0) {
+                    errors[field] = field === 'quantity' ? 'Quantity must be 0 or greater' : 'Reorder level must be 0 or greater';
+                } else {
+                    delete errors[field];
+                }
+                break;
+            default:
+                break;
+        }
+        
+        if (isEdit) {
+            setEditMaterialErrors(errors);
+        } else {
+            setNewMaterialErrors(errors);
+        }
+        return Object.keys(errors).length === 0;
+    };
+
+    const isFormValid = (errors) => {
+        return Object.keys(errors).length === 0;
+    };
+
+    // Prevent negative values from being entered
+    const handleKeyDown = (e) => {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110) {
+            e.preventDefault();
+        }
+    };
+
+    const handlePaste = (e) => {
+        const pastedText = e.clipboardData.getData('text');
+        if (isNaN(parseFloat(pastedText)) || parseFloat(pastedText) < 0) {
+            e.preventDefault();
+        }
+    };
+
     const handleOrderClick = (material) => {
         setSelectedMaterial(material);
         setShowOrderModal(true);
+    };
+
+    const handleEditClick = (material) => {
+        setEditingMaterial(material);
+        setEditMaterial({
+            type: material.type,
+            quantity: material.quantityKg.toString(),
+            reorderLevel: material.reorderLevelKg.toString()
+        });
+        setEditMaterialErrors({});
+        setShowEditModal(true);
     };
 
     const handleAddMaterial = async (e) => {
@@ -54,23 +138,9 @@ const RawMaterialManagement = () => {
         setLoading(true);
         setError('');
 
-        // Frontend validation
-        const errors = [];
-
-        if (!newMaterial.type.trim()) {
-            errors.push('Material type is required');
-        }
-
-        if (!newMaterial.quantity || parseFloat(newMaterial.quantity) <= 0) {
-            errors.push('Quantity must be greater than 0');
-        }
-
-        if (!newMaterial.reorderLevel || parseFloat(newMaterial.reorderLevel) < 0) {
-            errors.push('Reorder level must be 0 or greater');
-        }
-
-        if (errors.length > 0) {
-            setError(errors.join('. '));
+        // Check if form is valid using our validation state
+        if (!isFormValid(newMaterialErrors)) {
+            setError('Please fix the validation errors before submitting');
             setLoading(false);
             return;
         }
@@ -97,6 +167,7 @@ const RawMaterialManagement = () => {
                     quantity: '',
                     reorderLevel: ''
                 });
+                setNewMaterialErrors({});
                 setShowAddMaterialForm(false);
                 fetchRawMaterials();
             } else {
@@ -106,6 +177,63 @@ const RawMaterialManagement = () => {
         } catch (error) {
             console.error('Error adding raw material:', error);
             setError('Error adding raw material');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateMaterial = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccessMessage('');
+
+        // Check if form is valid using our validation state
+        if (!isFormValid(editMaterialErrors)) {
+            setError('Please fix the validation errors before submitting');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const payload = {
+                type: editMaterial.type.trim(),
+                quantityKg: parseFloat(editMaterial.quantity),
+                reorderLevelKg: parseFloat(editMaterial.reorderLevel)
+            };
+
+            const response = await fetch(`/api/raw-materials/${editingMaterial._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                setEditMaterial({
+                    type: '',
+                    quantity: '',
+                    reorderLevel: ''
+                });
+                setEditMaterialErrors({});
+                setEditingMaterial(null);
+                setShowEditModal(false);
+                setSuccessMessage('Raw material updated successfully!');
+                fetchRawMaterials();
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            } else {
+                const data = await response.json();
+                setError(data.message || 'Failed to update raw material');
+            }
+        } catch (error) {
+            console.error('Error updating raw material:', error);
+            setError('Error updating raw material');
         } finally {
             setLoading(false);
         }
@@ -165,6 +293,24 @@ const RawMaterialManagement = () => {
                     >
                         ×
                     </button>
+                </div>
+            )}
+
+            {/* Success Message Display */}
+            {successMessage && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                        {successMessage}
+                        <button 
+                            onClick={() => setSuccessMessage('')}
+                            className="ml-auto text-green-500 hover:text-green-700"
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -291,10 +437,13 @@ const RawMaterialManagement = () => {
                                                         onClick={() => handleOrderClick(material)}
                                                         className="text-green-600 hover:text-green-900 font-medium"
                                                     >
-                                                        Order
+                                                        Place Order
                                                     </button>
                                                     <span className="text-gray-300">|</span>
-                                                    <button className="text-blue-600 hover:text-blue-900 font-medium">
+                                                    <button 
+                                                        onClick={() => handleEditClick(material)}
+                                                        className="text-blue-600 hover:text-blue-900 font-medium"
+                                                    >
                                                         Edit
                                                     </button>
                                                 </div>
@@ -354,14 +503,24 @@ const RawMaterialManagement = () => {
                                 </label>
                                 <select
                                     value={newMaterial.type}
-                                    onChange={(e) => setNewMaterial({...newMaterial, type: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, type: e.target.value});
+                                        validateField('type', e.target.value, false);
+                                    }}
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.type 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 >
                                     <option value="">Select Material Type</option>
                                     <option value="Green Pepper">Green Pepper</option>
                                     <option value="Black Pepper">Black Pepper</option>
                                 </select>
+                                {newMaterialErrors.type && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.type}</p>
+                                )}
                             </div>
                             
                             <div>
@@ -372,12 +531,24 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Enter quantity in kg"
                                     value={newMaterial.quantity}
-                                    onChange={(e) => setNewMaterial({...newMaterial, quantity: e.target.value})}
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, quantity: e.target.value});
+                                        validateField('quantity', e.target.value, false);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.quantity 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 />
+                                {newMaterialErrors.quantity && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.quantity}</p>
+                                )}
                             </div>
                             
                             <div>
@@ -388,12 +559,24 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock level to trigger reorder"
                                     value={newMaterial.reorderLevel}
-                                    onChange={(e) => setNewMaterial({...newMaterial, reorderLevel: e.target.value})}
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, reorderLevel: e.target.value});
+                                        validateField('reorderLevel', e.target.value, false);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.reorderLevel 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 />
+                                {newMaterialErrors.reorderLevel && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.reorderLevel}</p>
+                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     Alert will show when stock falls below this level
                                 </p>
@@ -408,7 +591,7 @@ const RawMaterialManagement = () => {
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={loading || !isFormValid(newMaterialErrors)}
                                     className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
                                 >
                                     {loading ? 'Adding...' : 'Add Material'}
@@ -418,11 +601,154 @@ const RawMaterialManagement = () => {
                                     onClick={() => {
                                         setShowAddMaterialForm(false);
                                         setError('');
+                                        setNewMaterialErrors({});
                                         setNewMaterial({
                                             type: '',
                                             quantity: '',
                                             reorderLevel: ''
                                         });
+                                    }}
+                                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Edit Raw Material Modal */}
+            {showEditModal && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Edit Raw Material</h3>
+                        <form onSubmit={handleUpdateMaterial} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Material ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingMaterial?.rawMaterialId || ''}
+                                    disabled
+                                    className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-600"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Material Type *
+                                </label>
+                                <select
+                                    value={editMaterial.type}
+                                    onChange={(e) => {
+                                        setEditMaterial({...editMaterial, type: e.target.value});
+                                        validateField('type', e.target.value, true);
+                                    }}
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        editMaterialErrors.type 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
+                                    required
+                                >
+                                    <option value="">Select Material Type</option>
+                                    <option value="Green Pepper">Green Pepper</option>
+                                    <option value="Black Pepper">Black Pepper</option>
+                                </select>
+                                {editMaterialErrors.type && (
+                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.type}</p>
+                                )}
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Quantity (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter quantity in kg"
+                                    value={editMaterial.quantity}
+                                    onChange={(e) => {
+                                        setEditMaterial({...editMaterial, quantity: e.target.value});
+                                        validateField('quantity', e.target.value, true);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
+                                    min="0"
+                                    step="0.1"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        editMaterialErrors.quantity 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
+                                    required
+                                />
+                                {editMaterialErrors.quantity && (
+                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.quantity}</p>
+                                )}
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Reorder Level (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Minimum stock level to trigger reorder"
+                                    value={editMaterial.reorderLevel}
+                                    onChange={(e) => {
+                                        setEditMaterial({...editMaterial, reorderLevel: e.target.value});
+                                        validateField('reorderLevel', e.target.value, true);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
+                                    min="0"
+                                    step="0.1"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        editMaterialErrors.reorderLevel 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
+                                    required
+                                />
+                                {editMaterialErrors.reorderLevel && (
+                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.reorderLevel}</p>
+                                )}
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Alert will show when stock falls below this level
+                                </p>
+                            </div>
+                            
+                            {error && (
+                                <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading || !isFormValid(editMaterialErrors)}
+                                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                                >
+                                    {loading ? 'Updating...' : 'Update Material'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setError('');
+                                        setSuccessMessage('');
+                                        setEditMaterialErrors({});
+                                        setEditMaterial({
+                                            type: '',
+                                            quantity: '',
+                                            reorderLevel: ''
+                                        });
+                                        setEditingMaterial(null);
                                     }}
                                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
                                 >

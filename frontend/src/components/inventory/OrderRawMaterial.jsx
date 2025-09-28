@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
     const [orderData, setOrderData] = useState({
         quantity: '',
-        unit: material?.unit || 'kg',
+        // units are fixed to kg only now
         deliveryDate: '',
         notes: '',
         farmerId: ''
@@ -18,7 +18,7 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
             // Reset form when modal opens
             setOrderData({
                 quantity: '',
-                unit: material.unit || 'kg',
+                // units fixed to kg
                 deliveryDate: '',
                 notes: '',
                 farmerId: ''
@@ -185,16 +185,9 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                 placeholder="Enter quantity"
                             />
-                            <select
-                                name="unit"
-                                value={orderData.unit}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            >
-                                <option value="kg">kg</option>
-                                <option value="tons">tons</option>
-                                <option value="pounds">pounds</option>
-                            </select>
+                            <div>
+                                <span>kg</span>
+                            </div>
                         </div>
                     </div>
 

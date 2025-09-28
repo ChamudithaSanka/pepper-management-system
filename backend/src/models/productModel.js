@@ -71,7 +71,7 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Active"], // Simplified since no expiry tracking
+        enum: ["Active", "Inactive"],
         default: "Active"
     }
 }, {
@@ -105,8 +105,7 @@ productSchema.pre('save', function(next) {
         this.stockStatus = "InStock";
     }
 
-    // Status is always Active since no expiry tracking
-    this.status = "Active";
+    // Status can be Active or Inactive
 
     next();
 });

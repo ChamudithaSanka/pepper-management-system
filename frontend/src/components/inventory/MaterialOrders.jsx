@@ -80,6 +80,28 @@ const MaterialOrders = () => {
         }
     };
 
+    const deleteOrder = async (rmOrderId) => {
+        if (window.confirm('Are you sure you want to delete this order?')) {
+            try {
+                const response = await fetch(`/api/rm-orders/${rmOrderId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    alert('Order deleted successfully!');
+                    fetchOrders(); // Refresh the orders list
+                } else {
+                    const data = await response.json();
+                    alert(`Failed to delete order: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                alert('Error deleting order. Please try again.');
+            }
+        }
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending':
@@ -143,7 +165,7 @@ const MaterialOrders = () => {
             )}
 
             {/* Stats Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
                     <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
@@ -158,12 +180,6 @@ const MaterialOrders = () => {
                     <h3 className="text-sm font-medium text-gray-500">Delivered</h3>
                     <p className="text-2xl font-bold text-green-600">
                         {orders.filter(order => order.status === 'Delivered').length}
-                    </p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Quantity</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                        {orders.reduce((total, order) => total + (order.requestedQtyKg || 0), 0).toFixed(1)} kg
                     </p>
                 </div>
             </div>
@@ -303,8 +319,12 @@ const MaterialOrders = () => {
                                                         Mark Delivered
                                                     </button>
                                                 )}
-                                                <button className="text-blue-600 hover:text-blue-900 font-medium">
-                                                    View Details
+                                                {order.status === 'Pending' && <span className="text-gray-300">|</span>}
+                                                <button 
+                                                    onClick={() => deleteOrder(order.rmOrderId)}
+                                                    className="text-red-600 hover:text-red-900 font-medium"
+                                                >
+                                                    Delete
                                                 </button>
                                             </div>
                                         </td>
