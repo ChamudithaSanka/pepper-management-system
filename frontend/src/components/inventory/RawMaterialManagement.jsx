@@ -245,7 +245,7 @@ const RawMaterialManagement = () => {
 
     if (loading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
                 <div className="flex justify-between items-center">
                     <h2 className="text-2xl font-bold text-gray-900">Raw Materials Management</h2>
                 </div>
@@ -260,7 +260,7 @@ const RawMaterialManagement = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -314,88 +314,66 @@ const RawMaterialManagement = () => {
                 </div>
             )}
 
-            {/* Stats Summary */}
+            {/* Stats Summary (styled like CustomerManagement) */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">
-                        Total Materials
-                    </h3>
-                    <p className="text-2xl font-bold text-gray-900">{rawMaterials.length}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Materials</h3>
+                    <p className="text-2xl font-bold text-green-900">{rawMaterials.length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Low Stock</h3>
-                    <p className="text-2xl font-bold text-red-600">
-                        {rawMaterials.filter(material => material.lowStockStatus === 'LowStock').length}
-                    </p>
+                <div className="bg-red-100 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-red-700">Low Stock</h3>
+                    <p className="text-2xl font-bold text-red-900">{rawMaterials.filter(material => material.lowStockStatus === 'LowStock').length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">In Stock</h3>
-                    <p className="text-2xl font-bold text-green-600">
-                        {rawMaterials.filter(material => material.lowStockStatus === 'InStock').length}
-                    </p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">In Stock</h3>
+                    <p className="text-2xl font-bold text-green-900">{rawMaterials.filter(material => material.lowStockStatus === 'InStock').length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Stock (kg)</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                        {rawMaterials.reduce((total, material) => total + (material.quantityKg || 0), 0).toFixed(1)}
-                    </p>
+                <div className="bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-blue-700">Total Stock (kg)</h3>
+                    <p className="text-2xl font-bold text-blue-900">{rawMaterials.reduce((total, material) => total + (material.quantityKg || 0), 0).toFixed(1)}</p>
                 </div>
             </div>
 
             {/* Raw Materials Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-900">Raw Material Inventory</h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-blue-50 bg-blue-50">
+                    <h3 className="text-lg font-semibold text-black">Raw Material Inventory</h3>
                 </div>
-                
+
                 {rawMaterials.length === 0 ? (
                     <div className="p-8 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No Raw Materials Found</h3>
-                        <p className="text-gray-500 mb-4">Start by adding raw materials to your inventory</p>
-                        <button
-                            onClick={() => setShowAddMaterialForm(true)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                        >
-                            + Add Your First Raw Material
-                        </button>
+                        <div className="text-gray-400">
+                            Start by adding raw materials to your inventory
+                        </div>
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setShowAddMaterialForm(true)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                            >
+                                + Add Your First Raw Material
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Material ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Type
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Quantity (kg)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Reorder Level (kg)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Last Updated
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Material ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Type</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Quantity (kg)</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Reorder Level (kg)</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Last Updated</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {rawMaterials.map((material) => {
+                            <tbody>
+                                {rawMaterials.map((material, idx) => {
                                     const stockInfo = getStockStatus(material);
                                     return (
-                                        <tr key={material._id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                        <tr key={material._id} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                            <td className="px-2 py-2 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                                                         <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -403,46 +381,31 @@ const RawMaterialManagement = () => {
                                                         </svg>
                                                     </div>
                                                     <div className="ml-4">
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {material.rawMaterialId}
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {material.type}
-                                                        </div>
+                                                        <div className="text-sm font-medium text-gray-900">{material.rawMaterialId}</div>
+                                                        <div className="text-sm text-gray-500">{material.type}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                    {material.type}
-                                                </span>
+                                            <td className="px-2 py-2 whitespace-nowrap">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{material.type}</span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {material.quantityKg}
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{material.quantityKg}</td>
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{material.reorderLevelKg}</td>
+                                            <td className="px-2 py-2 whitespace-nowrap">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockInfo.color}`}>{stockInfo.status}</span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {material.reorderLevelKg}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockInfo.color}`}>
-                                                    {stockInfo.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {formatDate(material.updatedAt)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <button
-                                                        onClick={() => handleOrderClick(material)}
-                                                        className="text-green-600 hover:text-green-900 font-medium"
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{formatDate(material.updatedAt)}</td>
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
+                                                <div className="flex space-x-1">
+                                                    <button 
+                                                        onClick={() => handleOrderClick(material)} 
+                                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
                                                         Place Order
                                                     </button>
-                                                    <span className="text-gray-300">|</span>
                                                     <button 
-                                                        onClick={() => handleEditClick(material)}
-                                                        className="text-blue-600 hover:text-blue-900 font-medium"
+                                                        onClick={() => handleEditClick(material)} 
+                                                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
                                                         Edit
                                                     </button>
@@ -479,7 +442,7 @@ const RawMaterialManagement = () => {
                                             <button
                                                 key={material._id}
                                                 onClick={() => handleOrderClick(material)}
-                                                className="inline-flex items-center px-3 py-1 border border-yellow-300 rounded-full text-sm font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 transition-colors"
+                                                className="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-md transition-colors"
                                             >
                                                 Order {material.type} ({material.quantityKg}kg)
                                             </button>

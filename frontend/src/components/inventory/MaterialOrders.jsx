@@ -123,7 +123,7 @@ const MaterialOrders = () => {
 
     if (loading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
                 <h2 className="text-2xl font-bold text-gray-900">Material Orders</h2>
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                     <div className="flex justify-center">
@@ -136,7 +136,7 @@ const MaterialOrders = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -164,23 +164,19 @@ const MaterialOrders = () => {
                 </div>
             )}
 
-            {/* Stats Summary */}
+            {/* Stats Summary (styled like CustomerManagement) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-                    <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Total Orders</h3>
+                    <p className="text-2xl font-bold text-green-900">{orders.length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Pending</h3>
-                    <p className="text-2xl font-bold text-yellow-600">
-                        {orders.filter(order => order.status === 'Pending').length}
-                    </p>
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-yellow-700">Pending</h3>
+                    <p className="text-2xl font-bold text-yellow-900">{orders.filter(order => order.status === 'Pending').length}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Delivered</h3>
-                    <p className="text-2xl font-bold text-green-600">
-                        {orders.filter(order => order.status === 'Delivered').length}
-                    </p>
+                <div className="bg-green-100 border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-green-700">Delivered</h3>
+                    <p className="text-2xl font-bold text-green-900">{orders.filter(order => order.status === 'Delivered').length}</p>
                 </div>
             </div>
 
@@ -219,60 +215,39 @@ const MaterialOrders = () => {
             </div>
 
             {/* Orders Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-semibold text-gray-900">Raw Material Orders</h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-blue-50 bg-blue-50">
+                    <h3 className="text-lg font-semibold text-black">Raw Material Orders</h3>
                 </div>
-                
+
                 {filteredOrders.length === 0 ? (
                     <div className="p-8 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 012 2v6.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v3.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v4.5a.5.5 0 001 0V5a2 2 0 00-2-2V3a2 2 0 00-2-2H6a2 2 0 00-2 2v2z" clipRule="evenodd"/>
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No Orders Found</h3>
-                        <p className="text-gray-500">
+                        <div className="text-gray-400">
                             {filterStatus === 'all' 
                                 ? 'No raw material orders have been placed yet'
                                 : `No ${filterStatus.toLowerCase()} orders found`
                             }
-                        </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full w-full">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Order ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Material Type
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farmer
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Requested Qty
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Delivered Qty
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Order Date
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Order ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Material Type</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Farmer</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Requested Qty</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Delivered Qty</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Order Date</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredOrders.map((order) => (
-                                    <tr key={order.rmOrderId} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                            <tbody>
+                                {filteredOrders.map((order, idx) => (
+                                    <tr key={order.rmOrderId} className={idx % 2 === 0 ? "bg-green-50" : "bg-white hover:bg-green-100"}>
+                                        <td className="px-2 py-2 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                                     <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -281,48 +256,33 @@ const MaterialOrders = () => {
                                                     </svg>
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {order.rmOrderId}
-                                                    </div>
+                                                    <div className="text-sm font-medium text-gray-900">{order.rmOrderId}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                {order.rawMaterialType}
-                                            </span>
+                                        <td className="px-2 py-2 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{order.rawMaterialType}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {order.farmerName || 'Unknown Farmer'}
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{order.farmerName || 'Unknown Farmer'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{order.requestedQtyKg} kg</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{order.deliveredQtyKg} kg</td>
+                                        <td className="px-2 py-2 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {order.requestedQtyKg} kg
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {order.deliveredQtyKg} kg
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {formatDate(order.createdAt)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="flex space-x-2">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{formatDate(order.createdAt)}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-1">
                                                 {order.status === 'Pending' && (
                                                     <button 
-                                                        onClick={() => markAsDelivered(order.rmOrderId, order.requestedQtyKg)}
-                                                        className="text-green-600 hover:text-green-900 font-medium"
+                                                        onClick={() => markAsDelivered(order.rmOrderId, order.requestedQtyKg)} 
+                                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
                                                         Mark Delivered
                                                     </button>
                                                 )}
-                                                {order.status === 'Pending' && <span className="text-gray-300">|</span>}
                                                 <button 
-                                                    onClick={() => deleteOrder(order.rmOrderId)}
-                                                    className="text-red-600 hover:text-red-900 font-medium"
+                                                    onClick={() => deleteOrder(order.rmOrderId)} 
+                                                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors"
                                                 >
                                                     Delete
                                                 </button>
