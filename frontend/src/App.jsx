@@ -14,6 +14,8 @@ import FinanceDashboard from './components/finance/FinanceDashboard';
 import InventoryDashboard from './components/inventory/InventoryDashboard';
 import DeliveryDashboard from './components/delivery/DeliveryDashboard';
 import CustomerDashboard from './components/customer/CustomerDashboard';
+import FAQ from './components/FAQ';
+import About from './components/About';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
       <Route path="/finance" element={<FinanceDashboard />} />
       <Route path="/inventory" element={<InventoryDashboard />} />
       <Route path="/delivery" element={<DeliveryDashboard />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/about" element={<About />} />
     </Routes>
   )
 }
