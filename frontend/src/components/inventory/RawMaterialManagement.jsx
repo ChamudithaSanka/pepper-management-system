@@ -421,14 +421,13 @@ const RawMaterialManagement = () => {
                                                 <div className="flex space-x-2">
                                                     <button
                                                         onClick={() => handleOrderClick(material)}
-                                                        className="text-green-600 hover:text-green-900 font-medium"
+                                                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
                                                     >
-                                                        Order
+                                                        Place an Order
                                                     </button>
-                                                    <span className="text-gray-300">|</span>
                                                     <button 
                                                         onClick={() => handleEditClick(material)}
-                                                        className="text-blue-600 hover:text-blue-900 font-medium"
+                                                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
                                                     >
                                                         Edit
                                                     </button>

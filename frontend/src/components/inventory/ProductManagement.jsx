@@ -664,13 +664,17 @@ const ProductManagement = () => {
                                             <div className="flex space-x-2">
                                                 <button 
                                                     onClick={() => handleEdit(product)}
-                                                    className="text-blue-600 hover:text-blue-900"
+                                                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
                                                 >
                                                     Edit
                                                 </button>
                                                 <button 
                                                     onClick={() => handleRestock(product)}
-                                                    className="text-green-600 hover:text-green-900"
+                                                    className={`px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105 ${
+                                                        product.status === 'Inactive' 
+                                                            ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                                            : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
+                                                    }`}
                                                     disabled={product.status === 'Inactive'}
                                                     title={product.status === 'Inactive' ? 'Cannot restock inactive product' : 'Restock product'}
                                                 >
@@ -678,13 +682,17 @@ const ProductManagement = () => {
                                                 </button>
                                                 <button 
                                                     onClick={() => handleToggleStatus(product)}
-                                                    className={`${product.status === 'Active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                                                    className={`px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105 text-white ${
+                                                        product.status === 'Active' 
+                                                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700' 
+                                                            : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                                                    }`}
                                                 >
                                                     {product.status === 'Active' ? 'Deactivate' : 'Activate'}
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(product._id)}
-                                                    className="text-red-600 hover:text-red-900"
+                                                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
                                                 >
                                                     Delete
                                                 </button>
