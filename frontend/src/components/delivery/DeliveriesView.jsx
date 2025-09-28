@@ -55,26 +55,39 @@ const DeliveriesView = ({ onStatsUpdate }) => {
             });
 
             if (!taskResponse.ok) {
-                const taskError = await taskResponse.json();
+                let taskError;
+                try {
+                    taskError = await taskResponse.json();
+                } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError);
+                    alert(`Failed to mark task as completed (Status: ${taskResponse.status})`);
+                    return;
+                }
                 alert(taskError.message || 'Failed to mark task as completed');
                 return;
             }
 
             // Update order status to delivered
             const orderResponse = await fetch(`/api/orders/${task.orderId}/status`, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
                 body: JSON.stringify({ 
-                    orderStatus: 'Delivered',
-                    paymentStatus: 'Completed'
+                    orderStatus: 'Delivered'
                 })
             });
 
             if (!orderResponse.ok) {
-                const orderError = await orderResponse.json();
+                let orderError;
+                try {
+                    orderError = await orderResponse.json();
+                } catch (parseError) {
+                    console.error('Failed to parse order error response:', parseError);
+                    alert('Task completed but failed to update order status');
+                    return;
+                }
                 alert(orderError.message || 'Task completed but failed to update order status');
             }
 
