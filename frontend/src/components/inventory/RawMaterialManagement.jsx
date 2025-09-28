@@ -242,7 +242,17 @@ const RawMaterialManagement = () => {
                             setSuccessMessage(''); // Clear any success messages
                             setError(''); // Clear any error messages
                         }}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        disabled={rawMaterials.some(material => material.type === 'Green Pepper') && 
+                                 rawMaterials.some(material => material.type === 'Black Pepper')}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            rawMaterials.some(material => material.type === 'Green Pepper') && 
+                            rawMaterials.some(material => material.type === 'Black Pepper')
+                                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                        title={rawMaterials.some(material => material.type === 'Green Pepper') && 
+                               rawMaterials.some(material => material.type === 'Black Pepper')
+                                ? 'All material types have been added' : ''}
                     >
                         + Add Raw Material
                     </button>
@@ -484,9 +494,21 @@ const RawMaterialManagement = () => {
                                     required
                                 >
                                     <option value="">Select Material Type</option>
-                                    <option value="Green Pepper">Green Pepper</option>
-                                    <option value="Black Pepper">Black Pepper</option>
+                                    {/* Only show material types that haven't been added yet */}
+                                    {!rawMaterials.some(material => material.type === 'Green Pepper') && (
+                                        <option value="Green Pepper">Green Pepper</option>
+                                    )}
+                                    {!rawMaterials.some(material => material.type === 'Black Pepper') && (
+                                        <option value="Black Pepper">Black Pepper</option>
+                                    )}
                                 </select>
+                                {/* Show message if all material types are already added */}
+                                {rawMaterials.some(material => material.type === 'Green Pepper') && 
+                                 rawMaterials.some(material => material.type === 'Black Pepper') && (
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        All available material types have been added.
+                                    </p>
+                                )}
                             </div>
                             
                             <div>
