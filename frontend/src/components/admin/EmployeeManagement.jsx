@@ -87,7 +87,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
             const data = await response.json();
 
             if (data.success) {
-                setNewEmployee({ name: '', designation: '', basicSalary: '', epfNo: '' });
+                setNewEmployee({ name: '', designation: '', email: '', nic: '', phoneNumber: '', address: '', dateOfBirth: '', basicSalary: '' });
                 setShowAddForm(false);
                 fetchEmployees();
                 setError('');
@@ -256,79 +256,140 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                     <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
                         <h3 className="text-lg font-medium mb-4">Add New Employee</h3>
                         <form onSubmit={handleAdd} className="space-y-4">
-                            <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={newEmployee.name}
-                                onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <select
-                                value={newEmployee.designation}
-                                onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            >
-                                <option value="">Select Designation</option>
-                                <option value="Drying Operator">Drying Operator</option>
-                                <option value="Cleaning Operator">Cleaning Operator</option>
-                                <option value="Grinding Operator">Grinding Operator</option>
-                                <option value="Packaging Operator">Packaging Operator</option>
-                                <option value="Machine Operator">Machine Operator</option>
-                                <option value="Helper">Helper</option>
-                                <option value="Raw Material Inspector">Raw Material Inspector</option>
-                            </select>
-                            <input
-                                type="email"
-                                placeholder="Email Address"
-                                value={newEmployee.email}
-                                onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="NIC Number"
-                                value={newEmployee.nic}
-                                onChange={(e) => setNewEmployee({...newEmployee, nic: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={newEmployee.phoneNumber}
-                                onChange={(e) => setNewEmployee({...newEmployee, phoneNumber: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <textarea
-                                placeholder="Address"
-                                value={newEmployee.address}
-                                onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                rows="3"
-                                required
-                            />
-                            <input
-                                type="date"
-                                placeholder="Date of Birth"
-                                value={newEmployee.dateOfBirth}
-                                onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="number"
-                                placeholder="Basic Salary (LKR)"
-                                value={newEmployee.basicSalary}
-                                onChange={(e) => setNewEmployee({...newEmployee, basicSalary: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                min="0"
-                                step="0.01"
-                                required
-                            />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter full name"
+                                    value={newEmployee.name}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        // Only letters and spaces, max 100 chars
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setNewEmployee({...newEmployee, name: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Designation *
+                                </label>
+                                <select
+                                    value={newEmployee.designation}
+                                    onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                >
+                                    <option value="">Select Designation</option>
+                                    <option value="Drying Operator">Drying Operator</option>
+                                    <option value="Cleaning Operator">Cleaning Operator</option>
+                                    <option value="Grinding Operator">Grinding Operator</option>
+                                    <option value="Packaging Operator">Packaging Operator</option>
+                                    <option value="Machine Operator">Machine Operator</option>
+                                    <option value="Helper">Helper</option>
+                                    <option value="Raw Material Inspector">Raw Material Inspector</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={newEmployee.email}
+                                    maxLength={100}
+                                    onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    NIC Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter NIC number (123456789V or 200012345678)"
+                                    value={newEmployee.nic}
+                                    maxLength={12}
+                                    onChange={(e) => {
+                                        // Only digits and V/X, max 12 chars
+                                        const value = e.target.value.replace(/[^0-9vVxX]/g, '').slice(0, 12);
+                                        setNewEmployee({...newEmployee, nic: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mobile Number *
+                                </label>
+                                <input
+                                    type="tel"
+                                    placeholder="Enter mobile number (10 digits)"
+                                    value={newEmployee.phoneNumber}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        // Only digits, exactly 10 chars for Sri Lankan mobile
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setNewEmployee({...newEmployee, phoneNumber: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Address *
+                                </label>
+                                <textarea
+                                    placeholder="Enter address (letters, numbers, spaces, punctuation allowed)"
+                                    value={newEmployee.address}
+                                    maxLength={500}
+                                    onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value.slice(0, 500)})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    rows="3"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date of Birth *
+                                </label>
+                                <input
+                                    type="date"
+                                    placeholder="Date of Birth"
+                                    value={newEmployee.dateOfBirth}
+                                    onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Basic Salary (LKR) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter basic salary"
+                                    value={newEmployee.basicSalary}
+                                    max={999999}
+                                    onChange={(e) => {
+                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                        setNewEmployee({...newEmployee, basicSalary: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                />
+                            </div>
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
@@ -467,87 +528,149 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                             }}
                             className="space-y-4"
                         >
-                            <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={editingEmployee.name}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, name: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <select
-                                value={editingEmployee.designation}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, designation: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            >
-                                <option value="Drying Operator">Drying Operator</option>
-                                <option value="Cleaning Operator">Cleaning Operator</option>
-                                <option value="Grinding Operator">Grinding Operator</option>
-                                <option value="Packaging Operator">Packaging Operator</option>
-                                <option value="Machine Operator">Machine Operator</option>
-                                <option value="Helper">Helper</option>
-                                <option value="Raw Material Inspector">Raw Material Inspector</option>
-                            </select>
-                            <input
-                                type="email"
-                                placeholder="Email Address"
-                                value={editingEmployee.email || ''}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="NIC Number"
-                                value={editingEmployee.nic || ''}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, nic: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={editingEmployee.phoneNumber || ''}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, phoneNumber: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <textarea
-                                placeholder="Address"
-                                value={editingEmployee.address || ''}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, address: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                rows="3"
-                                required
-                            />
-                            <input
-                                type="date"
-                                placeholder="Date of Birth"
-                                value={editingEmployee.dateOfBirth ? editingEmployee.dateOfBirth.split('T')[0] : ''}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, dateOfBirth: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="number"
-                                placeholder="Basic Salary"
-                                value={editingEmployee.basicSalary}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, basicSalary: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                min="0"
-                                step="0.01"
-                                required
-                            />
-                            {/* EPF Number removed */}
-                            <select
-                                value={editingEmployee.status}
-                                onChange={(e) => setEditingEmployee({...editingEmployee, status: e.target.value})}
-                                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter full name"
+                                    value={editingEmployee.name}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setEditingEmployee({...editingEmployee, name: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Designation *
+                                </label>
+                                <select
+                                    value={editingEmployee.designation}
+                                    onChange={(e) => setEditingEmployee({...editingEmployee, designation: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                >
+                                    <option value="Drying Operator">Drying Operator</option>
+                                    <option value="Cleaning Operator">Cleaning Operator</option>
+                                    <option value="Grinding Operator">Grinding Operator</option>
+                                    <option value="Packaging Operator">Packaging Operator</option>
+                                    <option value="Machine Operator">Machine Operator</option>
+                                    <option value="Helper">Helper</option>
+                                    <option value="Raw Material Inspector">Raw Material Inspector</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={editingEmployee.email || ''}
+                                    maxLength={100}
+                                    onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    NIC Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter NIC number (123456789V or 200012345678)"
+                                    value={editingEmployee.nic || ''}
+                                    maxLength={12}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9vVxX]/g, '').slice(0, 12);
+                                        setEditingEmployee({...editingEmployee, nic: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Mobile Number *
+                                </label>
+                                <input
+                                    type="tel"
+                                    placeholder="Enter mobile number (10 digits)"
+                                    value={editingEmployee.phoneNumber || ''}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setEditingEmployee({...editingEmployee, phoneNumber: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Address *
+                                </label>
+                                <textarea
+                                    placeholder="Enter address (letters, numbers, spaces, punctuation allowed)"
+                                    value={editingEmployee.address || ''}
+                                    maxLength={500}
+                                    onChange={(e) => setEditingEmployee({...editingEmployee, address: e.target.value.slice(0, 500)})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    rows="3"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date of Birth *
+                                </label>
+                                <input
+                                    type="date"
+                                    placeholder="Date of Birth"
+                                    value={editingEmployee.dateOfBirth ? editingEmployee.dateOfBirth.split('T')[0] : ''}
+                                    onChange={(e) => setEditingEmployee({...editingEmployee, dateOfBirth: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Basic Salary (LKR) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter basic salary"
+                                    value={editingEmployee.basicSalary}
+                                    max={999999}
+                                    onChange={(e) => {
+                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                        setEditingEmployee({...editingEmployee, basicSalary: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                </label>
+                                <select
+                                    value={editingEmployee.status}
+                                    onChange={(e) => setEditingEmployee({...editingEmployee, status: e.target.value})}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                >
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"

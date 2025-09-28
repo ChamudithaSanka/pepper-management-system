@@ -92,9 +92,10 @@ const OtherExpensesView = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        // Use browser's native validation before submitting
-        if (formRef.current && !formRef.current.checkValidity()) {
-            formRef.current.reportValidity();
+        
+        // Basic required field validation
+        if (!newExpense.expenseType || !newExpense.description || !newExpense.amount || !newExpense.expenseDate || !newExpense.paymentMethod) {
+            setError('Please fill in all required fields');
             setLoading(false);
             return;
         }
@@ -329,11 +330,13 @@ const OtherExpensesView = () => {
                         <h3 className="text-lg font-medium mb-4">Add New Expense</h3>
                         <form ref={formRef} onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Expense Type *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Expense Type *
+                                </label>
                                 <select
                                     value={newExpense.expenseType}
                                     onChange={(e) => setNewExpense({...newExpense, expenseType: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     required
                                 >
                                     <option value="">Select Type</option>
@@ -346,11 +349,13 @@ const OtherExpensesView = () => {
                             </div>
                             
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Payment Method *
+                                </label>
                                 <select
                                     value={newExpense.paymentMethod}
                                     onChange={(e) => setNewExpense({...newExpense, paymentMethod: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     required
                                 >
                                     <option value="">Select Method</option>
@@ -361,26 +366,38 @@ const OtherExpensesView = () => {
                             </div>
                             
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description *
+                                </label>
                                 <input
                                     type="text"
                                     placeholder="Enter expense description"
                                     value={newExpense.description}
-                                    onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
                                     maxLength={150}
+                                    onChange={(e) => {
+                                        // Allow letters, numbers, spaces, and common punctuation
+                                        const value = e.target.value.slice(0, 150);
+                                        setNewExpense({...newExpense, description: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     required
                                 />
                             </div>
                             
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Amount (LKR) *
+                                </label>
                                 <input
                                     type="number"
-                                    placeholder="0.00"
+                                    placeholder="Enter amount"
                                     value={newExpense.amount}
-                                    onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
+                                    max={999999}
+                                    onChange={(e) => {
+                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                        setNewExpense({...newExpense, amount: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     step="0.01"
                                     min="0.01"
                                     required
@@ -388,27 +405,34 @@ const OtherExpensesView = () => {
                             </div>
                             
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Expense Date *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Expense Date *
+                                </label>
                                 <input
                                     type="date"
                                     value={newExpense.expenseDate}
                                     onChange={(e) => setNewExpense({...newExpense, expenseDate: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     max={new Date().toISOString().split('T')[0]}
                                     required
                                 />
                             </div>
                             
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Receipt Number (Optional)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Receipt Number (Optional)
+                                </label>
                                 <input
                                     type="text"
-                                    placeholder="Invoice ID, Bank Slip No."
+                                    placeholder="Enter receipt number (Invoice ID, Bank Slip No.)"
                                     value={newExpense.receiptNumber}
-                                    onChange={(e) => setNewExpense({...newExpense, receiptNumber: e.target.value})}
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300`}
                                     maxLength={20}
-                                    pattern="[A-Za-z0-9]+"
+                                    onChange={(e) => {
+                                        // Only alphanumeric characters
+                                        const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+                                        setNewExpense({...newExpense, receiptNumber: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                 />
                             </div>
                             
@@ -423,6 +447,156 @@ const OtherExpensesView = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowAddForm(false)}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Expense Modal */}
+            {editingExpense && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Edit Expense</h3>
+                        
+                        {/* Error Display in Modal */}
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                                {error}
+                                <button 
+                                    onClick={() => setError('')}
+                                    className="ml-2 text-red-500 hover:text-red-700"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        )}
+                        
+                        <form 
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleUpdate(editingExpense.expenseId || editingExpense._id, editingExpense);
+                            }}
+                            className="grid grid-cols-2 gap-4"
+                        >
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Expense Type *
+                                </label>
+                                <select
+                                    value={editingExpense.expenseType}
+                                    onChange={(e) => setEditingExpense({...editingExpense, expenseType: e.target.value})}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                    required
+                                >
+                                    <option value="Transport">Transport</option>
+                                    <option value="Electricity">Electricity</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Packaging">Packaging</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Payment Method *
+                                </label>
+                                <select
+                                    value={editingExpense.paymentMethod}
+                                    onChange={(e) => setEditingExpense({...editingExpense, paymentMethod: e.target.value})}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                    required
+                                >
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Card">Card</option>
+                                </select>
+                            </div>
+                            
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter expense description"
+                                    value={editingExpense.description}
+                                    maxLength={150}
+                                    onChange={(e) => {
+                                        const value = e.target.value.slice(0, 150);
+                                        setEditingExpense({...editingExpense, description: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Amount (LKR) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter amount"
+                                    value={editingExpense.amount}
+                                    max={999999}
+                                    onChange={(e) => {
+                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                        setEditingExpense({...editingExpense, amount: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                    step="0.01"
+                                    min="0.01"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Expense Date *
+                                </label>
+                                <input
+                                    type="date"
+                                    value={editingExpense.expenseDate ? editingExpense.expenseDate.split('T')[0] : ''}
+                                    onChange={(e) => setEditingExpense({...editingExpense, expenseDate: e.target.value})}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                    max={new Date().toISOString().split('T')[0]}
+                                    required
+                                />
+                            </div>
+                            
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Receipt Number (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter receipt number (Invoice ID, Bank Slip No.)"
+                                    value={editingExpense.receiptNumber || ''}
+                                    maxLength={20}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+                                        setEditingExpense({...editingExpense, receiptNumber: value});
+                                    }}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
+                                />
+                            </div>
+                            
+                            <div className="col-span-2 flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    {loading ? 'Updating...' : 'Update Expense'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingExpense(null)}
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors flex-1"
                                 >
                                     Cancel

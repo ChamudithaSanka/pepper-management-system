@@ -34,53 +34,6 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         },
         status: 'Active'
     });
-    const [fieldErrors, setFieldErrors] = useState({});
-
-    // Validation helper function
-    const validateField = (field, value) => {
-        const errors = { ...fieldErrors };
-        
-        switch (field) {
-            case 'nic':
-                if (!value.trim()) {
-                    errors.nic = 'NIC number is required';
-                } else if (!/^(\d{8,9}[vVxX]|\d{12})$/.test(value.trim())) {
-                    errors.nic = 'Enter valid NIC (8-9 digits + V/X or 12 digits)';
-                } else {
-                    delete errors.nic;
-                }
-                break;
-            case 'phone':
-                if (!value.trim()) {
-                    errors.phone = 'Phone number is required';
-                } else if (!/^[0-9]{8,15}$/.test(value.trim())) {
-                    errors.phone = 'Enter valid phone number (8-15 digits)';
-                } else {
-                    delete errors.phone;
-                }
-                break;
-            case 'email':
-                if (value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim())) {
-                    errors.email = 'Enter a valid email address';
-                } else {
-                    delete errors.email;
-                }
-                break;
-            case 'name':
-                if (!value.trim()) {
-                    errors.name = 'Name is required';
-                } else if (value.length > 100) {
-                    errors.name = 'Name cannot exceed 100 characters';
-                } else {
-                    delete errors.name;
-                }
-                break;
-            default:
-                break;
-        }
-        
-        setFieldErrors(errors);
-    };
 
     useEffect(() => {
         fetchFarmers();
@@ -145,61 +98,37 @@ const FarmerManagement = ({ onStatsUpdate }) => {
         setLoading(true);
         setError('');
         
-        // Frontend validation
+        // Basic required field validation
         const errors = [];
         
-        // Name validation
         if (!newItem.name.trim()) {
             errors.push('Name is required');
-        } else if (newItem.name.length > 100) {
-            errors.push('Name cannot exceed 100 characters');
         }
         
-        // NIC validation
         if (!newItem.nic.trim()) {
             errors.push('NIC number is required');
-        } else if (!/^(\d{8,9}[vVxX]|\d{12})$/.test(newItem.nic.trim())) {
-            errors.push('Please enter a valid NIC number (8-9 digits + V/X or 12 digits)');
         }
         
-        // Phone validation
         if (!newItem.phone.trim()) {
             errors.push('Phone number is required');
-        } else if (!/^[0-9]{8,15}$/.test(newItem.phone.trim())) {
-            errors.push('Please enter a valid phone number (8-15 digits)');
-        }
-
-        // Email validation (optional)
-        if (newItem.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(newItem.email.trim())) {
-            errors.push('Please enter a valid email');
         }
         
-        // Address validation
         if (!newItem.address.trim()) {
             errors.push('Address is required');
-        } else if (newItem.address.length > 500) {
-            errors.push('Address cannot exceed 500 characters');
         }
         
-        // Farm location validation
         if (!newItem.farm_location.latitude || !newItem.farm_location.longitude || !newItem.farm_location.address) {
             errors.push('Please select a farm location on the map');
         }
         
-        // Pepper capacity validation
         if (!newItem.pepper_capacitypermonth.green || Number(newItem.pepper_capacitypermonth.green) <= 0) {
             errors.push('Green pepper capacity must be greater than 0');
-        } else if (Number(newItem.pepper_capacitypermonth.green) > 10000) {
-            errors.push('Green pepper capacity cannot exceed 10,000 kg');
         }
         
         if (!newItem.pepper_capacitypermonth.black || Number(newItem.pepper_capacitypermonth.black) <= 0) {
             errors.push('Black pepper capacity must be greater than 0');
-        } else if (Number(newItem.pepper_capacitypermonth.black) > 10000) {
-            errors.push('Black pepper capacity cannot exceed 10,000 kg');
         }
         
-        // Price validation
         if (!newItem.price_per_unit.green || Number(newItem.price_per_unit.green) <= 0) {
             errors.push('Green pepper price must be greater than 0');
         }
@@ -208,7 +137,6 @@ const FarmerManagement = ({ onStatsUpdate }) => {
             errors.push('Black pepper price must be greater than 0');
         }
         
-        // If there are validation errors, show them and stop
         if (errors.length > 0) {
             setError(errors.join('. '));
             setLoading(false);
@@ -482,74 +410,82 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                         <h3 className="text-lg font-medium mb-4">Add New Farmer</h3>
                         <form onSubmit={handleAdd} className="grid grid-cols-2 gap-4">
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
                                 <input
                                     type="text"
-                                    placeholder="Full Name"
+                                    placeholder="Enter full name"
                                     value={newItem.name}
+                                    maxLength={100}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, name: e.target.value});
-                                        validateField('name', e.target.value);
+                                        // Only letters and spaces, max 100 chars
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setNewItem({...newItem, name: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.name ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.name && <p className="text-red-500 text-sm mt-1">{fieldErrors.name}</p>}
                             </div>
                             
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    NIC Number *
+                                </label>
                                 <input
                                     type="text"
-                                    placeholder="NIC Number"
+                                    placeholder="Enter NIC number (123456789V or 200012345678)"
                                     value={newItem.nic}
+                                    maxLength={12}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, nic: e.target.value});
-                                        validateField('nic', e.target.value);
+                                        // Only digits and V/X, max 12 chars
+                                        const value = e.target.value.replace(/[^0-9vVxX]/g, '').slice(0, 12);
+                                        setNewItem({...newItem, nic: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.nic ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.nic && <p className="text-red-500 text-sm mt-1">{fieldErrors.nic}</p>}
                             </div>
                             
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Phone Number *
+                                </label>
                                 <input
                                     type="tel"
-                                    placeholder="Phone Number"
+                                    placeholder="Enter mobile number (10 digits)"
                                     value={newItem.phone}
+                                    maxLength={10}
                                     onChange={(e) => {
-                                        setNewItem({...newItem, phone: e.target.value});
-                                        validateField('phone', e.target.value);
+                                        // Only digits, exactly 10 chars for Sri Lankan mobile
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setNewItem({...newItem, phone: value});
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.phone ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                     required
                                 />
-                                {fieldErrors.phone && <p className="text-red-500 text-sm mt-1">{fieldErrors.phone}</p>}
                             </div>
 
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address
+                                </label>
                                 <input
                                     type="email"
-                                    placeholder="Email"
+                                    placeholder="Enter email address"
                                     value={newItem.email}
+                                    maxLength={100}
                                     onChange={(e) => {
                                         setNewItem({...newItem, email: e.target.value});
-                                        validateField('email', e.target.value);
                                     }}
-                                    className={`border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full ${
-                                        fieldErrors.email ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
                                 />
-                                {fieldErrors.email && <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>}
                             </div>
                             
                             <div className="col-span-2 mb-4">
-                                <div className="text-sm font-medium text-gray-600 mb-3">Farm Location</div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Farm Location *
+                                </label>
                                 {newItem.farm_location.address && (
                                     <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{newItem.farm_location.address}</div>
                                 )}
@@ -566,88 +502,134 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                     />
                                 </div>
                             </div>
-                            <textarea
-                                placeholder="Address"
-                                value={newItem.address}
-                                onChange={(e) => setNewItem({...newItem, address: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent col-span-2"
-                                rows="2"
-                                required
-                            />
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Address *
+                                </label>
+                                <textarea
+                                    placeholder="Enter address (letters, numbers, spaces, punctuation allowed)"
+                                    value={newItem.address}
+                                    maxLength={500}
+                                    onChange={(e) => setNewItem({...newItem, address: e.target.value.slice(0, 500)})}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                    rows="2"
+                                    required
+                                />
+                            </div>
                             
                             {/* Capacity Section */}
                             <div className="col-span-2">
-                                <h4 className="text-md font-medium mb-2">Monthly Capacity (kg)</h4>
+                                <label className="block text-md font-medium text-gray-700 mb-2">
+                                    Monthly Capacity (kg) *
+                                </label>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Green Pepper (kg)"
-                                        value={newItem.pepper_capacitypermonth.green}
-                                        onChange={(e) => setNewItem({
-                                            ...newItem, 
-                                            pepper_capacitypermonth: {
-                                                ...newItem.pepper_capacitypermonth,
-                                                green: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        required
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Black Pepper (kg)"
-                                        value={newItem.pepper_capacitypermonth.black}
-                                        onChange={(e) => setNewItem({
-                                            ...newItem, 
-                                            pepper_capacitypermonth: {
-                                                ...newItem.pepper_capacitypermonth,
-                                                black: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        required
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Green Pepper (kg)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter green pepper capacity"
+                                            value={newItem.pepper_capacitypermonth.green}
+                                            max={10000}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                                                setNewItem({
+                                                    ...newItem, 
+                                                    pepper_capacitypermonth: {
+                                                        ...newItem.pepper_capacitypermonth,
+                                                        green: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Black Pepper (kg)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter black pepper capacity"
+                                            value={newItem.pepper_capacitypermonth.black}
+                                            max={10000}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                                                setNewItem({
+                                                    ...newItem, 
+                                                    pepper_capacitypermonth: {
+                                                        ...newItem.pepper_capacitypermonth,
+                                                        black: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             
                             {/* Price Section */}
                             <div className="col-span-2">
-                                <h4 className="text-md font-medium mb-2">Price per kg (LKR)</h4>
+                                <label className="block text-md font-medium text-gray-700 mb-2">
+                                    Price per kg (LKR) *
+                                </label>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Green Pepper Price"
-                                        value={newItem.price_per_unit.green}
-                                        onChange={(e) => setNewItem({
-                                            ...newItem, 
-                                            price_per_unit: {
-                                                ...newItem.price_per_unit,
-                                                green: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Black Pepper Price"
-                                        value={newItem.price_per_unit.black}
-                                        onChange={(e) => setNewItem({
-                                            ...newItem, 
-                                            price_per_unit: {
-                                                ...newItem.price_per_unit,
-                                                black: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Green Pepper Price (LKR)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter green pepper price"
+                                            value={newItem.price_per_unit.green}
+                                            max={999999}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                                setNewItem({
+                                                    ...newItem, 
+                                                    price_per_unit: {
+                                                        ...newItem.price_per_unit,
+                                                        green: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Black Pepper Price (LKR)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter black pepper price"
+                                            value={newItem.price_per_unit.black}
+                                            max={999999}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                                setNewItem({
+                                                    ...newItem, 
+                                                    price_per_unit: {
+                                                        ...newItem.price_per_unit,
+                                                        black: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             
@@ -772,39 +754,74 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                             }}
                             className="grid grid-cols-2 gap-4"
                         >
-                            <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={editingItem.name}
-                                onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="NIC Number"
-                                value={editingItem.nic}
-                                onChange={(e) => setEditingItem({...editingItem, nic: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={editingItem.phone}
-                                onChange={(e) => setEditingItem({...editingItem, phone: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            />
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={editingItem.email || ''}
-                                onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter full name"
+                                    value={editingItem.name}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setEditingItem({...editingItem, name: value});
+                                    }}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    NIC Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter NIC number (123456789V or 200012345678)"
+                                    value={editingItem.nic}
+                                    maxLength={12}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9vVxX]/g, '').slice(0, 12);
+                                        setEditingItem({...editingItem, nic: value});
+                                    }}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Phone Number *
+                                </label>
+                                <input
+                                    type="tel"
+                                    placeholder="Enter mobile number (10 digits)"
+                                    value={editingItem.phone}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                        setEditingItem({...editingItem, phone: value});
+                                    }}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={editingItem.email || ''}
+                                    maxLength={100}
+                                    onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                />
+                            </div>
                             <div className="col-span-2 mb-4">
-                                <div className="text-sm font-medium text-gray-600 mb-3">Farm Location</div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Farm Location *
+                                </label>
                                 {editingItem.farm_location?.address && (
                                     <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{editingItem.farm_location.address}</div>
                                 )}
@@ -821,99 +838,150 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                                     />
                                 </div>
                             </div>
-                            <textarea
-                                placeholder="Address"
-                                value={editingItem.address}
-                                onChange={(e) => setEditingItem({...editingItem, address: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent col-span-2"
-                                rows="2"
-                                required
-                            />
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Address *
+                                </label>
+                                <textarea
+                                    placeholder="Enter address (letters, numbers, spaces, punctuation allowed)"
+                                    value={editingItem.address}
+                                    maxLength={500}
+                                    onChange={(e) => setEditingItem({...editingItem, address: e.target.value.slice(0, 500)})}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                    rows="2"
+                                    required
+                                />
+                            </div>
                             
                             {/* Capacity Section */}
                             <div className="col-span-2">
-                                <h4 className="text-md font-medium mb-2">Monthly Capacity (kg)</h4>
+                                <label className="block text-md font-medium text-gray-700 mb-2">
+                                    Monthly Capacity (kg) *
+                                </label>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Green Pepper (kg)"
-                                        value={editingItem.pepper_capacitypermonth?.green || ''}
-                                        onChange={(e) => setEditingItem({
-                                            ...editingItem, 
-                                            pepper_capacitypermonth: {
-                                                ...editingItem.pepper_capacitypermonth,
-                                                green: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        required
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Black Pepper (kg)"
-                                        value={editingItem.pepper_capacitypermonth?.black || ''}
-                                        onChange={(e) => setEditingItem({
-                                            ...editingItem, 
-                                            pepper_capacitypermonth: {
-                                                ...editingItem.pepper_capacitypermonth,
-                                                black: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        required
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Green Pepper (kg)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter green pepper capacity"
+                                            value={editingItem.pepper_capacitypermonth?.green || ''}
+                                            max={10000}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                                                setEditingItem({
+                                                    ...editingItem, 
+                                                    pepper_capacitypermonth: {
+                                                        ...editingItem.pepper_capacitypermonth,
+                                                        green: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Black Pepper (kg)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter black pepper capacity"
+                                            value={editingItem.pepper_capacitypermonth?.black || ''}
+                                            max={10000}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                                                setEditingItem({
+                                                    ...editingItem, 
+                                                    pepper_capacitypermonth: {
+                                                        ...editingItem.pepper_capacitypermonth,
+                                                        black: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             
                             {/* Price Section */}
                             <div className="col-span-2">
-                                <h4 className="text-md font-medium mb-2">Price per kg (LKR)</h4>
+                                <label className="block text-md font-medium text-gray-700 mb-2">
+                                    Price per kg (LKR) *
+                                </label>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Green Pepper Price"
-                                        value={editingItem.price_per_unit?.green || ''}
-                                        onChange={(e) => setEditingItem({
-                                            ...editingItem, 
-                                            price_per_unit: {
-                                                ...editingItem.price_per_unit,
-                                                green: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Black Pepper Price"
-                                        value={editingItem.price_per_unit?.black || ''}
-                                        onChange={(e) => setEditingItem({
-                                            ...editingItem, 
-                                            price_per_unit: {
-                                                ...editingItem.price_per_unit,
-                                                black: e.target.value
-                                            }
-                                        })}
-                                        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Green Pepper Price (LKR)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter green pepper price"
+                                            value={editingItem.price_per_unit?.green || ''}
+                                            max={999999}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                                setEditingItem({
+                                                    ...editingItem, 
+                                                    price_per_unit: {
+                                                        ...editingItem.price_per_unit,
+                                                        green: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                                            Black Pepper Price (LKR)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="Enter black pepper price"
+                                            value={editingItem.price_per_unit?.black || ''}
+                                            max={999999}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
+                                                setEditingItem({
+                                                    ...editingItem, 
+                                                    price_per_unit: {
+                                                        ...editingItem.price_per_unit,
+                                                        black: value
+                                                    }
+                                                });
+                                            }}
+                                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             
-                            <select
-                                value={editingItem.status}
-                                onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
-                                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                </label>
+                                <select
+                                    value={editingItem.status}
+                                    onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}
+                                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-full"
+                                >
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
                             
                             <div className="col-span-2 flex gap-3 pt-4">
                                 <button

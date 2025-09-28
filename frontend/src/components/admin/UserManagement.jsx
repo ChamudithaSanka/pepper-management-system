@@ -85,21 +85,6 @@ const UserManagement = ({ onStatsUpdate }) => {
             return;
         }
         
-        if (newItem.name.trim().length < 2) {
-            setError('Name must be at least 2 characters long');
-            return;
-        }
-        
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newItem.email)) {
-            setError('Please enter a valid email address');
-            return;
-        }
-        
-        if (newItem.password.length < 6) {
-            setError('Password must be at least 6 characters long');
-            return;
-        }
-        
         setLoading(true);
         setError('');
         
@@ -273,30 +258,48 @@ const UserManagement = ({ onStatsUpdate }) => {
                     <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto shadow-2xl">
                         <h3 className="text-lg font-medium mb-4">Add New User</h3>
                         <form onSubmit={handleAdd} className="space-y-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                             <input
                                 type="text"
                                 placeholder="Full Name"
                                 value={newItem.name}
-                                onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                                maxLength={100}
+                                onChange={(e) => {
+                                    // Only letters and spaces, max 100 chars
+                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                    setNewItem({...newItem, name: value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={newItem.email}
-                                onChange={(e) => setNewItem({...newItem, email: e.target.value})}
+                                onChange={(e) => {
+                                    setNewItem({...newItem, email: e.target.value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
+                                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                             <input
                                 type="password"
                                 placeholder="Password"
                                 value={newItem.password}
-                                onChange={(e) => setNewItem({...newItem, password: e.target.value})}
+                                minLength={8}
+                                maxLength={32}
+                                onChange={(e) => {
+                                    // Only allow 8-32 chars, no spaces
+                                    const value = e.target.value.replace(/\s/g, '').slice(0, 32);
+                                    setNewItem({...newItem, password: value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                             <select
                                 value={newItem.role}
                                 onChange={(e) => setNewItem({...newItem, role: e.target.value})}
@@ -430,8 +433,8 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 }
 
                                 // Validate password only if admin provided one
-                                if (editingItem.password && editingItem.password.length > 0 && editingItem.password.length < 6) {
-                                    setError('Password must be at least 6 characters long');
+                                if (editingItem.password && (editingItem.password.length < 8 || editingItem.password.length > 32)) {
+                                    setError('Password must be 8-32 characters long');
                                     return;
                                 }
 
@@ -447,22 +450,32 @@ const UserManagement = ({ onStatsUpdate }) => {
                             }}
                             className="space-y-4"
                         >
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                             <input
                                 type="text"
                                 placeholder="Full Name"
                                 value={editingItem.name}
-                                onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
+                                maxLength={100}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                    setEditingItem({...editingItem, name: value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={editingItem.email}
-                                onChange={(e) => setEditingItem({...editingItem, email: e.target.value})}
+                                onChange={(e) => {
+                                    setEditingItem({...editingItem, email: e.target.value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
+                                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                             <select
                                 value={editingItem.role}
                                 onChange={(e) => setEditingItem({...editingItem, role: e.target.value})}
@@ -474,13 +487,20 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 <option value="Inventory Manager">Inventory Manager</option>
                                 <option value="Delivery Staff">Delivery Staff</option>
                             </select>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">New Password (leave blank to keep current)</label>
                             <input
                                 type="password"
                                 placeholder="New Password (leave blank to keep current)"
                                 value={editingItem.password || ''}
-                                onChange={(e) => setEditingItem({...editingItem, password: e.target.value})}
+                                minLength={8}
+                                maxLength={32}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\s/g, '').slice(0, 32);
+                                    setEditingItem({...editingItem, password: value});
+                                }}
                                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                             <select
                                 value={editingItem.status}
                                 onChange={(e) => setEditingItem({...editingItem, status: e.target.value})}

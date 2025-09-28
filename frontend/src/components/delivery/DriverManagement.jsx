@@ -377,8 +377,14 @@ const DriverManagement = () => {
                                         <input
                                             type="text"
                                             required
+                                            placeholder="Enter driver name"
                                             value={formData.name}
-                                            onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
+                                            maxLength={100}
+                                            onChange={(e) => {
+                                                // Only letters and spaces, max 100 chars
+                                                const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                                setFormData(prev => ({...prev, name: value}));
+                                            }}
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -391,22 +397,32 @@ const DriverManagement = () => {
                                             type="text"
                                             required
                                             value={formData.nic}
-                                            onChange={(e) => setFormData(prev => ({...prev, nic: e.target.value}))}
-                                            placeholder="123456789V"
+                                            maxLength={12}
+                                            onChange={(e) => {
+                                                // Only digits and V/X, max 12 chars
+                                                const value = e.target.value.replace(/[^0-9vVxX]/g, '').slice(0, 12);
+                                                setFormData(prev => ({...prev, nic: value}));
+                                            }}
+                                            placeholder="Enter NIC number (123456789V or 200012345678)"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
                                     
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Phone Number *
+                                            Mobile Number *
                                         </label>
                                         <input
                                             type="tel"
                                             required
                                             value={formData.phone}
-                                            onChange={(e) => setFormData(prev => ({...prev, phone: e.target.value}))}
-                                            placeholder="0771234567"
+                                            maxLength={10}
+                                            onChange={(e) => {
+                                                // Only digits, exactly 10 chars for Sri Lankan mobile
+                                                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                                setFormData(prev => ({...prev, phone: value}));
+                                            }}
+                                            placeholder="Enter mobile number (10 digits)"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -419,8 +435,9 @@ const DriverManagement = () => {
                                             type="email"
                                             required
                                             value={formData.email}
+                                            maxLength={100}
                                             onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
-                                            placeholder="driver@example.com"
+                                            placeholder="Enter email address"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -433,7 +450,13 @@ const DriverManagement = () => {
                                             type="text"
                                             required
                                             value={formData.licenseNumber}
-                                            onChange={(e) => setFormData(prev => ({...prev, licenseNumber: e.target.value}))}
+                                            maxLength={20}
+                                            onChange={(e) => {
+                                                // Only alphanumeric characters and common license number separators
+                                                const value = e.target.value.replace(/[^a-zA-Z0-9\-\s]/g, '').slice(0, 20);
+                                                setFormData(prev => ({...prev, licenseNumber: value}));
+                                            }}
+                                            placeholder="Enter license number"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
@@ -446,8 +469,13 @@ const DriverManagement = () => {
                                             type="text"
                                             required
                                             value={formData.vehicleNumber}
-                                            onChange={(e) => setFormData(prev => ({...prev, vehicleNumber: e.target.value}))}
-                                            placeholder="ABC-1234"
+                                            maxLength={15}
+                                            onChange={(e) => {
+                                                // Only alphanumeric characters and common vehicle number separators
+                                                const value = e.target.value.replace(/[^a-zA-Z0-9\-\s]/g, '').slice(0, 15);
+                                                setFormData(prev => ({...prev, vehicleNumber: value}));
+                                            }}
+                                            placeholder="Enter vehicle number (e.g., ABC-1234)"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>

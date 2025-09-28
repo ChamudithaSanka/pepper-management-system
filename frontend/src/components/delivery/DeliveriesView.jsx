@@ -8,6 +8,14 @@ const DeliveriesView = ({ onStatsUpdate }) => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [generatingReport, setGeneratingReport] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingTask, setEditingTask] = useState(null);
+    const [editFormData, setEditFormData] = useState({
+        pickupLocation: '',
+        deliveryLocation: '',
+        driverName: '',
+        vehicleNumber: ''
+    });
 
     useEffect(() => {
         fetchDeliveryTasks();
@@ -163,6 +171,89 @@ const DeliveriesView = ({ onStatsUpdate }) => {
         }
     };
 
+    const handleEditTask = (task) => {
+        setEditingTask(task);
+        setEditFormData({
+            pickupLocation: task.pickupLocation?.address || '',
+            deliveryLocation: task.deliveryLocation?.address || '',
+            driverName: task.driverName || '',
+            vehicleNumber: task.driverId?.vehicleNumber || ''
+        });
+        setShowEditModal(true);
+    };
+
+    const handleUpdateTask = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        
+        try {
+            const response = await fetch(`/api/delivery/tasks/${editingTask._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(editFormData)
+            });
+
+            if (response.ok) {
+                setShowEditModal(false);
+                setEditingTask(null);
+                fetchDeliveryTasks();
+                if (onStatsUpdate) onStatsUpdate();
+                alert('Delivery task updated successfully!');
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || 'Failed to update delivery task');
+            }
+        } catch (error) {
+            console.error('Error updating delivery task:', error);
+            setError('Error updating delivery task');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteTask = async (taskId) => {
+        if (!confirm('Are you sure you want to delete this delivery task? This action cannot be undone.')) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/delivery/tasks/${taskId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                fetchDeliveryTasks();
+                if (onStatsUpdate) onStatsUpdate();
+                alert('Delivery task deleted successfully!');
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || 'Failed to delete delivery task');
+            }
+        } catch (error) {
+            console.error('Error deleting delivery task:', error);
+            setError('Error deleting delivery task');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const resetEditForm = () => {
+        setShowEditModal(false);
+        setEditingTask(null);
+        setEditFormData({
+            pickupLocation: '',
+            deliveryLocation: '',
+            driverName: '',
+            vehicleNumber: ''
+        });
+        setError('');
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -291,13 +382,32 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.assignedAt ? new Date(task.assignedAt).toLocaleDateString() : '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.deliveredAt ? new Date(task.deliveredAt).toLocaleDateString() : '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            {task.status === 'Assigned' ? (
-                                                <button onClick={() => markTaskCompleted(task._id)} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors">Mark as Completed</button>
-                                            ) : task.status === 'Delivered' ? (
-                                                <span className="text-green-600 font-medium">✓ Completed</span>
-                                            ) : (
-                                                <span className="text-gray-400">No actions</span>
-                                            )}
+                                            <div className="flex space-x-2">
+                                                {task.status === 'Assigned' ? (
+                                                    <button 
+                                                        onClick={() => markTaskCompleted(task._id)} 
+                                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                                    >
+                                                        Mark as Completed
+                                                    </button>
+                                                ) : task.status === 'Delivered' ? (
+                                                    <span className="text-green-600 font-medium">✓ Completed</span>
+                                                ) : (
+                                                    <span className="text-gray-400">No actions</span>
+                                                )}
+                                                <button 
+                                                    onClick={() => handleEditTask(task)} 
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDeleteTask(task._id)} 
+                                                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -306,6 +416,143 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                     </div>
                 )}
             </div>
+
+            {/* Edit Task Modal */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto shadow-2xl">
+                        <h3 className="text-lg font-medium mb-4">Edit Delivery Task</h3>
+                        
+                        {/* Error Display in Modal */}
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                                {error}
+                                <button 
+                                    onClick={() => setError('')}
+                                    className="ml-2 text-red-500 hover:text-red-700"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        )}
+                        
+                        <form onSubmit={handleUpdateTask} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Task ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingTask?.taskId || ''}
+                                    disabled
+                                    className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-600"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Order ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingTask?.orderId || ''}
+                                    disabled
+                                    className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-600"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Pickup Location *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editFormData.pickupLocation}
+                                    maxLength={500}
+                                    onChange={(e) => {
+                                        const value = e.target.value.slice(0, 500);
+                                        setEditFormData({...editFormData, pickupLocation: value});
+                                    }}
+                                    placeholder="Enter pickup location address"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Delivery Location *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editFormData.deliveryLocation}
+                                    maxLength={500}
+                                    onChange={(e) => {
+                                        const value = e.target.value.slice(0, 500);
+                                        setEditFormData({...editFormData, deliveryLocation: value});
+                                    }}
+                                    placeholder="Enter delivery location address"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Driver Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editFormData.driverName}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        // Only letters and spaces, max 100 chars
+                                        const value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 100);
+                                        setEditFormData({...editFormData, driverName: value});
+                                    }}
+                                    placeholder="Enter driver name"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Vehicle Number
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editFormData.vehicleNumber}
+                                    maxLength={15}
+                                    onChange={(e) => {
+                                        // Only alphanumeric characters and common vehicle number separators
+                                        const value = e.target.value.replace(/[^a-zA-Z0-9\-\s]/g, '').slice(0, 15);
+                                        setEditFormData({...editFormData, vehicleNumber: value});
+                                    }}
+                                    placeholder="Enter vehicle number (e.g., ABC-1234)"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                />
+                            </div>
+                            
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    {loading ? 'Updating...' : 'Update Task'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={resetEditForm}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors flex-1"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
