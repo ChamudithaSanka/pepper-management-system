@@ -170,7 +170,7 @@ const MaterialOrders = () => {
             )}
 
             {/* Stats Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                     <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
                     <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
@@ -185,12 +185,6 @@ const MaterialOrders = () => {
                     <h3 className="text-sm font-medium text-gray-500">Delivered</h3>
                     <p className="text-2xl font-bold text-green-600">
                         {orders.filter(order => order.status === 'Delivered').length}
-                    </p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-gray-500">Total Quantity</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                        {orders.reduce((total, order) => total + (order.requestedQtyKg || 0), 0).toFixed(1)} kg
                     </p>
                 </div>
             </div>
