@@ -221,29 +221,6 @@ export const generateFarmerReportPDF = async (farmers, filters = {}) => {
     });
   };
 
-  // Helper function to add pricing summary
-  const addPricingSummary = () => {
-    const startY = pageHeight - 80;
-    
-    // Calculate average prices
-    const activeFarmers = farmers.filter(f => f.status === 'Active');
-    const avgGreenPrice = activeFarmers.length > 0 ? 
-      activeFarmers.reduce((sum, f) => sum + (f.price_per_unit?.green || 0), 0) / activeFarmers.length : 0;
-    const avgBlackPrice = activeFarmers.length > 0 ? 
-      activeFarmers.reduce((sum, f) => sum + (f.price_per_unit?.black || 0), 0) / activeFarmers.length : 0;
-    
-    doc.setFontSize(12);
-    doc.setTextColor(...darkColor);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Average Pricing (Active Farmers)', 25, startY);
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    
-    doc.text(`Green Pepper: LKR ${avgGreenPrice.toFixed(2)} per kg`, 25, startY + 10);
-    doc.text(`Black Pepper: LKR ${avgBlackPrice.toFixed(2)} per kg`, 25, startY + 20);
-  };
-
   // Helper function to add footer
   const addFooter = () => {
     const footerY = pageHeight - 20;
@@ -263,7 +240,6 @@ export const generateFarmerReportPDF = async (farmers, filters = {}) => {
     addReportSummary();
     addFiltersInfo();
     addFarmerDetailsTable();
-    addPricingSummary();
     addFooter();
     
     // Save the PDF

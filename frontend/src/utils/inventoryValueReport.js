@@ -28,7 +28,7 @@ export const generateInventoryValueReport = async (products) => {
       
       return new Promise((resolve) => {
         logoImg.onload = () => {
-          doc.addImage(logoImg, 'PNG', 15, 15, 20, 20);
+          doc.addImage(logoImg, 'PNG', 15, 20, 20, 20);
           doc.setFontSize(20);
           doc.setTextColor(...primaryColor);
           doc.setFont('helvetica', 'bold');
@@ -59,9 +59,9 @@ export const generateInventoryValueReport = async (products) => {
     doc.setFontSize(10);
     doc.setTextColor(...darkColor);
     doc.setFont('helvetica', 'normal');
-    doc.text(COMPANY_DETAILS.address, 20, 32);
-    doc.text(COMPANY_DETAILS.phone, 20, 38);
-    doc.text(COMPANY_DETAILS.email, 20, 44);
+    doc.text(COMPANY_DETAILS.address, 40, 28);
+    doc.text(COMPANY_DETAILS.phone, 40, 34);
+    doc.text(COMPANY_DETAILS.email, 40, 40);
   };
 
   // Helper function to add report title
@@ -127,7 +127,7 @@ export const generateInventoryValueReport = async (products) => {
     doc.text('Quantity', 80, currentY + 8);
     doc.text('Avg Price', 120, currentY + 8);
     doc.text('Total Value', 160, currentY + 8);
-    doc.text('% of Total', pageWidth - 30, currentY + 8, { align: 'right' });
+ 
 
     currentY += 15;
 
@@ -160,9 +160,6 @@ export const generateInventoryValueReport = async (products) => {
       
       // Total value
       doc.text(`LKR ${data.totalValue.toFixed(2)}`, 160, currentY + 3);
-      
-      // Percentage
-      doc.text(`${percentage}%`, pageWidth - 30, currentY + 3, { align: 'right' });
 
       currentY += 12;
     });
