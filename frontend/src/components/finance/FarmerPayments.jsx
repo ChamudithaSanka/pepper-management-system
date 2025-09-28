@@ -69,6 +69,26 @@ const FarmerPayments = () => {
         }
     };
 
+    const deletePayment = async (paymentId) => {
+        if (!window.confirm('Are you sure you want to delete this payment? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/farmer-payments/${paymentId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete payment');
+
+            fetchPayments();
+            fetchStatistics();
+        } catch (err) {
+            alert('Failed to delete payment: ' + err.message);
+        }
+    };
+
     const getStatusColor = (status) => {
         return status === 'Pending' 
             ? 'bg-yellow-100 text-yellow-800' 
@@ -237,18 +257,27 @@ const FarmerPayments = () => {
                                         </td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{formatDate(payment.generatedDate)}</td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
-                                            {payment.paymentStatus === 'Pending' && (
+                                            <div className="flex items-center gap-2">
+                                                {payment.paymentStatus === 'Pending' && (
+                                                    <button
+                                                        onClick={() => updatePaymentStatus(payment.paymentId, 'Paid')}
+                                                        className="text-green-600 hover:text-green-900"
+                                                        title="Mark as Paid"
+                                                    >
+                                                        ✅ Mark Paid
+                                                    </button>
+                                                )}
+                                                {payment.paymentStatus === 'Paid' && (
+                                                    <span className="text-green-600 text-sm">✅ Paid</span>
+                                                )}
                                                 <button
-                                                    onClick={() => updatePaymentStatus(payment.paymentId, 'Paid')}
-                                                    className="text-green-600 hover:text-green-900"
-                                                    title="Mark as Paid"
+                                                    onClick={() => deletePayment(payment.paymentId)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
+                                                    title="Delete Payment"
                                                 >
-                                                    ✅ Mark Paid
+                                                    Delete
                                                 </button>
-                                            )}
-                                            {payment.paymentStatus === 'Paid' && (
-                                                <span className="text-green-600 text-sm">✅ Paid</span>
-                                            )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

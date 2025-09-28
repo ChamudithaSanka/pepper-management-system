@@ -322,6 +322,33 @@ export const getAllPayments = async (req, res) => {
     }
 };
 
+// DELETE PAYMENT
+export const deletePayment = async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+
+        const payment = await CustomerPayment.findOneAndDelete({ paymentId });
+
+        if (!payment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Payment not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting payment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete payment'
+        });
+    }
+};
+
 // GET PAYMENT STATISTICS (Admin only)
 export const getPaymentStatistics = async (req, res) => {
     try {

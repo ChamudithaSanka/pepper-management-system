@@ -63,6 +63,52 @@ const MarketplaceIncome = () => {
         });
     };
 
+    const markAsReceived = async (paymentId) => {
+        if (!window.confirm('Mark this payment as received?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/payments/${paymentId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    paymentStatus: 'Completed'
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to mark payment as received');
+
+            fetchPayments();
+        } catch (error) {
+            console.error('Error marking payment as received:', error);
+            alert('Failed to mark payment as received: ' + error.message);
+        }
+    };
+
+    const deletePayment = async (paymentId) => {
+        if (!window.confirm('Are you sure you want to delete this payment? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/payments/${paymentId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete payment');
+
+            fetchPayments();
+        } catch (error) {
+            console.error('Error deleting payment:', error);
+            alert('Failed to delete payment: ' + error.message);
+        }
+    };
+
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-LK', {
             style: 'currency',
@@ -204,6 +250,7 @@ const MarketplaceIncome = () => {
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Method</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Date</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -221,10 +268,30 @@ const MarketplaceIncome = () => {
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' : payment.paymentStatus === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{payment.paymentStatus}</span>
                                         </td>
                                         <td className="px-2 py-2 text-sm text-gray-600">{payment.paymentDate ? formatDate(payment.paymentDate) : formatDate(payment.createdAt)}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-2">
+                                                {payment.paymentStatus === 'Pending' && (
+                                                    <button
+                                                        onClick={() => markAsReceived(payment.paymentId)}
+                                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
+                                                        title="Mark as Received"
+                                                    >
+                                                        Mark Received
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => deletePayment(payment.paymentId)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg font-medium transition-colors shadow-sm"
+                                                    title="Delete Payment"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="8" className="p-8 text-center text-gray-500">No payments found</td>
+                                        <td colSpan="9" className="p-8 text-center text-gray-500">No payments found</td>
                                     </tr>
                                 )}
                             </tbody>

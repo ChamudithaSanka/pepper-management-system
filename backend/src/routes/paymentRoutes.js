@@ -5,7 +5,8 @@ import {
     getCustomerPayments,
     updatePaymentStatus,
     getAllPayments,
-    getPaymentStatistics
+    getPaymentStatistics,
+    deletePayment
 } from '../controllers/paymentController.js';
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get('/:paymentId', getPaymentById);
 // Admin payment management routes
 router.get('/', getAllPayments);
 router.put('/:paymentId/status', updatePaymentStatus);
+router.delete('/:paymentId', deletePayment);
 router.get('/admin/statistics', getPaymentStatistics);
 
 export default router;

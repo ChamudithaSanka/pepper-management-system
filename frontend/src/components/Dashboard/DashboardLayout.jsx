@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const DashboardLayout = ({ 
     sidebarLinks, 
@@ -7,6 +7,42 @@ const DashboardLayout = ({
     children 
 }) => {
     const [activeSection, setActiveSection] = useState(sidebarLinks[0]?.id || 'dashboard');
+    const [currentUser, setCurrentUser] = useState(userInfo);
+
+    useEffect(() => {
+        fetchCurrentUser();
+    }, []);
+
+    const fetchCurrentUser = async () => {
+        try {
+            const response = await fetch('/api/users/session', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.success && data.isLoggedIn) {
+                setCurrentUser({
+                    ...userInfo,
+                    name: data.staff.name,
+                    role: data.staff.role,
+                    initial: data.staff.name.charAt(0).toUpperCase()
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching user session:', error);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            window.location.href = '/staff-login';
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     const renderIcon = (iconType) => {
         const iconMap = {
@@ -76,17 +112,12 @@ const DashboardLayout = ({
     const currentSection = sidebarLinks.find(link => link.id === activeSection);
 
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
             {/* Sidebar */}
             <div className="w-64 bg-gradient-to-b from-green-600 to-green-700 text-white flex flex-col shadow-lg">
                 <div className="p-6 border-b border-green-700">
-                    <h1 className="text-xl font-bold text-white">{userInfo.brandName}</h1>
-                    <p className="text-sm text-green-100">{userInfo.brandSubtitle}</p>
-                </div>
-                {/* Logo/Brand */}
-                <div className="p-6 border-b border-gray-200">
-                    <h1 className="text-xl font-bold text-green-600">{userInfo.brandName}</h1>
-                    <p className="text-sm text-gray-500">{userInfo.brandSubtitle}</p>
+                    <h1 className="text-xl font-bold text-white">{currentUser.brandName}</h1>
+                    <p className="text-sm text-green-100">{currentUser.brandSubtitle}</p>
                 </div>
 
                 {/* Navigation Menu */}
@@ -116,14 +147,17 @@ const DashboardLayout = ({
                 <div className="p-4 border-t border-green-700">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-white">{userInfo.initial}</span>
+                            <span className="text-sm font-medium text-white">{currentUser.initial}</span>
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-white">{userInfo.name}</p>
-                            <p className="text-xs text-green-100">{userInfo.role}</p>
+                            <p className="text-sm font-medium text-white">{currentUser.name}</p>
+                            <p className="text-xs text-green-100">{currentUser.role}</p>
                         </div>
                     </div>
-                    <button className="w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+                    <button 
+                        onClick={handleLogout}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                    >
                         Logout
                     </button>
                 </div>
@@ -151,7 +185,7 @@ const DashboardLayout = ({
                 </header>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto p-6 min-h-screen" style={{ background: 'linear-gradient(135deg, #b2f5ea 0%, #a7f3d0 100%)' }}>
+                <main className="flex-1 overflow-y-auto p-6 pb-24 min-h-screen">
                     <div className="max-w-screen-xl mx-auto">
                         {children({ activeSection, setActiveSection })}
                     </div>

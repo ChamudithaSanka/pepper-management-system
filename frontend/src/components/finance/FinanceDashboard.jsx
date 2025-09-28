@@ -31,18 +31,20 @@ const FinanceDashboard = () => {
             const currentMonth = now.getMonth() + 1;
             const currentYear = now.getFullYear();
 
-            // Fetch all payments, employees, farmer payment stats, and salary records in parallel
-            const [paymentsRes, employeesRes, farmerStatsRes, salariesRes] = await Promise.all([
+            // Fetch all payments, employees, farmer payment stats, salary records, and other expenses in parallel
+            const [paymentsRes, employeesRes, farmerStatsRes, salariesRes, otherExpensesRes] = await Promise.all([
                 fetch('/api/payments', { credentials: 'include' }),
                 fetch('/api/employees', { credentials: 'include' }),
                 fetch('/api/farmer-payments/statistics', { credentials: 'include' }),
-                fetch(`/api/salaries?month=${currentMonth}&year=${currentYear}`, { credentials: 'include' })
+                fetch(`/api/salaries?month=${currentMonth}&year=${currentYear}`, { credentials: 'include' }),
+                fetch('/api/expenses/stats', { credentials: 'include' })
             ]);
 
             let payments = [];
             let employees = [];
             let farmerStats = {};
             let salaries = [];
+            let otherExpensesStats = {};
 
             if (paymentsRes && paymentsRes.ok) {
                 const data = await paymentsRes.json();
@@ -60,6 +62,10 @@ const FinanceDashboard = () => {
                 const data = await salariesRes.json();
                 salaries = data.data || [];
             }
+            if (otherExpensesRes && otherExpensesRes.ok) {
+                const data = await otherExpensesRes.json();
+                otherExpensesStats = data.data || {};
+            }
 
             // Calculate stats
             const totalSales = payments.length;
@@ -67,7 +73,8 @@ const FinanceDashboard = () => {
             // Sum netSalary from salary records for the current month/year
             const totalSalary = salaries.reduce((sum, s) => sum + (s.netSalary || 0), 0);
             const totalFarmerPayments = farmerStats.totalAmount || 0;
-            const totalExpense = totalSalary + totalFarmerPayments;
+            const totalOtherExpenses = otherExpensesStats.totalAmount || 0;
+            const totalExpense = totalSalary + totalFarmerPayments + totalOtherExpenses;
             const totalProfit = totalMonthlyFlow - totalExpense;
 
             // Format currency
@@ -127,9 +134,9 @@ const FinanceDashboard = () => {
             const chart2 = {
                 title: 'Monthly Expense Breakdown',
                 data: {
-                    labels: ['Salary', 'Farmer Payments'],
+                    labels: ['Salary', 'Farmer Payments', 'Other Expenses'],
                     datasets: [{
-                        data: [totalSalary, totalFarmerPayments],
+                        data: [totalSalary, totalFarmerPayments, totalOtherExpenses],
                         backgroundColor: [
                             '#F59E0B', // yellow-500
                             '#8B5CF6', // purple-500
