@@ -241,8 +241,7 @@ export const generateDeliveryTaskReportPDF = async (tasks, filters = {}) => {
     // Save the PDF
     const currentDate = new Date().toISOString().split('T')[0];
     const fileName = `Delivery_Task_Report_${currentDate}.pdf`;
-    const pdfBlob = doc.output('bloburl');
-    window.open(pdfBlob);
+    doc.save(fileName);
     
     return { success: true, fileName };
   } catch (error) {

@@ -278,9 +278,7 @@ export const generateSalarySlipPDF = async (salaryData, employeeData) => {
     
     // Save the PDF
     const fileName = `Salary_Slip_${salaryData.employeeId}_${salaryData.month}_${salaryData.year}.pdf`;
-    const pdfBlob = doc.output('bloburl');
-    window.open(pdfBlob);
-    //doc.save(fileName);
+    doc.save(fileName);
     
     return { success: true, fileName };
   } catch (error) {
