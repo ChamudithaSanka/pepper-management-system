@@ -98,7 +98,8 @@ const RawMaterialManagement = () => {
         return Object.keys(errors).length === 0;
     };
 
-    // Prevent negative values from being entered
+
+    // Prevent 0 or negative values from being entered
     const handleKeyDown = (e) => {
         // Allow: backspace, delete, tab, escape, enter
         if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
@@ -111,17 +112,36 @@ const RawMaterialManagement = () => {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
             return;
         }
-        // Ensure that it is a number and stop the keypress
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110) {
+        // Prevent 0, negative, and non-numeric input
+        if (
+            (e.key === '0' && (!e.target.value || e.target.selectionStart === 0)) ||
+            (e.key === '-') ||
+            (e.shiftKey || (e.keyCode < 49 || e.keyCode > 57)) && (e.keyCode < 97 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
+        ) {
             e.preventDefault();
         }
     };
 
     const handlePaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
-        if (isNaN(parseFloat(pastedText)) || parseFloat(pastedText) < 0) {
+        const num = parseFloat(pastedText);
+        if (isNaN(num) || num <= 0) {
             e.preventDefault();
         }
+    };
+
+    // OnChange handler to block 0 or negative values
+    const handlePositiveNumberChange = (e, stateSetter, field, isEdit = false) => {
+        let value = e.target.value;
+        // Remove leading zeros
+        if (value.length > 1 && value[0] === '0' && value[1] !== '.') {
+            value = value.replace(/^0+/, '');
+        }
+        // Block 0 or negative
+        if (parseFloat(value) <= 0 || value === '0') {
+            value = '';
+        }
+        stateSetter(prev => ({ ...prev, [field]: value }));
     };
 
     const handleOrderClick = (material) => {
@@ -508,24 +528,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Enter quantity in kg"
                                     value={newMaterial.quantity}
-                                    onChange={(e) => {
-                                        setNewMaterial({...newMaterial, quantity: e.target.value});
-                                        validateField('quantity', e.target.value, false);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'quantity')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        newMaterialErrors.quantity 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {newMaterialErrors.quantity && (
-                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.quantity}</p>
-                                )}
                             </div>
                             
                             <div>
@@ -536,24 +546,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock level to trigger reorder"
                                     value={newMaterial.reorderLevel}
-                                    onChange={(e) => {
-                                        setNewMaterial({...newMaterial, reorderLevel: e.target.value});
-                                        validateField('reorderLevel', e.target.value, false);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'reorderLevel')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        newMaterialErrors.reorderLevel 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {newMaterialErrors.reorderLevel && (
-                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.reorderLevel}</p>
-                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     Alert will show when stock falls below this level
                                 </p>
@@ -567,24 +567,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock that cannot be used"
                                     value={newMaterial.safetyStock}
-                                    onChange={(e) => {
-                                        setNewMaterial({...newMaterial, safetyStock: e.target.value});
-                                        validateField('safetyStock', e.target.value, false);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'safetyStock')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        newMaterialErrors.safetyStock 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {newMaterialErrors.safetyStock && (
-                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.safetyStock}</p>
-                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     This amount cannot be used for production to prevent stock from reaching zero
                                 </p>
@@ -680,24 +670,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Enter quantity in kg"
                                     value={editMaterial.quantity}
-                                    onChange={(e) => {
-                                        setEditMaterial({...editMaterial, quantity: e.target.value});
-                                        validateField('quantity', e.target.value, true);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'quantity', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        editMaterialErrors.quantity 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {editMaterialErrors.quantity && (
-                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.quantity}</p>
-                                )}
                             </div>
                             
                             <div>
@@ -708,24 +688,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock level to trigger reorder"
                                     value={editMaterial.reorderLevel}
-                                    onChange={(e) => {
-                                        setEditMaterial({...editMaterial, reorderLevel: e.target.value});
-                                        validateField('reorderLevel', e.target.value, true);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'reorderLevel', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        editMaterialErrors.reorderLevel 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {editMaterialErrors.reorderLevel && (
-                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.reorderLevel}</p>
-                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     Alert will show when stock falls below this level
                                 </p>
@@ -739,24 +709,14 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock that cannot be used"
                                     value={editMaterial.safetyStock}
-                                    onChange={(e) => {
-                                        setEditMaterial({...editMaterial, safetyStock: e.target.value});
-                                        validateField('safetyStock', e.target.value, true);
-                                    }}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'safetyStock', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="0"
+                                    min="1"
                                     step="0.1"
-                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
-                                        editMaterialErrors.safetyStock 
-                                            ? 'border-red-300 focus:ring-red-500' 
-                                            : 'border-gray-300 focus:ring-green-500'
-                                    }`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
-                                {editMaterialErrors.safetyStock && (
-                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.safetyStock}</p>
-                                )}
                                 <p className="text-xs text-gray-500 mt-1">
                                     This amount cannot be used for production to prevent stock from reaching zero
                                 </p>
