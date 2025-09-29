@@ -64,7 +64,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-amber-100 text-gray-800 shadow-lg border-b border-gray-200">
+    <header className="bg-white text-gray-800 shadow-lg border-b border-gray-200">
       {/* Top Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">

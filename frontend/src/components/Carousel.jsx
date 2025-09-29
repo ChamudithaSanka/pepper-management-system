@@ -45,7 +45,7 @@ const Carousel = () => {
 
   return (
     <div className="flex justify-center px-4 mt-6 md:mt-8">
-      <div className="relative w-full max-w-6xl h-96 md:h-96 lg:h-[480px] overflow-hidden">
+      <div className="relative w-full max-w-6xl h-96 md:h-96 lg:h-[480px] overflow-hidden rounded-xl shadow-lg">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -55,11 +55,11 @@ const Carousel = () => {
             index < currentSlide ? '-translate-x-full' : 'translate-x-full'
           }`}
         >
-          <div className="h-full w-full relative">
+          <div className="h-full w-full relative rounded-xl overflow-hidden">
             {/* subtle gradient to improve text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-xl" />
 
-            <img src={slide.image} alt={slide.title} className="w-full h-full object-cover object-center" />
+            <img src={slide.image} alt={slide.title} className="w-full h-full object-cover object-center rounded-xl" />
 
             {/* Overlay content pinned to bottom-center */}
             <div className="absolute left-1/2 bottom-6 transform -translate-x-1/2 flex flex-col items-center text-center px-4">
