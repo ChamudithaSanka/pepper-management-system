@@ -42,7 +42,7 @@ const customerSchema = new mongoose.Schema({
         },
         zipCode: {
             type: String,
-            required: true,
+            // required: true,
             trim: true,
             maxlength: [20, 'Zip code cannot exceed 20 characters']
         },

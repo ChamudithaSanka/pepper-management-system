@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const OtherExpensesView = () => {
-    // Prevent 0 or negative values from being entered for amount
+    // Prevent negative values from being entered for amount
     const handleAmountKeyDown = (e) => {
         // Allow: backspace, delete, tab, escape, enter
         if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
@@ -14,11 +14,10 @@ const OtherExpensesView = () => {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
             return;
         }
-        // Prevent 0, negative, and non-numeric input
+        // Prevent negative and non-numeric input (allow 0)
         if (
-            (e.key === '0' && (!e.target.value || e.target.selectionStart === 0)) ||
             (e.key === '-') ||
-            (e.shiftKey || (e.keyCode < 49 || e.keyCode > 57)) && (e.keyCode < 97 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
+            (e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
         ) {
             e.preventDefault();
         }
@@ -27,20 +26,20 @@ const OtherExpensesView = () => {
     const handleAmountPaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
         const num = parseFloat(pastedText);
-        if (isNaN(num) || num <= 0) {
+        if (isNaN(num) || num < 0) {
             e.preventDefault();
         }
     };
 
-    // OnChange handler to block 0 or negative values for amount
+    // OnChange handler to block negative values for amount (allow 0)
     const handleAmountChange = (e, stateSetter, stateObj, field) => {
         let value = e.target.value;
-        // Remove leading zeros
+        // Remove leading zeros (except for single 0 or 0.xx)
         if (value.length > 1 && value[0] === '0' && value[1] !== '.') {
             value = value.replace(/^0+/, '');
         }
-        // Block 0 or negative
-        if (parseFloat(value) <= 0 || value === '0') {
+        // Block negative values only
+        if (parseFloat(value) < 0) {
             value = '';
         }
         stateSetter({ ...stateObj, [field]: value });
@@ -433,7 +432,7 @@ const OtherExpensesView = () => {
                                     onPaste={handleAmountPaste}
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     step="0.01"
-                                    min="0.01"
+                                    min="0"
                                     required
                                 />
                             </div>
@@ -583,7 +582,7 @@ const OtherExpensesView = () => {
                                     onPaste={handleAmountPaste}
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     step="0.01"
-                                    min="0.01"
+                                    min="0"
                                     required
                                 />
                             </div>

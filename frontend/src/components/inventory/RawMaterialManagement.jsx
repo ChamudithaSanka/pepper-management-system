@@ -99,7 +99,7 @@ const RawMaterialManagement = () => {
     };
 
 
-    // Prevent 0 or negative values from being entered
+    // Prevent negative values from being entered
     const handleKeyDown = (e) => {
         // Allow: backspace, delete, tab, escape, enter
         if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
@@ -112,11 +112,10 @@ const RawMaterialManagement = () => {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
             return;
         }
-        // Prevent 0, negative, and non-numeric input
+        // Prevent negative and non-numeric input (allow 0)
         if (
-            (e.key === '0' && (!e.target.value || e.target.selectionStart === 0)) ||
             (e.key === '-') ||
-            (e.shiftKey || (e.keyCode < 49 || e.keyCode > 57)) && (e.keyCode < 97 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
+            (e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
         ) {
             e.preventDefault();
         }
@@ -125,20 +124,20 @@ const RawMaterialManagement = () => {
     const handlePaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
         const num = parseFloat(pastedText);
-        if (isNaN(num) || num <= 0) {
+        if (isNaN(num) || num < 0) {
             e.preventDefault();
         }
     };
 
-    // OnChange handler to block 0 or negative values
+    // OnChange handler to block negative values (allow 0)
     const handlePositiveNumberChange = (e, stateSetter, field, isEdit = false) => {
         let value = e.target.value;
-        // Remove leading zeros
+        // Remove leading zeros (except for single 0 or 0.xx)
         if (value.length > 1 && value[0] === '0' && value[1] !== '.') {
             value = value.replace(/^0+/, '');
         }
-        // Block 0 or negative
-        if (parseFloat(value) <= 0 || value === '0') {
+        // Block negative values only
+        if (parseFloat(value) < 0) {
             value = '';
         }
         stateSetter(prev => ({ ...prev, [field]: value }));
@@ -159,6 +158,39 @@ const RawMaterialManagement = () => {
         });
         setEditMaterialErrors({});
         setShowEditModal(true);
+    };
+
+    const handleDeleteMaterial = async (materialId, materialType) => {
+        if (!window.confirm(`Are you sure you want to delete the ${materialType} raw material? This action cannot be undone.`)) {
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch(`/api/raw-materials/${materialId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                setSuccessMessage('Raw material deleted successfully!');
+                fetchRawMaterials();
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            } else {
+                const data = await response.json();
+                setError(data.message || 'Failed to delete raw material');
+            }
+        } catch (error) {
+            console.error('Error deleting raw material:', error);
+            setError('Error deleting raw material');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleAddMaterial = async (e) => {
@@ -443,6 +475,12 @@ const RawMaterialManagement = () => {
                                                     >
                                                         Edit
                                                     </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteMaterial(material._id, material.type)} 
+                                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -531,7 +569,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'quantity')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
@@ -549,7 +587,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'reorderLevel')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
@@ -570,7 +608,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setNewMaterial, 'safetyStock')}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
@@ -673,7 +711,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'quantity', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
@@ -691,7 +729,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'reorderLevel', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
@@ -712,7 +750,7 @@ const RawMaterialManagement = () => {
                                     onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'safetyStock', true)}
                                     onKeyDown={handleKeyDown}
                                     onPaste={handlePaste}
-                                    min="1"
+                                    min="0"
                                     step="0.1"
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required

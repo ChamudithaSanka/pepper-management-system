@@ -766,7 +766,7 @@ const ProductManagement = () => {
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Category</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Size</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Unit</th>
-                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Price ($)</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Price (LKR)</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Description</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Current Stock</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Safety Stock</th>
@@ -805,7 +805,7 @@ const ProductManagement = () => {
                                         </td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{product.size || 'N/A'}</td>
                                         <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{product.unit}</td>
-                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${product.price.toFixed(2)}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">LKR {product.price.toFixed(2)}</td>
                                         <td className="px-2 py-2 text-sm text-gray-500">
                                             <div className="max-w-xs truncate">
                                                 {product.description || 'No description'}
