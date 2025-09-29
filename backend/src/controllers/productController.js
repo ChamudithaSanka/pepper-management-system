@@ -16,8 +16,11 @@ const deductRawMaterials = async (recipe, unitsAdded) => {
         if (!rawMaterial) {
             throw new Error(`Raw material ${item.type} not found`);
         }
-        if (rawMaterial.quantityKg < totalDeductKg) {
-            throw new Error(`Insufficient ${item.type} stock. Required: ${totalDeductKg}kg, Available: ${rawMaterial.quantityKg}kg`);
+        
+        // Check if deducting would go below safety stock
+        const availableForDeduction = rawMaterial.quantityKg - rawMaterial.safetyStockKg;
+        if (availableForDeduction < totalDeductKg) {
+            throw new Error(`Cannot deduct ${totalDeductKg}kg of ${item.type}. Would go below safety stock of ${rawMaterial.safetyStockKg}kg. Available for deduction: ${availableForDeduction}kg`);
         }
 
         rawMaterial.quantityKg -= totalDeductKg;
