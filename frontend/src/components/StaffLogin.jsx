@@ -127,12 +127,12 @@ const StaffLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         {/* Logo and Title */}
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <div className="text-4xl font-bold text-green-600 mb-2">
+            <div className="text-4xl font-bold text-orange-600 mb-2">
               Ceylon<span className="text-gray-900">Pepper</span>
             </div>
           </Link>
@@ -141,9 +141,9 @@ const StaffLogin = () => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {error && <div className="text-red-600 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">{error}</div>}
-          {success && <div className="text-green-600 mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">Login successful!</div>}
+        <div className="bg-gradient-to-br from-white to-orange-50 rounded-lg shadow-lg p-8 border border-orange-200">
+          {error && <div className="text-red-600 mb-4 p-3 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg shadow-sm">{error}</div>}
+          {success && <div className="text-orange-600 mb-4 p-3 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg shadow-sm">Login successful!</div>}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
@@ -157,7 +157,7 @@ const StaffLogin = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                className="w-full px-4 py-3 border border-orange-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-200 transition-all duration-200 shadow-sm"
                 placeholder="Enter your staff email"
                 autoComplete="email"
               />
@@ -176,7 +176,7 @@ const StaffLogin = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-orange-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-200 transition-all duration-200 shadow-sm"
                   placeholder="Enter your password"
                   autoComplete="current-password"
                 />
@@ -204,7 +204,7 @@ const StaffLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -223,7 +223,7 @@ const StaffLogin = () => {
             {/* Customer Login Link */}
             <div className="text-center">
               <span className="text-gray-600">Are you a customer? </span>
-              <Link to="/login" className="text-green-600 hover:text-green-700 font-medium">
+              <Link to="/login" className="text-orange-600 hover:text-orange-700 font-medium">
                 Customer Login
               </Link>
             </div>
@@ -232,7 +232,7 @@ const StaffLogin = () => {
 
         {/* Back to Home */}
         <div className="text-center">
-          <Link to="/" className="text-gray-600 hover:text-green-600 transition-colors inline-flex items-center">
+          <Link to="/" className="text-gray-600 hover:text-orange-600 transition-colors inline-flex items-center">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

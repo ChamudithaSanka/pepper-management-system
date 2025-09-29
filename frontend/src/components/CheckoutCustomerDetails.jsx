@@ -295,7 +295,7 @@ const CheckoutCustomerDetails = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white text-gray-900">
+            <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100 text-gray-900">
                 <Header />
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-xl">Loading checkout details...</div>
@@ -307,12 +307,12 @@ const CheckoutCustomerDetails = () => {
 
     if (error && (!cart || cart.items.length === 0)) {
         return (
-            <div className="min-h-screen bg-white text-gray-900">
+            <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100 text-gray-900">
                 <Header />
                 <div className="container mx-auto px-4 py-8">
-                    <div className="text-center">
+                    <div className="text-center bg-gradient-to-br from-white to-red-50 rounded-xl shadow-lg p-8 border border-red-200">
                         <div className="text-xl text-red-600 mb-4">{error}</div>
-                        <Link to="/shop" className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors">
+                        <Link to="/shop" className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                             Continue Shopping
                         </Link>
                     </div>
@@ -324,16 +324,16 @@ const CheckoutCustomerDetails = () => {
 
     return (
         <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
-        <div className="min-h-screen bg-white text-gray-900">
+        <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100 text-gray-900">
             <Header />
             
             <div className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}
-                <div className="mb-8">
+                <div className="mb-8 bg-gradient-to-r from-white to-green-50 rounded-lg shadow-md p-4 border border-green-200">
                     <nav className="text-sm">
-                        <Link to="/cart" className="text-green-600 hover:text-green-700">Cart</Link>
+                        <Link to="/cart" className="text-green-600 hover:text-green-700 font-medium">Cart</Link>
                         <span className="mx-2 text-gray-500">→</span>
-                        <span className="text-gray-900">Customer Details</span>
+                        <span className="text-gray-900 font-medium">Customer Details</span>
                         <span className="mx-2 text-gray-500">→</span>
                         <span className="text-gray-500">Payment</span>
                     </nav>
@@ -342,18 +342,18 @@ const CheckoutCustomerDetails = () => {
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Customer Details Form */}
                     <div className="lg:col-span-2">
-                        <div className="bg-gray-50 rounded-lg shadow-lg border border-gray-200 p-6">
+                        <div className="bg-gradient-to-br from-white to-green-50 rounded-lg shadow-lg border border-green-200 p-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900">Customer Details</h2>
                             
                             {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+                                <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 shadow-sm">
                                     {error}
                                 </div>
                             )}
 
                             <div className="space-y-6">
                                 {/* Name Field */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-blue-50 rounded-lg border border-blue-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">Full Name</label>
                                     <input
                                         type="text"
@@ -361,13 +361,13 @@ const CheckoutCustomerDetails = () => {
                                         onChange={(e) => handleInputChange('name', e.target.value)}
                                         onBlur={() => saveField('name')}
                                         maxLength="100"
-                                        className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                        className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                         placeholder="Enter your full name"
                                     />
                                 </div>
 
                                 {/* Email Field */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-blue-50 rounded-lg border border-blue-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">Email Address</label>
                                     <input
                                         type="email"
@@ -375,13 +375,13 @@ const CheckoutCustomerDetails = () => {
                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                         onBlur={() => saveField('email')}
                                         maxLength="255"
-                                        className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                        className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                         placeholder="Enter your email address"
                                     />
                                 </div>
 
                                 {/* Phone Field */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-blue-50 rounded-lg border border-blue-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">Phone Number</label>
                                     <input
                                         type="tel"
@@ -389,13 +389,13 @@ const CheckoutCustomerDetails = () => {
                                         onChange={(e) => handleInputChange('phone', e.target.value)}
                                         onBlur={() => saveField('phone')}
                                         maxLength="10"
-                                        className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                        className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                         placeholder="Enter your phone number"
                                     />
                                 </div>
 
                                 {/* Street Address Field with Google Places Autocomplete */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-green-50 rounded-lg border border-green-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">Street Address</label>
                                         <Autocomplete
                                             onLoad={(ref) => { autocompleteRef.current = ref; }}
@@ -443,14 +443,14 @@ const CheckoutCustomerDetails = () => {
                                                 onChange={(e) => handleInputChange('street', e.target.value)}
                                                 onBlur={() => saveField('street')}
                                                 maxLength="200"
-                                                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                                className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                                 placeholder="Start typing your address..."
                                             />
                                         </Autocomplete>
                                 </div>
 
                                 {/* City Field */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-green-50 rounded-lg border border-green-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">City</label>
                                     <input
                                         type="text"
@@ -458,13 +458,13 @@ const CheckoutCustomerDetails = () => {
                                         onChange={(e) => handleInputChange('city', e.target.value)}
                                         onBlur={() => saveField('city')}
                                         maxLength="100"
-                                        className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                        className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                         placeholder="Enter city"
                                     />
                                 </div>
 
                                 {/* Zip Code Field */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-white to-green-50 rounded-lg border border-green-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-2 text-gray-700">Zip Code</label>
                                     <input
                                         type="text"
@@ -472,26 +472,26 @@ const CheckoutCustomerDetails = () => {
                                         onChange={(e) => handleInputChange('zipCode', e.target.value)}
                                         onBlur={() => saveField('zipCode')}
                                         maxLength="5"
-                                        className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                                        className="w-full bg-white border border-green-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                                         placeholder="Enter zip code"
                                     />
                                 </div>
 
                                 {/* Delivery Location */}
-                                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 shadow-sm">
                                     <label className="block text-sm font-medium mb-4 text-gray-700">Delivery Location</label>
                                     {formData.location.address || (formData.deliveryAddress.street && formData.deliveryAddress.city) ? (
-                                        <div className="text-gray-600 mb-4">
+                                        <div className="text-gray-600 mb-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
                                             📍 {formData.location.address || `${formData.deliveryAddress.street}, ${formData.deliveryAddress.city}${formData.deliveryAddress.zipCode ? ', ' + formData.deliveryAddress.zipCode : ''}`}
                                         </div>
                                     ) : (
-                                        <div className="text-yellow-600 mb-4">
+                                        <div className="text-yellow-700 mb-4 bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200 shadow-sm">
                                             ⚠️ Please select delivery location on map
                                         </div>
                                     )}
                                     
                                     {/* Map Section */}
-                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div className="bg-gradient-to-br from-white to-blue-50 rounded-lg p-4 border border-blue-200 shadow-sm">
                                         <h3 className="text-lg font-bold mb-4 text-gray-900">Select Delivery Location</h3>
                                         <GoogleMapSelector
                                             onLocationSelect={handleLocationSelect}
@@ -506,44 +506,44 @@ const CheckoutCustomerDetails = () => {
 
                     {/* Order Summary Sidebar */}
                     <div className="lg:col-span-1">
-                        <div className="bg-gray-50 rounded-lg shadow-lg border border-gray-200 p-6 sticky top-4">
+                        <div className="bg-gradient-to-br from-white to-green-50 rounded-lg shadow-lg border border-green-200 p-6 sticky top-4">
                             <h3 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h3>
                             
                             {cart && cart.items && cart.items.length > 0 && (
                                 <>
                                     <div className="space-y-3 mb-6">
                                         {cart.items.map((item, index) => (
-                                            <div key={index} className="flex items-center justify-between py-2 border-b border-gray-300">
+                                            <div key={index} className="flex items-center justify-between py-2 border-b border-green-200 bg-gradient-to-r from-white to-blue-50 rounded-lg px-3 shadow-sm">
                                                 <div className="flex-1">
                                                     <div className="font-medium text-gray-900">{item.productId.productName}</div>
                                                     <div className="text-gray-600">Qty: {item.quantity}</div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</div>
+                                                    <div className="text-gray-900 font-semibold">LKR {(item.price * item.quantity).toFixed(2)}</div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="space-y-2 mb-6">
+                                    <div className="space-y-2 mb-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 border border-blue-200 shadow-sm">
                                         <div className="flex justify-between text-gray-700">
                                             <span>Subtotal ({cart.totalItems} items):</span>
-                                            <span>LKR {cart.totalPrice.toFixed(2)}</span>
+                                            <span className="font-semibold">LKR {cart.totalPrice.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-gray-700">
                                             <span>Delivery Fee:</span>
-                                            <span className="text-green-600 font-medium">FREE</span>
+                                            <span className="text-green-600 font-bold">FREE</span>
                                         </div>
-                                        <hr className="border-gray-300" />
+                                        <hr className="border-green-300" />
                                         <div className="flex justify-between text-lg font-bold text-gray-900">
                                             <span>Total:</span>
-                                            <span>LKR {cart.totalPrice.toFixed(2)}</span>
+                                            <span className="text-green-600">LKR {cart.totalPrice.toFixed(2)}</span>
                                         </div>
                                     </div>
 
                                     <button
                                         onClick={proceedToPayment}
-                                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+                                        className="w-full bg-green-600 text-white font-bold py-3 rounded-lg transform hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg"
                                     >
                                         Continue to Payment
                                     </button>

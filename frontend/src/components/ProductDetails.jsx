@@ -89,7 +89,7 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-amber-50 text-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 text-gray-900">
         <Header />
         <div className="max-w-4xl mx-auto px-6 py-24">
           <div className="text-center">
@@ -104,7 +104,7 @@ const ProductDetails = () => {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-amber-50 text-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 text-gray-900">
         <Header />
         <div className="max-w-4xl mx-auto px-6 py-24">
           <div className="text-center">
@@ -113,7 +113,7 @@ const ProductDetails = () => {
             <p className="text-gray-700 mb-8">{error}</p>
             <Link
               to="/shop"
-              className="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="inline-block bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
             >
               Back to Shop
             </Link>
@@ -125,7 +125,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 text-gray-900">
       <Header />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
@@ -143,7 +143,7 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Product Image & Info */}
           <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-10 text-center">
+            <div className="bg-gradient-to-br from-white to-green-50 rounded-xl shadow-lg border border-green-200 p-10 text-center">
               {product.imageUrl ? (
                 <img src={product.imageUrl} alt={product.productName} className="w-40 h-40 object-cover rounded-lg mx-auto mb-4" />
               ) : (
@@ -154,8 +154,8 @@ const ProductDetails = () => {
               <p className="text-gray-500">Product Image</p>
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4 text-center border border-green-100">
-              <div className="text-2xl font-bold text-green-600">Rs. {product.price}</div>
+            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 text-center border border-green-200 shadow-sm">
+              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Rs. {product.price}</div>
               <div className="text-gray-600 text-sm">Per {product.unit}</div>
             </div>
           </div>
@@ -164,7 +164,7 @@ const ProductDetails = () => {
           <div className="space-y-8">
             {/* Category Badge */}
             <div>
-              <span className="inline-block bg-green-600 text-white text-sm px-3 py-1 rounded-full">
+              <span className="inline-block bg-gradient-to-r from-green-100 to-green-200 text-green-700 text-sm px-3 py-1 rounded-full shadow-sm">
                 {product.category}
               </span>
             </div>
@@ -192,7 +192,7 @@ const ProductDetails = () => {
             )}
 
             {/* Quantity and Add to Cart */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-gradient-to-br from-white to-green-50 rounded-lg border border-green-200 shadow-md p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Add to Cart</h3>
 
               <div className="flex items-center space-x-4 mb-6">
@@ -224,7 +224,7 @@ const ProductDetails = () => {
 
                 <div className="flex-1">
                   <div className="text-gray-500 text-sm mb-2">Total Price</div>
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
                     Rs. {(product.price * quantity).toFixed(2)}
                   </div>
                 </div>
@@ -234,14 +234,14 @@ const ProductDetails = () => {
                 <button
                   onClick={addToCart}
                   disabled={addingToCart || product.availableStock === 0}
-                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-green-300 disabled:to-green-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   {addingToCart ? 'Adding to Cart...' : 'Add to Cart'}
                 </button>
 
                 <Link
                   to="/shop"
-                  className="bg-green-100 hover:bg-green-200 text-green-700 py-3 px-6 rounded-lg font-medium transition-colors text-center border border-green-200"
+                  className="bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-700 py-3 px-6 rounded-lg font-medium transition-all duration-200 text-center border border-blue-200 shadow-sm hover:shadow-md"
                 >
                   Continue Shopping
                 </Link>

@@ -1,12 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import Carousel from './Carousel';
 
 const Homepage = () => {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch featured products from database
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/available?limit=3', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setFeaturedProducts(data.data);
+        } else {
+          setError(data.message || 'Failed to fetch products');
+        }
+      } catch (error) {
+        setError('Error fetching featured products');
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
+  // Helper function to get image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return '/images/placeholder-product.jpg'; // Fallback image
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) return imageUrl;
+    return `/uploads/products/${imageUrl}`;
+  };
   return (
-    <div className="min-h-screen bg-cyan-00">
+    <div className="min-h-screen bg-green-100">
       <Header />
       
       {/* Hero Carousel Section */}
@@ -15,7 +52,7 @@ const Homepage = () => {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-green-100">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Welcome to <span className="text-green-600">Ceylon Pepper</span>
@@ -31,64 +68,55 @@ const Homepage = () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Featured <span className="text-green-600">Products</span>
           </h2>
           
-          <div className="grid grid-cols-3 gap-8">
-            {/* Product 1 */}
-            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
-              <div className="h-48 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500 text-lg font-medium">Product Image</span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Premium Black Pepper</h3>
-                <p className="text-gray-600 mb-4">Hand-picked Ceylon black pepper with intense flavor and aroma.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-green-600">$24.99</span>
-                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="text-xl text-gray-600">Loading featured products...</div>
             </div>
-
-            {/* Product 2 */}
-            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
-              <div className="h-48 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500 text-lg font-medium">Product Image</span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Fresh Green Pepper</h3>
-                <p className="text-gray-600 mb-4">Aromatic green pepper corns perfect for gourmet cooking.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-green-600">$19.99</span>
-                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
+          ) : error ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="text-xl text-red-600">Error: {error}</div>
             </div>
-
-            {/* Product 3 */}
-            <div className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
-              <div className="h-48 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500 text-lg font-medium">Product Image</span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Pepper Powder</h3>
-                <p className="text-gray-600 mb-4">Finely ground Ceylon pepper powder for everyday cooking.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-green-600">$15.99</span>
-                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="text-xl text-gray-600">No featured products available</div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-8">
+              {featuredProducts.map((product) => (
+                <div key={product._id} className="bg-green-100 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-200">
+                  <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={getImageUrl(product.imageUrl)} 
+                      alt={product.productName}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = '/images/placeholder-product.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.productName}</h3>
+                    <p className="text-gray-600 mb-4">{product.description || 'Premium quality Ceylon pepper product.'}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-green-600">${product.price}</span>
+                      <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        Add to Cart
+                      </button>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-500">
+                      {product.availableStock} {product.unit} available
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Link to="/shop" className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors inline-block">

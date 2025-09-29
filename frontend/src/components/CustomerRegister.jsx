@@ -206,7 +206,7 @@ const CustomerRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         {/* Logo and Title */}
         <div className="text-center">
@@ -219,9 +219,9 @@ const CustomerRegister = () => {
         </div>
 
         {/* Registration Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {error && <div className="text-red-600 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">{error}</div>}
-          {success && <div className="text-green-600 mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">Account created successfully!</div>}
+        <div className="bg-gradient-to-br from-white to-green-50 rounded-lg shadow-lg p-8 border border-green-200">
+          {error && <div className="text-red-600 mb-4 p-3 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg shadow-sm">{error}</div>}
+          {success && <div className="text-green-600 mb-4 p-3 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg shadow-sm">Account created successfully!</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name Field */}
             <div>
@@ -235,7 +235,7 @@ const CustomerRegister = () => {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                 placeholder="Enter your full name"
                 autoComplete="name"
               />
@@ -253,7 +253,7 @@ const CustomerRegister = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                 placeholder="Enter your email"
                 autoComplete="email"
               />
@@ -271,7 +271,7 @@ const CustomerRegister = () => {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                 placeholder="Enter your phone number"
                 autoComplete="tel"
               />
@@ -295,7 +295,7 @@ const CustomerRegister = () => {
                   required
                   value={formData.street}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                   placeholder="Enter street address"
                   autoComplete="street-address"
                 />
@@ -314,7 +314,7 @@ const CustomerRegister = () => {
                     required
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                    className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                     placeholder="Enter city"
                     autoComplete="address-level2"
                   />
@@ -330,7 +330,7 @@ const CustomerRegister = () => {
                     required
                     value={formData.zipCode}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                    className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                     placeholder="Enter zip code"
                     autoComplete="postal-code"
                   />
@@ -351,7 +351,7 @@ const CustomerRegister = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                   placeholder="Create a password"
                   autoComplete="new-password"
                 />
@@ -387,7 +387,7 @@ const CustomerRegister = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                   placeholder="Confirm your password"
                   autoComplete="new-password"
                 />
@@ -418,7 +418,7 @@ const CustomerRegister = () => {
                 type="checkbox"
                 checked={agreeToTerms}
                 onChange={(e) => setAgreeToTerms(e.target.checked)}
-                className="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-600 focus:ring-2 mt-1"
+                className="h-4 w-4 text-green-600 border-green-300 rounded focus:ring-green-600 focus:ring-2 mt-1 shadow-sm"
               />
               <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-600">
                 I agree to the{' '}
@@ -437,7 +437,7 @@ const CustomerRegister = () => {
               <button
                 type="submit"
                 disabled={!agreeToTerms || loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>

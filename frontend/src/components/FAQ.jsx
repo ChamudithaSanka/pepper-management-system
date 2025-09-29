@@ -5,12 +5,12 @@ import { Link } from 'react-router-dom';
 
 const AccordionItem = ({ id, title, children, isOpen, onToggle }) => {
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-green-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200">
       <button
         aria-expanded={isOpen}
         aria-controls={`panel-${id}`}
         onClick={() => onToggle(id)}
-        className="w-full text-left px-6 py-4 bg-white flex items-center justify-between focus:outline-none"
+        className="w-full text-left px-6 py-4 bg-gradient-to-r from-white to-green-50 hover:from-green-50 hover:to-green-100 flex items-center justify-between focus:outline-none transition-all duration-200"
       >
         <span className="text-lg font-medium text-gray-900">{title}</span>
         <svg
@@ -26,7 +26,7 @@ const AccordionItem = ({ id, title, children, isOpen, onToggle }) => {
       <div
         id={`panel-${id}`}
         role="region"
-        className={`px-6 pb-4 bg-gray-50 transition-max-h duration-300 overflow-hidden ${isOpen ? 'max-h-96' : 'max-h-0'}`}
+        className={`px-6 pb-4 bg-gradient-to-r from-blue-50 to-green-50 transition-max-h duration-300 overflow-hidden ${isOpen ? 'max-h-96' : 'max-h-0'}`}
       >
         <div className="py-2 text-gray-700">
           {children}
@@ -44,11 +44,11 @@ const FAQ = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cyan-00">
+    <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 bg-gradient-to-br from-white to-green-50 rounded-xl shadow-lg p-8 border border-green-200">
           <h1 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h1>
           <p className="text-lg text-gray-600 mt-2">Find answers to common questions about our products, shipping, and policies.</p>
           <div className="mt-4">

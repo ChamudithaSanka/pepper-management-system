@@ -145,7 +145,7 @@ const ProductListing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 text-gray-900">
       <Header />
       
       <div className="container mx-auto px-6 py-8">
@@ -156,11 +156,11 @@ const ProductListing = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 mb-8">
+        <div className="bg-gradient-to-r from-white to-green-50 rounded-lg border border-green-200 p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-green-700 mb-2">
                 Search Products
               </label>
               <input
@@ -179,7 +179,7 @@ const ProductListing = () => {
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-green-700 mb-2">
                 Filter by Category
               </label>
               <select
@@ -200,7 +200,7 @@ const ProductListing = () => {
             <div className="flex items-end">
               <button
                 onClick={() => setFilters({ category: '', search: '', page: 1, limit: 12 })}
-                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors shadow-md"
               >
                 Clear Filters
               </button>
@@ -240,9 +240,9 @@ const ProductListing = () => {
             {products.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 {products.map((product) => (
-                  <div key={product._id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow border border-gray-200">
+                  <div key={product._id} className="bg-gradient-to-br from-white to-green-50 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-green-200 hover:border-green-300">
                     {/* Product Image (use uploaded image when available) */}
-                    <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
                       {product.imageUrl ? (
                         <img
                           src={getImageSrc(product.imageUrl)}
@@ -262,7 +262,7 @@ const ProductListing = () => {
                     {/* Product Details */}
                     <div className="p-6">
                       <div className="mb-2">
-                        <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                        <span className="inline-block bg-gradient-to-r from-green-100 to-green-200 text-green-700 text-xs px-3 py-1 rounded-full shadow-sm">
                           {product.category}
                         </span>
                       </div>
@@ -275,7 +275,7 @@ const ProductListing = () => {
 
                       <div className="mb-4">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-2xl font-bold text-green-600">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
                             LKR {product.price}
                           </span>
                           <span className="text-gray-600 text-sm">
@@ -283,11 +283,20 @@ const ProductListing = () => {
                           </span>
                         </div>
                         
+                        {/* Size Information */}
+                        {product.size && (
+                          <div className="mb-2">
+                            <span className="text-sm text-gray-700">
+                              Size: <span className="font-medium text-green-600">{product.size}</span>
+                            </span>
+                          </div>
+                        )}
+                        
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-gray-600">
                             Stock: {product.availableStock} {product.unit}
                           </span>
-                          <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                          <span className="px-2 py-1 rounded-full text-xs bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 shadow-sm">
                             Available
                           </span>
                         </div>
@@ -297,7 +306,7 @@ const ProductListing = () => {
                       <div className="flex gap-2">
                         <Link
                           to={`/product/${product._id}`}
-                          className="flex-1 border border-gray-300 hover:border-gray-400 bg-white text-gray-900 py-2 px-4 rounded-lg font-medium transition-colors text-center"
+                          className="flex-1 border border-blue-300 hover:border-blue-400 bg-gradient-to-r from-white to-blue-50 hover:to-blue-100 text-blue-700 py-2 px-4 rounded-lg font-medium transition-all duration-200 text-center shadow-sm"
                         >
                           View Details
                         </Link>
@@ -305,7 +314,7 @@ const ProductListing = () => {
                         <button
                           onClick={() => addToCart(product._id, product.productName)}
                           disabled={addingToCart[product._id]}
-                          className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-green-300 disabled:to-green-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                           {addingToCart[product._id] ? 'Adding...' : 'Add to Cart'}
                         </button>
