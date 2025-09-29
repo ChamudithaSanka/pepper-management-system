@@ -62,19 +62,103 @@ const CheckoutPayment = () => {
         }
     }, [location.state, navigate, paymentData.useSameAsDelivery]);
 
+    // Validation functions
+    const validateCardholderName = (value) => {
+        // Only allow letters, spaces, hyphens, and apostrophes
+        return value.replace(/[^a-zA-Z\s\-']/g, '');
+    };
+
+    const validateCardNumber = (value) => {
+        // Remove all non-digits
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        // Limit to 16 digits
+        const limitedDigits = digitsOnly.slice(0, 16);
+        
+        // Format with spaces every 4 digits
+        return limitedDigits.replace(/(\d{4})(?=\d)/g, '$1 ');
+    };
+
+    const validateCVV = (value) => {
+        // Only allow digits, limit to 4 characters
+        return value.replace(/\D/g, '').slice(0, 4);
+    };
+
+    const validateBillingStreet = (value) => {
+        // Allow letters, numbers, spaces, hyphens, apostrophes, periods, and common address characters
+        return value.replace(/[^a-zA-Z0-9\s\-'.,#/]/g, '');
+    };
+
+    const validateBillingCity = (value) => {
+        // Only allow letters, spaces, and hyphens
+        return value.replace(/[^a-zA-Z\s\-]/g, '');
+    };
+
+    const validateBillingState = (value) => {
+        // Only allow letters, spaces, and hyphens
+        return value.replace(/[^a-zA-Z\s\-]/g, '');
+    };
+
+    const validateBillingZipCode = (value) => {
+        // Only allow digits, limit to 5 characters
+        return value.replace(/\D/g, '').slice(0, 5);
+    };
+
+
     const handleInputChange = (section, field, value) => {
+        let validatedValue = value;
+
+        // Apply validation based on field type
+        if (section === 'cardDetails') {
+            switch (field) {
+                case 'cardholderName':
+                    validatedValue = validateCardholderName(value);
+                    break;
+                case 'cardNumber':
+                    validatedValue = validateCardNumber(value);
+                    break;
+                case 'cvv':
+                    validatedValue = validateCVV(value);
+                    break;
+                case 'expiryMonth':
+                case 'expiryYear':
+                    // No validation needed for dropdown fields
+                    validatedValue = value;
+                    break;
+                default:
+                    validatedValue = value;
+            }
+        } else if (section === 'billingAddress') {
+            switch (field) {
+                case 'street':
+                    validatedValue = validateBillingStreet(value);
+                    break;
+                case 'city':
+                    validatedValue = validateBillingCity(value);
+                    break;
+                case 'state':
+                    validatedValue = validateBillingState(value);
+                    break;
+                case 'zipCode':
+                    validatedValue = validateBillingZipCode(value);
+                    break;
+                default:
+                    validatedValue = value;
+            }
+        }
+
         if (section) {
             setPaymentData(prev => ({
                 ...prev,
                 [section]: {
                     ...prev[section],
-                    [field]: value
+                    [field]: validatedValue
                 }
             }));
         } else {
             setPaymentData(prev => ({
                 ...prev,
-                [field]: value
+                [field]: validatedValue
             }));
         }
     };
@@ -97,10 +181,10 @@ const CheckoutPayment = () => {
     };
 
     const handleCardNumberChange = (value) => {
-        const formattedValue = formatCardNumber(value);
+        const validatedValue = validateCardNumber(value);
         const cardType = detectCardType(value);
         
-        handleInputChange('cardDetails', 'cardNumber', formattedValue);
+        handleInputChange('cardDetails', 'cardNumber', validatedValue);
         handleInputChange('cardDetails', 'cardType', cardType);
     };
 
@@ -124,28 +208,16 @@ const CheckoutPayment = () => {
     };
 
     const validatePaymentData = () => {
+        // Basic validation - check if required fields are filled
         if (paymentData.paymentMethod === 'Credit Card' || paymentData.paymentMethod === 'Debit Card') {
-            if (!paymentData.cardDetails.cardholderName) {
-                setError('Cardholder name is required');
+            if (!paymentData.cardDetails.cardholderName || 
+                !paymentData.cardDetails.cardNumber || 
+                !paymentData.cardDetails.expiryMonth || 
+                !paymentData.cardDetails.expiryYear || 
+                !paymentData.cardDetails.cvv) {
+                setError('Please fill in all card details');
                 return false;
             }
-            if (!paymentData.cardDetails.cardNumber || paymentData.cardDetails.cardNumber.replace(/\s/g, '').length < 13) {
-                setError('Valid card number is required');
-                return false;
-            }
-            if (!paymentData.cardDetails.expiryMonth || !paymentData.cardDetails.expiryYear) {
-                setError('Card expiry date is required');
-                return false;
-            }
-            if (!paymentData.cardDetails.cvv || paymentData.cardDetails.cvv.length < 3) {
-                setError('Valid CVV is required');
-                return false;
-            }
-        }
-
-        if (!paymentData.useSameAsDelivery && !paymentData.billingAddress.fullAddress) {
-            setError('Billing address is required');
-            return false;
         }
 
         return true;
@@ -328,6 +400,7 @@ const CheckoutPayment = () => {
                                             type="text"
                                             value={paymentData.cardDetails.cardholderName}
                                             onChange={(e) => handleInputChange('cardDetails', 'cardholderName', e.target.value)}
+                                            maxLength="100"
                                             className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                             placeholder="Enter cardholder name"
                                         />
@@ -391,7 +464,7 @@ const CheckoutPayment = () => {
                                             <input
                                                 type="text"
                                                 value={paymentData.cardDetails.cvv}
-                                                onChange={(e) => handleInputChange('cardDetails', 'cvv', e.target.value.replace(/\D/g, ''))}
+                                                onChange={(e) => handleInputChange('cardDetails', 'cvv', e.target.value)}
                                                 className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 placeholder="123"
                                                 maxLength="4"
@@ -437,6 +510,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.street}
                                                     onChange={(e) => handleInputChange('billingAddress', 'street', e.target.value)}
+                                                    maxLength="200"
                                                     className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
@@ -446,6 +520,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.city}
                                                     onChange={(e) => handleInputChange('billingAddress', 'city', e.target.value)}
+                                                    maxLength="100"
                                                     className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
@@ -455,6 +530,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.state}
                                                     onChange={(e) => handleInputChange('billingAddress', 'state', e.target.value)}
+                                                    maxLength="100"
                                                     className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
@@ -464,6 +540,7 @@ const CheckoutPayment = () => {
                                                     type="text"
                                                     value={paymentData.billingAddress.zipCode}
                                                     onChange={(e) => handleInputChange('billingAddress', 'zipCode', e.target.value)}
+                                                    maxLength="5"
                                                     className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 />
                                             </div>
