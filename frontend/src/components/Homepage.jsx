@@ -15,7 +15,7 @@ const Homepage = () => {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-16 bg-teal-500">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Welcome to <span className="text-green-600">Ceylon Pepper</span>
