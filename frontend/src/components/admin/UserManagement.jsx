@@ -5,7 +5,6 @@ const UserManagement = ({ onStatsUpdate }) => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [newItem, setNewItem] = useState({
@@ -177,14 +176,8 @@ const UserManagement = ({ onStatsUpdate }) => {
         }
     };
 
-    // Sort by userId ascending
-    const filteredUsers = users
-        .filter(user =>
-            user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.role?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .sort((a, b) => (a.userId ?? 0) - (b.userId ?? 0));
+    // No search/filtering — just sort by userId ascending
+    const filteredUsers = [...users].sort((a, b) => (a.userId ?? 0) - (b.userId ?? 0));
 
     return (
         <div className="space-y-6">
@@ -199,17 +192,8 @@ const UserManagement = ({ onStatsUpdate }) => {
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="flex justify-between items-center gap-4">
-                <div className="max-w-md flex-1">
-                    <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
-                    />
-                </div>
+            {/* Refresh */}
+            <div className="flex justify-end items-center gap-4">
                 <button
                     onClick={fetchUsers}
                     disabled={loading}
@@ -309,7 +293,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 <option value="Admin">Admin</option>
                                 <option value="Finance Manager">Finance Manager</option>
                                 <option value="Inventory Manager">Inventory Manager</option>
-                                <option value="Delivery Staff">Delivery Staff</option>
+                                <option value="Delivery Manager">Delivery Manager</option>
                             </select>
                             <div className="flex gap-3 pt-4">
                                 <button
@@ -341,12 +325,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                     </div>
                 ) : filteredUsers.length === 0 ? (
                     <div className="p-8 text-center">
-                        <div className="text-gray-400">
-                            {searchTerm 
-                                ? 'No users found matching your search.' 
-                                : 'No users found.'
-                            }
-                        </div>
+                        <div className="text-gray-400">No users found.</div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
@@ -485,7 +464,7 @@ const UserManagement = ({ onStatsUpdate }) => {
                                 <option value="Admin">Admin</option>
                                 <option value="Finance Manager">Finance Manager</option>
                                 <option value="Inventory Manager">Inventory Manager</option>
-                                <option value="Delivery Staff">Delivery Staff</option>
+                                <option value="Delivery Manager">Delivery Manager</option>
                             </select>
                             <label className="block text-sm font-medium text-gray-700 mb-1">New Password (leave blank to keep current)</label>
                             <input

@@ -39,6 +39,7 @@ const CheckoutPayment = () => {
         },
         useSameAsDelivery: true
     });
+    const [savedPaymentMethods, setSavedPaymentMethods] = useState([]);
 
     useEffect(() => {
         // Get checkout data from navigation state
@@ -61,6 +62,48 @@ const CheckoutPayment = () => {
             navigate('/checkout');
         }
     }, [location.state, navigate, paymentData.useSameAsDelivery]);
+
+    useEffect(() => {
+        const fetchSavedMethods = async () => {
+            try {
+                const sessionResponse = await fetch('/api/customers/session', {
+                    credentials: 'include'
+                });
+                const sessionData = await sessionResponse.json();
+                if (!sessionData.success || !sessionData.isLoggedIn) return;
+
+                const customerId = sessionData.customer.customerId;
+                const methodsResponse = await fetch(`/api/paymentMethods/${customerId}`, {
+                    credentials: 'include'
+                });
+                const methodsData = await methodsResponse.json();
+                if (methodsData.success && Array.isArray(methodsData.data)) {
+                    setSavedPaymentMethods(methodsData.data);
+
+                    // Prefill card details (excluding number and CVV for security)
+                    const preferred = methodsData.data.find(m => m.isDefault) || methodsData.data[0];
+                    if (preferred) {
+                        setPaymentData(prev => ({
+                            ...prev,
+                            paymentMethod: 'Credit Card',
+                            cardDetails: {
+                                ...prev.cardDetails,
+                                cardholderName: preferred.cardholderName || '',
+                                cardType: preferred.cardType || '',
+                                expiryMonth: String(preferred.expiryMonth || ''),
+                                expiryYear: String(preferred.expiryYear || '')
+                            }
+                        }));
+                    }
+                }
+            } catch (err) {
+                // Silent fail; page can proceed without saved methods
+                console.error('Failed to fetch saved payment methods', err);
+            }
+        };
+
+        fetchSavedMethods();
+    }, []);
 
     // Validation functions
     const validateCardholderName = (value) => {
@@ -367,7 +410,7 @@ const CheckoutPayment = () => {
                             <div className="mb-6">
                                 <label className="block text-sm font-medium mb-3">Payment Method</label>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    {['Credit Card', 'Debit Card', 'PayPal', 'Bank Transfer', 'Cash on Delivery'].map((method) => (
+                                    {['Credit Card', 'Bank Transfer', 'Cash on Delivery'].map((method) => (
                                         <label key={method} className="cursor-pointer">
                                             <input
                                                 type="radio"

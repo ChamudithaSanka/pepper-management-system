@@ -167,7 +167,12 @@ const ProductListing = () => {
                 type="text"
                 placeholder="Search by name or description..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => {
+                  // Allow only letters, numbers and spaces in search
+                  const raw = e.target.value;
+                  const sanitized = raw.replace(/[^a-zA-Z0-9\s]/g, '');
+                  handleFilterChange('search', sanitized);
+                }}
                 className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
               />
             </div>

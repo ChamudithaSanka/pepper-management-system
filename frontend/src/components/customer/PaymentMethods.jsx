@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const PaymentMethods = () => {
   const [payments, setPayments] = useState([]);
+  const [savedMethods, setSavedMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPaymentMethod, setNewPaymentMethod] = useState({
@@ -16,6 +17,7 @@ const PaymentMethods = () => {
 
   useEffect(() => {
     fetchPaymentHistory();
+    fetchSavedPaymentMethods();
   }, []);
 
   const fetchPaymentHistory = async () => {
@@ -50,6 +52,36 @@ const PaymentMethods = () => {
       setPayments([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSavedPaymentMethods = async () => {
+    try {
+      const sessionResponse = await fetch('/api/customers/session', {
+        credentials: 'include'
+      });
+      const sessionData = await sessionResponse.json();
+
+      if (!sessionData.success || !sessionData.isLoggedIn) {
+        setSavedMethods([]);
+        return;
+      }
+
+      const customerId = sessionData.customer.customerId;
+
+      const methodsResponse = await fetch(`/api/paymentMethods/${customerId}`, {
+        credentials: 'include'
+      });
+      const methodsData = await methodsResponse.json();
+
+      if (methodsData.success && Array.isArray(methodsData.data)) {
+        setSavedMethods(methodsData.data);
+      } else {
+        setSavedMethods([]);
+      }
+    } catch (error) {
+      console.error('Error fetching saved payment methods:', error);
+      setSavedMethods([]);
     }
   };
 
@@ -129,7 +161,7 @@ const PaymentMethods = () => {
           cardNumber: '',
           cvv: ''
         });
-        fetchPaymentHistory(); // Refresh the list
+        fetchSavedPaymentMethods();
       } else {
         alert('Error adding payment method: ' + data.message);
       }
@@ -257,7 +289,20 @@ const PaymentMethods = () => {
     return acc;
   }, {}) : {};
 
-  const paymentMethods = Object.values(uniquePaymentMethods);
+  // Prefer saved methods; fallback to deriving from payment history
+  const paymentMethods = savedMethods.length > 0
+    ? savedMethods.map(m => ({
+        cardType: m.cardType,
+        lastFourDigits: m.lastFourDigits,
+        cardholderName: m.cardholderName,
+        expiryMonth: m.expiryMonth,
+        expiryYear: m.expiryYear,
+        lastUsed: null,
+        paymentMethodId: m.paymentMethodId,
+        isDefault: m.isDefault
+      }))
+    : Object.values(uniquePaymentMethods);
+  const currentYear = new Date().getFullYear();
 
   return (
     <div>
@@ -327,31 +372,35 @@ const PaymentMethods = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Month
                 </label>
-                <input
-                  type="text"
+                <select
                   name="expiryMonth"
                   value={newPaymentMethod.expiryMonth}
                   onChange={handleInputChange}
                   required
-                  maxLength="2"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-                  placeholder="MM"
-                />
+                >
+                  <option value="">MM</option>
+                  {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Expiry Year
                 </label>
-                <input
-                  type="text"
+                <select
                   name="expiryYear"
                   value={newPaymentMethod.expiryYear}
                   onChange={handleInputChange}
                   required
-                  maxLength="4"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-                  placeholder="YYYY"
-                />
+                >
+                  <option value="">YYYY</option>
+                  {Array.from({ length: 21 }, (_, i) => String(currentYear + i)).map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

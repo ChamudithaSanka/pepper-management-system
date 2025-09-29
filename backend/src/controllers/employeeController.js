@@ -29,8 +29,7 @@ const getAllEmployees = async (req, res) => {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { employeeId: { $regex: search, $options: 'i' } },
-                { designation: { $regex: search, $options: 'i' } },
-                { epfNo: { $regex: search, $options: 'i' } }
+                { designation: { $regex: search, $options: 'i' } }
             ];
         }
         
