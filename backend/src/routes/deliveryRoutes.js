@@ -15,6 +15,7 @@ import {
     createDeliveryTask,
     assignDriverToTask,
     updateTaskStatus,
+    deleteDeliveryTask,
     getTasksByDriver,
     getTasksByStatus,
     getDeliveryStats
@@ -44,6 +45,7 @@ router.get('/tasks/:id', getDeliveryTaskById);
 router.post('/tasks', createDeliveryTask);
 router.patch('/tasks/:id/assign', assignDriverToTask);
 router.patch('/tasks/:id/status', updateTaskStatus);
+router.delete('/tasks/:id', deleteDeliveryTask);
 router.get('/tasks/driver/:driverId', getTasksByDriver);
 router.get('/tasks/status/:status', getTasksByStatus);
 

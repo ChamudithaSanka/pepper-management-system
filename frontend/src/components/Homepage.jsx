@@ -148,28 +148,7 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-16 bg-green-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Stay Updated with Ceylon Pepper
-          </h2>
-          <p className="text-xl text-green-100 mb-8">
-            Subscribe to our newsletter for exclusive offers and updates on new products.
-          </p>
-          
-          <div className="flex justify-center max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-l-lg border-none focus:outline-none focus:ring-2 focus:ring-green-800 text-gray-900"
-            />
-            <button className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-r-lg font-medium transition-colors">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </section>
+      
 
       <Footer />
     </div>

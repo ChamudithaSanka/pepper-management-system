@@ -12,10 +12,74 @@ const StaffLogin = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
+  // Helper function to validate email format
+  const isValidEmail = (email) => {
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    return emailRegex.test(email);
+  };
+
+  // Helper function to validate password
+  const isValidPassword = (password) => {
+    return password.length > 0; // At minimum, password should not be empty
+  };
+
   const handleChange = (e) => {
+    let value = e.target.value;
+    
+    // Apply validation based on field type
+    if (e.target.name === 'email') {
+      // Email validation - only allow valid email characters and prevent invalid formats
+      // Remove any characters that don't match email pattern
+      value = value.replace(/[^a-zA-Z0-9@._+-]/g, '');
+      
+      // Ensure there's only one @ symbol
+      const atSymbolCount = (value.match(/@/g) || []).length;
+      if (atSymbolCount > 1) {
+        value = value.substring(0, value.lastIndexOf('@'));
+        value = value.replace(/@/g, '');
+        value += '@';
+      }
+      
+      // Prevent double dots
+      value = value.replace(/\.{2,}/g, '.');
+      
+      // Prevent @ at the beginning
+      if (value.startsWith('@')) {
+        value = '';
+      }
+      
+      // Prevent multiple dots before @
+      const atIndex = value.indexOf('@');
+      if (atIndex !== -1) {
+        const beforeAt = value.substring(0, atIndex);
+        const afterAt = value.substring(atIndex);
+        
+        // Clean before @ symbol
+        const cleanedBeforeAt = beforeAt.replace(/\.{2,}/g, '.');
+        value = cleanedBeforeAt + afterAt;
+      }
+      
+      // Removed overly restrictive "prevent dots at the very end" logic
+      // Users should be able to type domains like "user@example.com"
+      
+      // Prevent multiple consecutive special characters
+      value = value.replace(/[._+-]{2,}/g, '.');
+      
+    } else if (e.target.name === 'password') {
+      // Password validation - remove whitespace and dangerous characters
+      // Keep alphanumeric and common safe characters: !@#$%^&*()_+-=[]{}|;:,.<>?
+      value = value.replace(/[\s\n\t\r]/g, ''); // Remove all whitespace
+      value = value.replace(/[`"'~]/g, ''); // Remove potentially dangerous characters
+      
+      // Limit length (maximum 32 characters)
+      if (value.length > 32) {
+        value = value.substring(0, 32);
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     });
   };
 
@@ -89,12 +153,13 @@ const StaffLogin = () => {
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 required
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 placeholder="Enter your staff email"
+                autoComplete="email"
               />
             </div>
 
@@ -113,6 +178,7 @@ const StaffLogin = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
