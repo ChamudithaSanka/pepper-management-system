@@ -53,11 +53,11 @@ const orderSchema = new mongoose.Schema({
     deliveryLocation: {
         latitude: {
             type: Number,
-            required: true
+            // required: true
         },
         longitude: {
             type: Number,
-            required: true
+            // required: true
         }
     },
     orderStatus: {

@@ -30,13 +30,13 @@ const customerSchema = new mongoose.Schema({
     deliveryAddress: {
         street: {
             type: String,
-            required: true,
+            // required: true,
             trim: true,
             maxlength: [200, 'Street address cannot exceed 200 characters']
         },
         city: {
             type: String,
-            required: true,
+            // required: true,
             trim: true,
             maxlength: [100, 'City cannot exceed 100 characters']
         },
@@ -48,19 +48,19 @@ const customerSchema = new mongoose.Schema({
         },
         fullAddress: {
             type: String,
-            required: true,
+            // required: true,
             trim: true,
             maxlength: [500, 'Full address cannot exceed 500 characters']
         },
         latitude: {
             type: Number,
-            required: true,
+            // required: true,
             min: [-90, 'Latitude must be between -90 and 90'],
             max: [90, 'Latitude must be between -90 and 90']
         },
         longitude: {
             type: Number,
-            required: true,
+            // required: true,
             min: [-180, 'Longitude must be between -180 and 180'],
             max: [180, 'Longitude must be between -180 and 180']
         }
