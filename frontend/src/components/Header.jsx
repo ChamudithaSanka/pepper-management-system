@@ -64,7 +64,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white text-gray-800 shadow-lg border-b border-gray-200">
+    <header className="bg-green-300 text-gray-800 shadow-lg ">
       {/* Top Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
@@ -89,7 +89,7 @@ const Header = () => {
                 <NavLink
                   to="/"
                   end
-                  className={({ isActive }) => `font-medium pb-1 ${isActive ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-700 hover:text-green-600'}`}
+                  className={({ isActive }) => `font-medium pb-1 ${isActive ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-900 hover:text-green-600'}`}
                 >
                   Home
                 </NavLink>
@@ -97,7 +97,7 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/shop"
-                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-900 hover:text-green-600'}`}
                 >
                   Shop
                 </NavLink>
@@ -105,7 +105,7 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/about"
-                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-900 hover:text-green-600'}`}
                 >
                   About
                 </NavLink>
@@ -118,7 +118,7 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/faq"
-                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-700 hover:text-green-600'}`}
+                  className={({ isActive }) => `font-medium ${isActive ? 'text-green-600 border-b-2 border-green-600 pb-1' : 'text-gray-900 hover:text-green-600'}`}
                 >
                   FAQ
                 </NavLink>
@@ -135,7 +135,7 @@ const Header = () => {
                 </Link>
                 <button 
                   onClick={handleLogout}
-                  className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-red-500 border border-red-500 text-white hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Logout
                 </button>

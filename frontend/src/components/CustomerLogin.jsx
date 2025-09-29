@@ -120,7 +120,7 @@ const CustomerLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-200 to-blue-100 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full space-y-8">
         {/* Logo and Title */}
         <div className="text-center">
@@ -134,9 +134,9 @@ const CustomerLogin = () => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {error && <div className="text-red-600 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">{error}</div>}
-          {success && <div className="text-green-600 mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">Login successful!</div>}
+        <div className="bg-gradient-to-br from-white to-green-50 rounded-lg shadow-lg p-8 border border-green-200">
+          {error && <div className="text-red-600 mb-4 p-3 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg shadow-sm">{error}</div>}
+          {success && <div className="text-green-600 mb-4 p-3 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg shadow-sm">Login successful!</div>}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
@@ -151,7 +151,7 @@ const CustomerLogin = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                   placeholder="Enter your email"
                   autoComplete="email"
                 />
@@ -176,7 +176,7 @@ const CustomerLogin = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all duration-200 shadow-sm"
                   placeholder="Enter your password"
                   autoComplete="current-password"
                 />
@@ -227,7 +227,7 @@ const CustomerLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
