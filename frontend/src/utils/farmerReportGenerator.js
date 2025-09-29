@@ -245,8 +245,7 @@ export const generateFarmerReportPDF = async (farmers, filters = {}) => {
     // Save the PDF
     const currentDate = new Date().toISOString().split('T')[0];
     const fileName = `Farmer_Report_${currentDate}.pdf`;
-    const pdfBlob = doc.output('bloburl');
-    window.open(pdfBlob);
+    doc.save(fileName);
     
     return { success: true, fileName };
   } catch (error) {

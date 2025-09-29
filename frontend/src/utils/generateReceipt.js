@@ -259,8 +259,7 @@ export const generateOrderConfirmationPDF = async (orderData) => {
     
     // Save the PDF
     const fileName = `Order_Confirmation_${orderData.orderId}.pdf`;
-    const pdfBlob = doc.output('bloburl');
-    window.open(pdfBlob);
+    doc.save(fileName);
     
     return { success: true, fileName };
   } catch (error) {
