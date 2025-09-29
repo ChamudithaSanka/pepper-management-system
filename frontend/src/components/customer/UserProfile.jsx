@@ -23,6 +23,23 @@ const UserProfile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Helper function to validate email format
+  const isValidEmail = (email) => {
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    return emailRegex.test(email);
+  };
+
+  // Helper function to validate name (letters, spaces, hyphens, apostrophes)
+  const isValidName = (name) => {
+    return /^[a-zA-Z\s\-']+$/.test(name);
+  };
+
+  // Helper function to validate phone number
+  const isValidPhone = (phone) => {
+    return /^[\d\s\-()+]*$/.test(phone);
+  };
 
   useEffect(() => {
     fetchCustomerProfile();
@@ -67,19 +84,113 @@ const UserProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    let cleanValue = value;
+    
+    // Apply validation based on field type
+    if (name === 'name') {
+      // Name validation - only allow letters, spaces, hyphens, apostrophes
+      // Allow spaces at the beginning, middle, and end for natural typing
+      cleanValue = value.replace(/[^a-zA-Z\s\-']/g, '');
+      
+      // Prevent multiple consecutive spaces (but allow single spaces anywhere)
+      cleanValue = cleanValue.replace(/\s{2,}/g, ' ');
+      
+    } else if (name === 'email') {
+      // Email validation - only allow valid email characters and prevent invalid formats
+      cleanValue = value.replace(/[^a-zA-Z0-9@._+-]/g, '');
+      
+      // Ensure there's only one @ symbol
+      const atSymbolCount = (cleanValue.match(/@/g) || []).length;
+      if (atSymbolCount > 1) {
+        cleanValue = cleanValue.substring(0, cleanValue.lastIndexOf('@'));
+        cleanValue = cleanValue.replace(/@/g, '');
+        cleanValue += '@';
+      }
+      
+      // Prevent double dots
+      cleanValue = cleanValue.replace(/\.{2,}/g, '.');
+      
+      // Prevent @ at the beginning
+      if (cleanValue.startsWith('@')) {
+        cleanValue = '';
+      }
+      
+      // Prevent multiple dots before @
+      const atIndex = cleanValue.indexOf('@');
+      if (atIndex !== -1) {
+        const beforeAt = cleanValue.substring(0, atIndex);
+        const afterAt = cleanValue.substring(atIndex);
+        
+        // Clean before @ symbol
+        const cleanedBeforeAt = beforeAt.replace(/\.{2,}/g, '.');
+        cleanValue = cleanedBeforeAt + afterAt;
+      }
+      
+      // Removed overly restrictive "prevent dots at the very end" logic
+      // Users should be able to type domains like "user@example.com"
+      
+      // Prevent multiple consecutive special characters
+      cleanValue = cleanValue.replace(/[._+-]{2,}/g, '.');
+      
+    } else if (name === 'phone') {
+      // Phone validation - only allow numbers and common phone formatting chars
+      cleanValue = value.replace(/[^\d\s\-()+]/g, '');
+      
+      // Prevent multiple consecutive spaces
+      cleanValue = cleanValue.replace(/\s{2,}/g, ' ');
+      
+      // Limit length (phone number should be 10 digits)
+      if (cleanValue.length > 10) {
+        cleanValue = cleanValue.substring(0, 10);
+      }
+      
+    } else if (name.includes('deliveryAddress.street')) {
+      // Street address validation - allow letters, numbers...spaces, common address chars
+      cleanValue = value.replace(/[^a-zA-Z0-9\s\-.,#/]/g, '');
+      
+      // Prevent multiple consecutive spaces
+      cleanValue = cleanValue.replace(/\s{2,}/g, ' ');
+      
+      // Limit length (200 chars as per model)
+      if (cleanValue.length > 200) {
+        cleanValue = cleanValue.substring(0, 200);
+      }
+      
+    } else if (name.includes('deliveryAddress.city')) {
+      // City validation - allow letters, spaces, hyphens
+      cleanValue = value.replace(/[^a-zA-Z\s\-]/g, '');
+      
+      // Prevent multiple consecutive spaces
+      cleanValue = cleanValue.replace(/\s{2,}/g, ' ');
+      
+      // Limit length (100 chars as per model)
+      if (cleanValue.length > 100) {
+        cleanValue = cleanValue.substring(0, 100);
+      }
+      
+    } else if (name.includes('deliveryAddress.zipCode')) {
+      // Zip code validation - only allow numbers for Sri Lankan postal codes
+      cleanValue = value.replace(/[^0-9]/g, '');
+      
+      // Limit length (Sri Lankan postal codes are 5 digits)
+      if (cleanValue.length > 5) {
+        cleanValue = cleanValue.substring(0, 5);
+      }
+    }
+
     if (name.includes('deliveryAddress.')) {
       const field = name.split('.')[1];
       setFormData(prev => ({
         ...prev,
         deliveryAddress: {
           ...prev.deliveryAddress,
-          [field]: value
+          [field]: cleanValue
         }
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: cleanValue
       }));
     }
   };
@@ -120,6 +231,39 @@ const UserProfile = () => {
         fullAddress
       }
     }));
+  };
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete your account?\n\nThis action cannot be undone and will permanently remove:\n• Your profile information\n• All associated data`
+    );
+    
+    if (!confirmed) return;
+    
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/customers/profile/${customer.customerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Account deleted successfully. You will be redirected to the home page.');
+        // Redirect to home page
+        window.location.href = '/';
+      } else {
+        alert('Error deleting account: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('Error deleting account');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleSave = async () => {
@@ -181,12 +325,21 @@ const UserProfile = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">User Profile</h2>
         {!isEditing ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            Edit Profile
-          </button>
+          <div className="space-x-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              {deleting ? 'Deleting...' : 'Delete Account'}
+            </button>
+          </div>
         ) : (
           <div className="space-x-2">
             <button
@@ -238,11 +391,12 @@ const UserProfile = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               {isEditing ? (
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  autoComplete="email"
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.email}</div>
@@ -258,6 +412,7 @@ const UserProfile = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  autoComplete="tel"
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.phone}</div>
@@ -287,6 +442,7 @@ const UserProfile = () => {
                   value={formData.deliveryAddress.street}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  autoComplete="street-address"
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.street}</div>
@@ -302,6 +458,7 @@ const UserProfile = () => {
                   value={formData.deliveryAddress.city}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  autoComplete="address-level2"
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.city}</div>
@@ -317,6 +474,7 @@ const UserProfile = () => {
                   value={formData.deliveryAddress.zipCode}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  autoComplete="postal-code"
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.zipCode}</div>
@@ -332,6 +490,7 @@ const UserProfile = () => {
                   onChange={handleInputChange}
                   rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  disabled
                 />
               ) : (
                 <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.fullAddress}</div>

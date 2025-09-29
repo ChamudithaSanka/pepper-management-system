@@ -19,6 +19,7 @@ import farmerPaymentRoutes from './routes/farmerPaymentRoutes.js';
 import salaryRoutes from './routes/salaryRoutes.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
 import otherExpenseRoutes from './routes/otherExpenseRoutes.js';
+import customerPaymentMethodRoutes from './routes/customerPaymentMethodRoutes.js';
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ const __dirname = path.dirname(__filename);
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 
 // Middleware
 app.use(cors({
@@ -69,6 +70,7 @@ app.use('/api/farmer-payments', farmerPaymentRoutes);
 app.use('/api/salaries', salaryRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/expenses', otherExpenseRoutes);
+app.use('/api/paymentMethods', customerPaymentMethodRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

@@ -320,6 +320,41 @@ export const getTasksByStatus = async (req, res) => {
     }
 };
 
+// Delete delivery task
+export const deleteDeliveryTask = async (req, res) => {
+    try {
+        const task = await DeliveryTask.findById(req.params.id);
+        
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: 'Delivery task not found'
+            });
+        }
+        
+        // If task has an assigned driver, make them available again
+        if (task.driverId && task.status !== 'Delivered') {
+            await DeliveryDriver.findByIdAndUpdate(
+                task.driverId,
+                { status: 'Available' }
+            );
+        }
+        
+        await DeliveryTask.findByIdAndDelete(req.params.id);
+        
+        res.status(200).json({
+            success: true,
+            message: 'Delivery task deleted successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting delivery task',
+            error: error.message
+        });
+    }
+};
+
 // Get delivery statistics
 export const getDeliveryStats = async (req, res) => {
     try {

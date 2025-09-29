@@ -348,25 +348,25 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-green-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Task ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Order ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Driver</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Pickup Location</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Delivery Location</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Assigned Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Completed Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Task ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Order ID</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Driver</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Pickup Location</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Delivery Location</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Assigned Date</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Completed Date</th>
+                                    <th className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredTasks.map((task) => (
                                     <tr key={task._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.taskId}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{task.taskId}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">
                                             <a href={`/orders/${task.orderId}`} className="text-blue-600 hover:text-blue-800 underline">{task.orderId}</a>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">
                                             {task.status === 'Pending' ? (
                                                 <span className="text-gray-400">Not assigned</span>
                                             ) : (
@@ -376,12 +376,12 @@ const DeliveriesView = ({ onStatsUpdate }) => {
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.pickupLocation?.address || 'Shop location'}</div></td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.deliveryLocation?.address || 'No address available'}</div></td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>{getStatusLabel(task.status)}</span></td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.assignedAt ? new Date(task.assignedAt).toLocaleDateString() : '-'}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.deliveredAt ? new Date(task.deliveredAt).toLocaleDateString() : '-'}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.pickupLocation?.address || 'Shop location'}</div></td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900"><div className="max-w-xs truncate">{task.deliveryLocation?.address || 'No address available'}</div></td>
+                                        <td className="px-2 py-2 whitespace-nowrap"><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>{getStatusLabel(task.status)}</span></td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{task.assignedAt ? new Date(task.assignedAt).toLocaleDateString() : '-'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{task.deliveredAt ? new Date(task.deliveredAt).toLocaleDateString() : '-'}</td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
                                             <div className="flex space-x-2">
                                                 {task.status === 'Assigned' ? (
                                                     <button 
