@@ -333,7 +333,11 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                         type="text"
                         placeholder="Search farmers by name, location, or NIC..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            // allow only letters, numbers and spaces
+                            const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+                            setSearchTerm(sanitized);
+                        }}
                         className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
                         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />

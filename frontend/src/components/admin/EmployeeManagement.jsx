@@ -12,7 +12,6 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
     const [newEmployee, setNewEmployee] = useState({
         name: '',
         designation: '',
-        email: '',
         nic: '',
         phoneNumber: '',
         address: '',
@@ -87,7 +86,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
             const data = await response.json();
 
             if (data.success) {
-                setNewEmployee({ name: '', designation: '', email: '', nic: '', phoneNumber: '', address: '', dateOfBirth: '', basicSalary: '' });
+                setNewEmployee({ name: '', designation: '', nic: '', phoneNumber: '', address: '', dateOfBirth: '', basicSalary: '' });
                 setShowAddForm(false);
                 fetchEmployees();
                 setError('');
@@ -229,7 +228,10 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                         type="text"
                         placeholder="Search employees..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+                            setSearchTerm(sanitized);
+                        }}
                         className="w-full border border-green-400 bg-green-50 text-green-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-500 placeholder-green-700"
                     />
                 </div>
@@ -294,20 +296,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     <option value="Raw Material Inspector">Raw Material Inspector</option>
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email Address *
-                                </label>
-                                <input
-                                    type="email"
-                                    placeholder="Enter email address"
-                                    value={newEmployee.email}
-                                    maxLength={100}
-                                    onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required
-                                />
-                            </div>
+                            {/* Email removed per request */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     NIC Number *
@@ -353,7 +342,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     value={newEmployee.address}
                                     maxLength={500}
                                     onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value.slice(0, 500)})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent break-words whitespace-normal"
                                     rows="3"
                                     required
                                 />
@@ -435,7 +424,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Employee ID</th>
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Name</th>
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Designation</th>
-                                    <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Email</th>
+                                    {/* Email column removed */}
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">NIC</th>
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Phone</th>
                                     <th className="px-2 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Address</th>
@@ -459,16 +448,14 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                                 {employee.designation}
                                             </span>
                                         </td>
-                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {employee.email || 'N/A'}
-                                        </td>
+                                        {/* email removed */}
                                         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {employee.nic || 'N/A'}
                                         </td>
                                         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {employee.phoneNumber || 'N/A'}
                                         </td>
-                                        <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-2 py-4 text-sm text-gray-500 break-words whitespace-normal max-w-xs">
                                             {employee.address || 'N/A'}
                                         </td>
                                         <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -564,20 +551,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     <option value="Raw Material Inspector">Raw Material Inspector</option>
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email Address *
-                                </label>
-                                <input
-                                    type="email"
-                                    placeholder="Enter email address"
-                                    value={editingEmployee.email || ''}
-                                    maxLength={100}
-                                    onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required
-                                />
-                            </div>
+                            {/* Email removed per request */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     NIC Number *
@@ -621,7 +595,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     value={editingEmployee.address || ''}
                                     maxLength={500}
                                     onChange={(e) => setEditingEmployee({...editingEmployee, address: e.target.value.slice(0, 500)})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent break-words whitespace-normal"
                                     rows="3"
                                     required
                                 />
