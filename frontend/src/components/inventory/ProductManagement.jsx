@@ -12,6 +12,7 @@ const ProductManagement = () => {
     const [restockingProduct, setRestockingProduct] = useState(null);
     const [restockAmount, setRestockAmount] = useState('');
     const [rawMaterials, setRawMaterials] = useState([]);
+    const [rawMaterialStock, setRawMaterialStock] = useState({});
     const [filterStatus, setFilterStatus] = useState('all');
     const [formErrors, setFormErrors] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
@@ -236,6 +237,19 @@ const ProductManagement = () => {
             if (response.ok) {
                 const data = await response.json();
                 setRawMaterials(data.data || []);
+                
+                // Create a map of material type to stock information
+                const stockMap = {};
+                data.data.forEach(material => {
+                    const availableStock = material.quantityKg - (material.safetyStockKg || 0);
+                    stockMap[material.type] = {
+                        totalStock: material.quantityKg,
+                        safetyStock: material.safetyStockKg || 0,
+                        availableStock: Math.max(0, availableStock),
+                        status: material.lowStockStatus
+                    };
+                });
+                setRawMaterialStock(stockMap);
             }
         } catch (error) {
             console.error('Error fetching raw materials:', error);
@@ -381,7 +395,9 @@ const ProductManagement = () => {
             reorderLevel: product.reorderLevel.toString(),
             rawMaterialRecipe: product.rawMaterialRecipe || []
         });
-    setImagePreview(product.imageUrl ? getImageSrc(product.imageUrl) : null);
+        setImagePreview(product.imageUrl ? getImageSrc(product.imageUrl) : null);
+        // Fetch raw materials to get latest stock info
+        fetchRawMaterials();
         setShowEditModal(true);
     };
 
@@ -571,6 +587,15 @@ const ProductManagement = () => {
         }
     };
 
+    const getRawMaterialStockInfo = (materialType) => {
+        return rawMaterialStock[materialType] || {
+            totalStock: 0,
+            safetyStock: 0,
+            availableStock: 0,
+            status: 'InStock'
+        };
+    };
+
     const filteredProducts = products.filter(product => {
         // Apply search filter
         const matchesSearch = searchTerm === '' || 
@@ -631,6 +656,8 @@ const ProductManagement = () => {
                     <button
                         onClick={() => {
                             setError('');
+                            // Fetch raw materials to get latest stock info
+                            fetchRawMaterials();
                             setShowAddModal(true);
                         }}
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
@@ -1115,21 +1142,92 @@ const ProductManagement = () => {
                                         </button>
                                     </div>
                                     
-                                    {formData.rawMaterialRecipe.map((recipe, index) => (
-                                        <div key={index} className="grid grid-cols-4 gap-2 mb-2 items-end">
-                                            <div>
-                                                <select
-                                                    value={recipe.type}
-                                                    onChange={(e) => updateRecipeItem(index, 'type', e.target.value)}
-                                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                                >
-                                                    <option value="">Select Material</option>
-                                                    {rawMaterials.map(material => (
-                                                        <option key={material._id} value={material.type}>
-                                                            {material.type}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                    {formData.rawMaterialRecipe.map((recipe, index) => {
+                                        const stockInfo = getRawMaterialStockInfo(recipe.type);
+                                        return (
+                                            <div key={index} className="mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                                                <div className="grid grid-cols-4 gap-2 mb-2 items-end">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1">Material</label>
+                                                        <select
+                                                            value={recipe.type}
+                                                            onChange={(e) => updateRecipeItem(index, 'type', e.target.value)}
+                                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                        >
+                                                            <option value="">Select Material</option>
+                                                            {rawMaterials.map(material => (
+                                                                <option key={material._id} value={material.type}>
+                                                                    {material.type}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1">Qty per unit (kg)</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            placeholder="Qty per unit (kg)"
+                                                            value={recipe.qtyPerUnitKg}
+                                                            onChange={(e) => updateRecipeItem(index, 'qtyPerUnitKg', e.target.value)}
+                                                            onKeyDown={handleKeyDown}
+                                                            onPaste={handlePaste}
+                                                            min="0"
+                                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1">Waste %</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            placeholder="Waste %"
+                                                            value={recipe.wastePercentage}
+                                                            onChange={(e) => updateRecipeItem(index, 'wastePercentage', e.target.value)}
+                                                            onKeyDown={handleKeyDown}
+                                                            onPaste={handlePaste}
+                                                            min="0"
+                                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeRecipeItem(index)}
+                                                            className="text-red-600 hover:text-red-800 px-3 py-2 text-sm"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Stock Information Display */}
+                                                {recipe.type && (
+                                                    <div className="mt-2 p-2 bg-white rounded border border-gray-200">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <span className="font-medium text-gray-700">Stock Information:</span>
+                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStockStatusColor(stockInfo.status)}`}>
+                                                                {stockInfo.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-3 gap-2 mt-1 text-xs">
+                                                            <div className="text-gray-600">
+                                                                <span className="font-medium">Total:</span> {stockInfo.totalStock}kg
+                                                            </div>
+                                                            <div className="text-gray-600">
+                                                                <span className="font-medium">Safety:</span> {stockInfo.safetyStock}kg
+                                                            </div>
+                                                            <div className="text-green-600">
+                                                                <span className="font-medium">Available:</span> {stockInfo.availableStock}kg
+                                                            </div>
+                                                        </div>
+                                                        {stockInfo.availableStock <= 0 && (
+                                                            <div className="mt-1 text-xs text-red-600 font-medium">
+                                                                ⚠️ No stock available for production
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div>
                                                 <input

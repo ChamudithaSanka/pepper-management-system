@@ -22,6 +22,12 @@ const rawMaterialSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
+    safetyStockKg: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0
+    },
     lowStockStatus: {
         type: String,
         enum: ["InStock", "LowStock"],

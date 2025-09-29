@@ -13,12 +13,14 @@ const RawMaterialManagement = () => {
     const [newMaterial, setNewMaterial] = useState({
         type: '',
         quantity: '',
-        reorderLevel: ''
+        reorderLevel: '',
+        safetyStock: ''
     });
     const [editMaterial, setEditMaterial] = useState({
         type: '',
         quantity: '',
-        reorderLevel: ''
+        reorderLevel: '',
+        safetyStock: ''
     });
     const [error, setError] = useState('');
     const [editError, setEditError] = useState('');
@@ -67,9 +69,14 @@ const RawMaterialManagement = () => {
                 break;
             case 'quantity':
             case 'reorderLevel':
+            case 'safetyStock':
                 const numValue = parseFloat(value);
                 if (isNaN(numValue) || numValue < 0) {
-                    errors[field] = field === 'quantity' ? 'Quantity must be 0 or greater' : 'Reorder level must be 0 or greater';
+                    let errorMessage = 'Value must be 0 or greater';
+                    if (field === 'quantity') errorMessage = 'Quantity must be 0 or greater';
+                    else if (field === 'reorderLevel') errorMessage = 'Reorder level must be 0 or greater';
+                    else if (field === 'safetyStock') errorMessage = 'Safety stock must be 0 or greater';
+                    errors[field] = errorMessage;
                 } else {
                     delete errors[field];
                 }
@@ -126,7 +133,8 @@ const RawMaterialManagement = () => {
         setEditMaterial({
             type: material.type,
             quantity: material.quantityKg.toString(),
-            reorderLevel: material.reorderLevelKg.toString()
+            reorderLevel: material.reorderLevelKg.toString(),
+            safetyStock: (material.safetyStockKg || 0).toString()
         });
         setEditError(''); // Clear any previous errors
         setSuccessMessage(''); // Clear any success messages
@@ -149,7 +157,8 @@ const RawMaterialManagement = () => {
             const payload = {
                 type: newMaterial.type.trim(),
                 quantityKg: parseFloat(newMaterial.quantity),
-                reorderLevelKg: parseFloat(newMaterial.reorderLevel)
+                reorderLevelKg: parseFloat(newMaterial.reorderLevel),
+                safetyStockKg: parseFloat(newMaterial.safetyStock) || 0
             };
 
             const response = await fetch('/api/raw-materials', {
@@ -166,7 +175,8 @@ const RawMaterialManagement = () => {
                 setNewMaterial({
                     type: '',
                     quantity: '',
-                    reorderLevel: ''
+                    reorderLevel: '',
+                    safetyStock: ''
                 });
                 setNewMaterialErrors({});
                 setShowAddMaterialForm(false);
@@ -218,7 +228,8 @@ const RawMaterialManagement = () => {
             const payload = {
                 type: editMaterial.type.trim(),
                 quantityKg: parseFloat(editMaterial.quantity),
-                reorderLevelKg: parseFloat(editMaterial.reorderLevel)
+                reorderLevelKg: parseFloat(editMaterial.reorderLevel),
+                safetyStockKg: parseFloat(editMaterial.safetyStock) || 0
             };
 
             const response = await fetch(`/api/raw-materials/${editingMaterial._id}`, {
@@ -235,7 +246,8 @@ const RawMaterialManagement = () => {
                 setEditMaterial({
                     type: '',
                     quantity: '',
-                    reorderLevel: ''
+                    reorderLevel: '',
+                    safetyStock: ''
                 });
                 setShowEditMaterialForm(false);
                 setEditingMaterial(null);
@@ -398,6 +410,7 @@ const RawMaterialManagement = () => {
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Material ID</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Type</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Quantity (kg)</th>
+                                    <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Safety Stock (kg)</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Reorder Level (kg)</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                                     <th className="px-2 py-2 text-left text-xs font-bold text-white uppercase tracking-wider">Last Updated</th>
@@ -426,6 +439,7 @@ const RawMaterialManagement = () => {
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{material.type}</span>
                                             </td>
                                             <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{material.quantityKg}</td>
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{material.safetyStockKg || 0}</td>
                                             <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{material.reorderLevelKg}</td>
                                             <td className="px-2 py-2 whitespace-nowrap">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockInfo.color}`}>{stockInfo.status}</span>
@@ -600,6 +614,37 @@ const RawMaterialManagement = () => {
                                 </p>
                             </div>
                             
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Safety Stock (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Minimum stock that cannot be used"
+                                    value={newMaterial.safetyStock}
+                                    onChange={(e) => {
+                                        setNewMaterial({...newMaterial, safetyStock: e.target.value});
+                                        validateField('safetyStock', e.target.value, false);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
+                                    min="0"
+                                    step="0.1"
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        newMaterialErrors.safetyStock 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
+                                    required
+                                />
+                                {newMaterialErrors.safetyStock && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.safetyStock}</p>
+                                )}
+                                <p className="text-xs text-gray-500 mt-1">
+                                    This amount cannot be used for production to prevent stock from reaching zero
+                                </p>
+                            </div>
+                            
                             {error && (
                                 <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
                                     {error}
@@ -623,7 +668,8 @@ const RawMaterialManagement = () => {
                                         setNewMaterial({
                                             type: '',
                                             quantity: '',
-                                            reorderLevel: ''
+                                            reorderLevel: '',
+                                            safetyStock: ''
                                         });
                                     }}
                                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
@@ -717,7 +763,8 @@ const RawMaterialManagement = () => {
                                         setEditMaterial({
                                             type: '',
                                             quantity: '',
-                                            reorderLevel: ''
+                                            reorderLevel: '',
+                                            safetyStock: ''
                                         });
                                     }}
                                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"

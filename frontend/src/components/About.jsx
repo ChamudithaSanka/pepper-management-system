@@ -30,7 +30,9 @@ const About = () => {
 
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h2>
-          <p className="text-gray-700 leading-relaxed">Placeholder mission statement focusing on quality, sustainability, and supporting local farmers. Replace with your real mission.</p>
+          <p className="text-gray-700 leading-relaxed">Our mission is to deliver the highest quality pepper products while promoting sustainable practices and empowering
+             local farmers. We are committed to building a transparent, eco-conscious supply chain that ensures fair opportunities for growers, preserves the environment
+              for future generations, and brings authentic, farm-to-market freshness to our customers worldwide</p>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
