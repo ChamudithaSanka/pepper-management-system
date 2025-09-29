@@ -104,7 +104,7 @@ const Homepage = () => {
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.productName}</h3>
                     <p className="text-gray-600 mb-4">{product.description || 'Premium quality Ceylon pepper product.'}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-green-600">${product.price}</span>
+                      <span className="text-2xl font-bold text-green-600">LKR: {product.price}</span>
                       <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
                         Add to Cart
                       </button>

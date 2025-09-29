@@ -157,6 +157,11 @@ const ProductDetails = () => {
             <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 text-center border border-green-200 shadow-sm">
               <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Rs. {product.price}</div>
               <div className="text-gray-600 text-sm">Per {product.unit}</div>
+              {typeof product.availableStock !== 'undefined' && (
+                <div className="mt-2 text-green-700 font-semibold text-sm">
+                  Available Stock: {product.availableStock} {product.unit}{product.availableStock === 1 ? '' : 's'}
+                </div>
+              )}
             </div>
           </div>
 
