@@ -93,23 +93,23 @@ const DashboardOverview = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-6 mb-8">
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
+              <p className="text-blue-600 text-sm font-medium">Total Orders</p>
+              <p className="text-2xl font-bold text-blue-900">{stats.totalOrders}</p>
             </div>
-            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-xl">📦</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Pending Orders</p>
-              <p className="text-2xl font-bold text-orange-600">{stats.pendingOrders}</p>
+              <p className="text-orange-600 text-sm font-medium">Pending Orders</p>
+              <p className="text-2xl font-bold text-orange-900">{stats.pendingOrders}</p>
             </div>
             <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xl">⏳</span>
@@ -117,11 +117,11 @@ const DashboardOverview = () => {
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-green-50 rounded-lg p-6 border border-green-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Delivered Orders</p>
-              <p className="text-2xl font-bold text-green-600">{stats.deliveredOrders}</p>
+              <p className="text-green-600 text-sm font-medium">Delivered Orders</p>
+              <p className="text-2xl font-bold text-green-900">{stats.deliveredOrders}</p>
             </div>
             <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
               <span className="text-white text-xl">✅</span>
@@ -129,13 +129,13 @@ const DashboardOverview = () => {
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Total Spent</p>
-              <p className="text-2xl font-bold text-green-600">LKR {stats.totalSpent.toFixed(2)}</p>
+              <p className="text-purple-600 text-sm font-medium">Total Spent</p>
+              <p className="text-2xl font-bold text-purple-900">LKR {stats.totalSpent.toFixed(2)}</p>
             </div>
-            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white text-xl">💰</span>
             </div>
           </div>

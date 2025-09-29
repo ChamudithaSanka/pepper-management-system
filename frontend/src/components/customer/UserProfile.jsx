@@ -328,14 +328,14 @@ const UserProfile = () => {
           <div className="space-x-2">
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
             >
               Edit Profile
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-red-400 disabled:to-red-500 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:transform-none"
             >
               {deleting ? 'Deleting...' : 'Delete Account'}
             </button>
@@ -345,13 +345,13 @@ const UserProfile = () => {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-[1.02] disabled:transform-none"
             >
               {saving ? 'Saving...' : 'Save'}
             </button>
             <button
               onClick={handleCancel}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium transition-colors"
+              className="border-2 border-gray-300 hover:border-gray-400 bg-gradient-to-r from-white to-gray-50 hover:to-gray-100 text-gray-700 hover:text-gray-800 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             >
               Cancel
             </button>
@@ -361,13 +361,13 @@ const UserProfile = () => {
 
       <div className="grid grid-cols-2 gap-8">
         {/* Personal Information */}
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-gradient-to-br from-white to-green-50 rounded-lg p-6 border border-green-200 shadow-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
-              <div className="bg-gray-100 px-3 py-2 rounded-lg text-gray-600">
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 px-3 py-2 rounded-lg text-gray-700 border border-blue-200 font-mono">
                 {customer.customerId}
               </div>
             </div>
@@ -380,10 +380,10 @@ const UserProfile = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.name}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.name}</div>
               )}
             </div>
 
@@ -395,11 +395,11 @@ const UserProfile = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                   autoComplete="email"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.email}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.email}</div>
               )}
             </div>
 
@@ -411,17 +411,17 @@ const UserProfile = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                   autoComplete="tel"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.phone}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.phone}</div>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Registration Date</label>
-              <div className="px-3 py-2 text-gray-600">
+              <div className="px-3 py-2 text-gray-600 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
                 {new Date(customer.registrationDate).toLocaleDateString()}
               </div>
             </div>
@@ -429,7 +429,7 @@ const UserProfile = () => {
         </div>
 
         {/* Delivery Address */}
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+        <div className="bg-gradient-to-br from-white to-blue-50 rounded-lg p-6 border border-blue-200 shadow-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery Address</h3>
           
           <div className="space-y-4">
@@ -441,11 +441,11 @@ const UserProfile = () => {
                   name="deliveryAddress.street"
                   value={formData.deliveryAddress.street}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                   autoComplete="street-address"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.street}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.deliveryAddress.street}</div>
               )}
             </div>
 
@@ -457,11 +457,11 @@ const UserProfile = () => {
                   name="deliveryAddress.city"
                   value={formData.deliveryAddress.city}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                   autoComplete="address-level2"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.city}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.deliveryAddress.city}</div>
               )}
             </div>
 
@@ -473,11 +473,11 @@ const UserProfile = () => {
                   name="deliveryAddress.zipCode"
                   value={formData.deliveryAddress.zipCode}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                   autoComplete="postal-code"
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.zipCode}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.deliveryAddress.zipCode}</div>
               )}
             </div>
 
@@ -489,11 +489,11 @@ const UserProfile = () => {
                   value={formData.deliveryAddress.fullAddress}
                   onChange={handleInputChange}
                   rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                   disabled
                 />
               ) : (
-                <div className="px-3 py-2 text-gray-900">{customer.deliveryAddress.fullAddress}</div>
+                <div className="px-3 py-2 text-gray-900 bg-white rounded-lg border border-gray-200">{customer.deliveryAddress.fullAddress}</div>
               )}
             </div>
 
@@ -503,7 +503,7 @@ const UserProfile = () => {
       </div>
       <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Select Location on Map</label>
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
+          <div className="border-2 border-blue-300 rounded-lg overflow-hidden shadow-md">
             <LoadScript
               key="profile-map-script"
               googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}
