@@ -116,6 +116,17 @@ const DashboardLayout = ({
             {/* Sidebar */}
             <div className="w-64 bg-gradient-to-b from-green-600 to-green-700 text-white flex flex-col shadow-lg">
                 <div className="p-6 border-b border-green-700">
+                    {/* Logo Section */}
+                    <div className="flex items-center mb-8">
+                        <img 
+                            src="/images/logo1.png" 
+                            alt="Ceylon Pepper Logo" 
+                            className="h-8 w-8 mr-3"
+                        />
+                        <span className="text-2xl font-bold text-white" >
+                            Ceylon<span className="text-black">Pepper</span>
+                        </span>
+                    </div>
                     <h1 className="text-xl font-bold text-white">{currentUser.brandName}</h1>
                     <p className="text-sm text-green-100">{currentUser.brandSubtitle}</p>
                 </div>
@@ -172,7 +183,7 @@ const DashboardLayout = ({
                             {currentSection?.label || headerTitle}
                         </h2>
                         <div className="flex items-center gap-4">
-                            <span className="text-gray-500 text-sm">
+                            <span className="text-white text-sm">
                                 {new Date().toLocaleDateString('en-US', { 
                                     weekday: 'long', 
                                     year: 'numeric', 

@@ -113,6 +113,8 @@ const StaffLogin = () => {
             window.location.href = '/finance';
           } else if (role === 'Inventory Manager') {
             window.location.href = '/inventory';
+          } else if (role === 'Delivery Manager') {
+            window.location.href = '/delivery';
           } else {
             window.location.href = '/';
           }
