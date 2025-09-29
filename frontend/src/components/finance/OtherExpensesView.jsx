@@ -1,6 +1,50 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const OtherExpensesView = () => {
+    // Prevent 0 or negative values from being entered for amount
+    const handleAmountKeyDown = (e) => {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+        // Prevent 0, negative, and non-numeric input
+        if (
+            (e.key === '0' && (!e.target.value || e.target.selectionStart === 0)) ||
+            (e.key === '-') ||
+            (e.shiftKey || (e.keyCode < 49 || e.keyCode > 57)) && (e.keyCode < 97 || e.keyCode > 105) && e.keyCode !== 190 && e.keyCode !== 110
+        ) {
+            e.preventDefault();
+        }
+    };
+
+    const handleAmountPaste = (e) => {
+        const pastedText = e.clipboardData.getData('text');
+        const num = parseFloat(pastedText);
+        if (isNaN(num) || num <= 0) {
+            e.preventDefault();
+        }
+    };
+
+    // OnChange handler to block 0 or negative values for amount
+    const handleAmountChange = (e, stateSetter, stateObj, field) => {
+        let value = e.target.value;
+        // Remove leading zeros
+        if (value.length > 1 && value[0] === '0' && value[1] !== '.') {
+            value = value.replace(/^0+/, '');
+        }
+        // Block 0 or negative
+        if (parseFloat(value) <= 0 || value === '0') {
+            value = '';
+        }
+        stateSetter({ ...stateObj, [field]: value });
+    };
     const [expenses, setExpenses] = useState([]);
     const [filteredExpenses, setFilteredExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -256,20 +300,6 @@ const OtherExpensesView = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="bg-purple-100 border-l-4 border-purple-500 rounded-lg p-4 shadow-sm">
-                    <div className="flex items-center">
-                        <div className="p-3 rounded-full bg-purple-100">
-                            <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">This Month</p>
-                            <p className="text-2xl font-semibold text-gray-900">{filteredExpenses.length}</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Search and Filter */}
@@ -398,10 +428,9 @@ const OtherExpensesView = () => {
                                     placeholder="Enter amount"
                                     value={newExpense.amount}
                                     max={999999}
-                                    onChange={(e) => {
-                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
-                                        setNewExpense({...newExpense, amount: value});
-                                    }}
+                                    onChange={e => handleAmountChange(e, setNewExpense, newExpense, 'amount')}
+                                    onKeyDown={handleAmountKeyDown}
+                                    onPaste={handleAmountPaste}
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     step="0.01"
                                     min="0.01"
@@ -549,10 +578,9 @@ const OtherExpensesView = () => {
                                     placeholder="Enter amount"
                                     value={editingExpense.amount}
                                     max={999999}
-                                    onChange={(e) => {
-                                        const value = Math.max(0, Math.min(999999, Number(e.target.value) || 0));
-                                        setEditingExpense({...editingExpense, amount: value});
-                                    }}
+                                    onChange={e => handleAmountChange(e, setEditingExpense, editingExpense, 'amount')}
+                                    onKeyDown={handleAmountKeyDown}
+                                    onPaste={handleAmountPaste}
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300"
                                     step="0.01"
                                     min="0.01"
