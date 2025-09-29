@@ -117,9 +117,11 @@ const FarmerManagement = ({ onStatsUpdate }) => {
             errors.push('Address is required');
         }
         
-        if (!newItem.farm_location.latitude || !newItem.farm_location.longitude || !newItem.farm_location.address) {
-            errors.push('Please select a farm location on the map');
-        }
+        // if (!newItem.farm_location.latitude || !newItem.farm_location.longitude || !newItem.farm_location.address) {
+        //     errors.push('Please select a farm location on the map');
+        // }
+
+        // Removed required validation for farm location map selection
         
         if (!newItem.pepper_capacitypermonth.green || Number(newItem.pepper_capacitypermonth.green) <= 0) {
             errors.push('Green pepper capacity must be greater than 0');
@@ -488,7 +490,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                             
                             <div className="col-span-2 mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                                    Farm Location *
+                                    Farm Location
                                 </label>
                                 {newItem.farm_location.address && (
                                     <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{newItem.farm_location.address}</div>
@@ -824,7 +826,7 @@ const FarmerManagement = ({ onStatsUpdate }) => {
                             </div>
                             <div className="col-span-2 mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                                    Farm Location *
+                                    Farm Location
                                 </label>
                                 {editingItem.farm_location?.address && (
                                     <div className="text-sm text-green-700 mb-3 p-2 bg-green-50 rounded">{editingItem.farm_location.address}</div>
