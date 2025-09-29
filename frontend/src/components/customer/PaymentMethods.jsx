@@ -310,7 +310,7 @@ const PaymentMethods = () => {
         <h2 className="text-2xl font-bold text-gray-900">Payment Methods</h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
         >
           {showAddForm ? 'Cancel' : 'Add Payment Method'}
         </button>
@@ -318,7 +318,7 @@ const PaymentMethods = () => {
 
       {/* Add Payment Method Form */}
       {showAddForm && (
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+        <div className="bg-gradient-to-br from-gray-50 to-green-50 rounded-lg p-6 border border-green-200 mb-6 shadow-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Payment Method</h3>
           <form onSubmit={handleAddPaymentMethod} className="space-y-4">
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -332,7 +332,7 @@ const PaymentMethods = () => {
                   value={newPaymentMethod.cardholderName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                   placeholder="John Doe"
                 />
               </div>
@@ -344,7 +344,7 @@ const PaymentMethods = () => {
                   name="cardType"
                   value={newPaymentMethod.cardType}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                 >
                   <option value="Visa">Visa</option>
                   <option value="MasterCard">MasterCard</option>
@@ -363,7 +363,7 @@ const PaymentMethods = () => {
                 onChange={handleInputChange}
                 required
                 maxLength="19"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                 placeholder="1234 5678 9012 3456"
               />
             </div>
@@ -377,7 +377,7 @@ const PaymentMethods = () => {
                   value={newPaymentMethod.expiryMonth}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                 >
                   <option value="">MM</option>
                   {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map((m) => (
@@ -394,7 +394,7 @@ const PaymentMethods = () => {
                   value={newPaymentMethod.expiryYear}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                 >
                   <option value="">YYYY</option>
                   {Array.from({ length: 21 }, (_, i) => String(currentYear + i)).map((y) => (
@@ -413,7 +413,7 @@ const PaymentMethods = () => {
                   onChange={handleInputChange}
                   required
                   maxLength="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                   placeholder="123"
                 />
               </div>
@@ -422,13 +422,13 @@ const PaymentMethods = () => {
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium transition-colors"
+                className="border-2 border-gray-300 hover:border-gray-400 bg-gradient-to-r from-white to-gray-50 hover:to-gray-100 text-gray-700 hover:text-gray-800 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
               >
                 Add Payment Method
               </button>
@@ -443,20 +443,20 @@ const PaymentMethods = () => {
         {paymentMethods.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
             {paymentMethods.map((method, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div key={index} className="bg-gradient-to-br from-white to-blue-50 rounded-lg p-4 border border-blue-200 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-2xl">{getCardIcon(method.cardType)}</span>
                     <span className="font-medium text-gray-900">{method.cardType}</span>
                   </div>
-                  <button className="text-red-500 hover:text-red-700 text-sm">
+                  <button className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg text-sm transition-all duration-200">
                     Remove
                   </button>
                 </div>
-                <div className="text-sm text-gray-600">
-                  <div>**** **** **** {method.lastFourDigits}</div>
-                  <div>{method.cardholderName}</div>
-                  <div>Expires: {method.expiryMonth}/{method.expiryYear}</div>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div className="font-mono bg-gradient-to-r from-gray-100 to-gray-200 px-2 py-1 rounded">**** **** **** {method.lastFourDigits}</div>
+                  <div className="font-medium">{method.cardholderName}</div>
+                  <div className="text-blue-600">Expires: {method.expiryMonth}/{method.expiryYear}</div>
                   {method.lastUsed && (
                     <div className="text-xs text-gray-500 mt-1">
                       Last used: {new Date(method.lastUsed).toLocaleDateString()}
@@ -467,7 +467,7 @@ const PaymentMethods = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
+          <div className="text-center py-8 bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg border border-blue-200 shadow-lg">
             <div className="text-gray-500">No saved payment methods</div>
             <p className="text-sm text-gray-400 mt-1">
               Add a payment method to make checkout faster

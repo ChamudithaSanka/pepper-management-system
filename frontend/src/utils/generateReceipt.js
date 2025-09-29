@@ -139,7 +139,7 @@ export const generateOrderConfirmationPDF = async (orderData) => {
       
       // Add item total on the right
       doc.setFont('helvetica', 'bold');
-      doc.text(`LKR ${itemTotal.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
+      doc.text(`LKR ${itemTotal.toFixed(2)}`, pageWidth - 50, currentY, { align: 'right' });
       
       currentY += 25;
     });
@@ -147,14 +147,15 @@ export const generateOrderConfirmationPDF = async (orderData) => {
     // Add subtotal line
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('Subtotal:', pageWidth - 50, currentY);
-    doc.text(`LKR ${subtotal.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
+    // Right-align label to a column and amount to the right margin to avoid overlap
+    doc.text('Subtotal:', pageWidth - 70, currentY, { align: 'right' });
+    doc.text(`LKR ${subtotal.toFixed(2)}`, pageWidth - 20, currentY, { align: 'right' });
     
     // Add total line
     currentY += 8;
     doc.setFontSize(12);
-    doc.text('Total:', pageWidth - 50, currentY);
-    doc.text(`LKR ${orderData.totalAmount.toFixed(2)}`, pageWidth - 30, currentY, { align: 'right' });
+    doc.text('Total:', pageWidth - 70, currentY, { align: 'right' });
+    doc.text(`LKR ${orderData.totalAmount.toFixed(2)}`, pageWidth - 20, currentY, { align: 'right' });
     
     return currentY + 15; // Return the Y position for next section
   };
@@ -217,24 +218,9 @@ export const generateOrderConfirmationPDF = async (orderData) => {
 
   // Helper function to add footer
   const addFooter = () => {
-    const footerY = pageHeight - 30;
+    const footerY = pageHeight - 120;
     
-    // Add payment status
-    doc.setFontSize(12);
-    doc.setTextColor(...darkColor);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Payment Status:', 20, footerY);
-    
-    // Add payment status badge
-    const paymentColor = orderData.paymentStatus === 'Completed' ? [34, 197, 94] : 
-                        orderData.paymentStatus === 'Failed' ? [239, 68, 68] : [255, 193, 7];
-    
-    doc.setFillColor(...paymentColor);
-    doc.roundedRect(50, footerY - 6, 25, 8, 2, 2, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(orderData.paymentStatus, 55, footerY);
+  
     
     // Add notes
     doc.setTextColor(...darkColor);
