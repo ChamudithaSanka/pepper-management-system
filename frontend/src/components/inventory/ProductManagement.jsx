@@ -71,6 +71,11 @@ const ProductManagement = () => {
     };
 
     // Validation functions
+    const validateProductName = (value) => {
+        // Only allow letters, spaces, hyphens, and apostrophes
+        return value.replace(/[^a-zA-Z\s\-']/g, '');
+    };
+
     const validateField = (field, value) => {
         const errors = { ...formErrors };
         
@@ -868,9 +873,11 @@ const ProductManagement = () => {
                                             required
                                             value={formData.productName}
                                             onChange={(e) => {
-                                                setFormData(prev => ({...prev, productName: e.target.value}));
-                                                validateField('productName', e.target.value);
+                                                const validatedValue = validateProductName(e.target.value);
+                                                setFormData(prev => ({...prev, productName: validatedValue}));
+                                                validateField('productName', validatedValue);
                                             }}
+                                            maxLength="100"
                                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>

@@ -97,12 +97,69 @@ const CheckoutCustomerDetails = () => {
         }
     };
 
+    // Validation functions
+    const validateName = (value) => {
+        // Only allow letters, spaces, hyphens, and apostrophes
+        return value.replace(/[^a-zA-Z\s\-']/g, '');
+    };
+
+    const validateEmail = (value) => {
+        // Basic email validation - allow letters, numbers, dots, hyphens, underscores, and @ symbol
+        return value.replace(/[^a-zA-Z0-9@._-]/g, '');
+    };
+
+    const validatePhone = (value) => {
+        // Only allow digits, limit to 10 characters
+        return value.replace(/\D/g, '').slice(0, 10);
+    };
+
+    const validateStreet = (value) => {
+        // Allow letters, numbers, spaces, hyphens, apostrophes, periods, and common address characters
+        return value.replace(/[^a-zA-Z0-9\s\-'.,#/]/g, '');
+    };
+
+    const validateCity = (value) => {
+        // Only allow letters, spaces, and hyphens
+        return value.replace(/[^a-zA-Z\s\-]/g, '');
+    };
+
+    const validateZipCode = (value) => {
+        // Only allow digits, limit to 5 characters
+        return value.replace(/\D/g, '').slice(0, 5);
+    };
+
     const handleInputChange = (field, value) => {
+        let validatedValue = value;
+
+        // Apply validation based on field type
+        switch (field) {
+            case 'name':
+                validatedValue = validateName(value);
+                break;
+            case 'email':
+                validatedValue = validateEmail(value);
+                break;
+            case 'phone':
+                validatedValue = validatePhone(value);
+                break;
+            case 'street':
+                validatedValue = validateStreet(value);
+                break;
+            case 'city':
+                validatedValue = validateCity(value);
+                break;
+            case 'zipCode':
+                validatedValue = validateZipCode(value);
+                break;
+            default:
+                validatedValue = value;
+        }
+
         if (field === 'street' || field === 'city' || field === 'zipCode') {
             setFormData(prev => {
                 const updatedAddress = {
                     ...prev.deliveryAddress,
-                    [field]: value
+                    [field]: validatedValue
                 };
                 
                 // Construct full address from updated fields
@@ -122,7 +179,7 @@ const CheckoutCustomerDetails = () => {
         } else {
             setFormData(prev => ({
                 ...prev,
-                [field]: value
+                [field]: validatedValue
             }));
         }
     };
@@ -221,18 +278,7 @@ const CheckoutCustomerDetails = () => {
     };
 
     const proceedToPayment = () => {
-        // Validate required fields
-        if (!formData.name || !formData.email || !formData.phone) {
-            setError('Please fill in all required fields');
-            return;
-        }
-
-        // Validate address fields
-        if (!formData.deliveryAddress.street || !formData.deliveryAddress.city || !formData.deliveryAddress.zipCode) {
-            setError('Please fill in street address, city, and zip code');
-            return;
-        }
-
+        // Check if delivery location is selected
         if (!formData.location.latitude || !formData.location.longitude) {
             setError('Please select delivery location on map');
             return;
@@ -314,6 +360,7 @@ const CheckoutCustomerDetails = () => {
                                         value={formData.name}
                                         onChange={(e) => handleInputChange('name', e.target.value)}
                                         onBlur={() => saveField('name')}
+                                        maxLength="100"
                                         className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                         placeholder="Enter your full name"
                                     />
@@ -327,6 +374,7 @@ const CheckoutCustomerDetails = () => {
                                         value={formData.email}
                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                         onBlur={() => saveField('email')}
+                                        maxLength="255"
                                         className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                         placeholder="Enter your email address"
                                     />
@@ -340,6 +388,7 @@ const CheckoutCustomerDetails = () => {
                                         value={formData.phone}
                                         onChange={(e) => handleInputChange('phone', e.target.value)}
                                         onBlur={() => saveField('phone')}
+                                        maxLength="10"
                                         className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                         placeholder="Enter your phone number"
                                     />
@@ -393,6 +442,7 @@ const CheckoutCustomerDetails = () => {
                                                 value={formData.deliveryAddress.street}
                                                 onChange={(e) => handleInputChange('street', e.target.value)}
                                                 onBlur={() => saveField('street')}
+                                                maxLength="200"
                                                 className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                                 placeholder="Start typing your address..."
                                             />
@@ -407,6 +457,7 @@ const CheckoutCustomerDetails = () => {
                                         value={formData.deliveryAddress.city}
                                         onChange={(e) => handleInputChange('city', e.target.value)}
                                         onBlur={() => saveField('city')}
+                                        maxLength="100"
                                         className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                         placeholder="Enter city"
                                     />
@@ -420,6 +471,7 @@ const CheckoutCustomerDetails = () => {
                                         value={formData.deliveryAddress.zipCode}
                                         onChange={(e) => handleInputChange('zipCode', e.target.value)}
                                         onBlur={() => saveField('zipCode')}
+                                        maxLength="5"
                                         className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
                                         placeholder="Enter zip code"
                                     />
