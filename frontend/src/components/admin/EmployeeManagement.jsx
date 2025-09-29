@@ -12,6 +12,7 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
     const [newEmployee, setNewEmployee] = useState({
         name: '',
         designation: '',
+        email: '',
         nic: '',
         phoneNumber: '',
         address: '',
@@ -296,7 +297,24 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     <option value="Raw Material Inspector">Raw Material Inspector</option>
                                 </select>
                             </div>
-                            {/* Email removed per request */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={newEmployee.email}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        // Basic email validation
+                                        const value = e.target.value.slice(0, 100);
+                                        setNewEmployee({...newEmployee, email: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     NIC Number *
@@ -551,7 +569,23 @@ const EmployeeManagement = ({ onStatsUpdate }) => {
                                     <option value="Raw Material Inspector">Raw Material Inspector</option>
                                 </select>
                             </div>
-                            {/* Email removed per request */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address *
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="Enter email address"
+                                    value={editingEmployee.email || ''}
+                                    maxLength={100}
+                                    onChange={(e) => {
+                                        const value = e.target.value.slice(0, 100);
+                                        setEditingEmployee({...editingEmployee, email: value});
+                                    }}
+                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     NIC Number *
