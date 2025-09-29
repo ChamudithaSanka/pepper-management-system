@@ -108,9 +108,9 @@ const CustomerManagement = ({ onStatsUpdate }) => {
             errors.push('Phone number is required');
         }
 
-        if (!newItem.deliveryAddress.latitude || !newItem.deliveryAddress.longitude || !newItem.deliveryAddress.address) {
-            errors.push('Please select a delivery address on the map');
-        }
+        // if (!newItem.deliveryAddress.latitude || !newItem.deliveryAddress.longitude || !newItem.deliveryAddress.address) {
+        //     errors.push('Please select a delivery address on the map');
+        // }
 
         if (errors.length > 0) {
             setError(errors.join('. '));
