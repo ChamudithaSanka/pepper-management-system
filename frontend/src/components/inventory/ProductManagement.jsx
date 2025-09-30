@@ -72,11 +72,37 @@ const ProductManagement = () => {
     };
 
     // Validation functions
+    /**
+     * PRODUCT NAME VALIDATION
+     * Ensures product names contain only valid characters
+     * 
+     * Allowed characters:
+     * - Letters (a-z, A-Z)
+     * - Spaces
+     * - Hyphens (-)
+     * - Apostrophes (')
+     * 
+     * Removes any numbers or special characters automatically
+     */
     const validateProductName = (value) => {
         // Only allow letters, spaces, hyphens, and apostrophes
         return value.replace(/[^a-zA-Z\s\-']/g, '');
     };
 
+    /**
+     * COMPREHENSIVE FIELD VALIDATION SYSTEM
+     * Validates all form fields with specific rules for each field type
+     * 
+     * Validation Rules:
+     * - productName: Required, only letters/spaces/hyphens/apostrophes
+     * - category: Required selection from dropdown
+     * - size: Required selection based on category
+     * - unit: Required selection based on category
+     * - price: Must be 0 or greater, numeric only
+     * - currentStock: Must be 0 or greater, integer only
+     * - safetyStock: Optional, but if provided must be 0 or greater
+     * - reorderLevel: Required, must be 0 or greater
+     */
     const validateField = (field, value) => {
         const errors = { ...formErrors };
         
@@ -110,6 +136,7 @@ const ProductManagement = () => {
                 }
                 break;
             case 'price':
+                // PRICE VALIDATION: Must be numeric and non-negative
                 const price = parseFloat(value);
                 if (isNaN(price) || price < 0) {
                     errors.price = 'Price must be 0 or greater';
@@ -118,6 +145,7 @@ const ProductManagement = () => {
                 }
                 break;
             case 'currentStock':
+                // STOCK VALIDATION: Must be integer and non-negative
                 const stock = parseInt(value);
                 if (isNaN(stock) || stock < 0) {
                     errors.currentStock = 'Current stock must be 0 or greater';
@@ -126,6 +154,7 @@ const ProductManagement = () => {
                 }
                 break;
             case 'safetyStock':
+                // SAFETY STOCK VALIDATION: Optional field, but if provided must be valid
                 const safetyStock = parseInt(value);
                 if (value && (isNaN(safetyStock) || safetyStock < 0)) {
                     errors.safetyStock = 'Safety stock must be 0 or greater';
@@ -134,6 +163,7 @@ const ProductManagement = () => {
                 }
                 break;
             case 'reorderLevel':
+                // REORDER LEVEL VALIDATION: Required field, must be non-negative
                 const reorderLevel = parseInt(value);
                 if (isNaN(reorderLevel) || reorderLevel < 0) {
                     errors.reorderLevel = 'Reorder level must be 0 or greater';
@@ -149,6 +179,18 @@ const ProductManagement = () => {
         return Object.keys(errors).length === 0;
     };
 
+    /**
+     * FORM VALIDATION CHECKER
+     * Comprehensive validation to ensure form is ready for submission
+     * 
+     * Checks:
+     * - No validation errors exist
+     * - All required fields are filled
+     * - All numeric fields have valid values
+     * 
+     * Required fields: productName, category, size, unit, price, currentStock, reorderLevel
+     * Optional fields: safetyStock, description
+     */
     const isFormValid = () => {
         return Object.keys(formErrors).length === 0 && 
                formData.productName.trim() && 
@@ -160,6 +202,22 @@ const ProductManagement = () => {
                parseInt(formData.reorderLevel) >= 0;
     };
 
+    /**
+     * KEYBOARD INPUT VALIDATION FOR NUMERIC FIELDS
+     * Prevents invalid characters from being typed in numeric inputs
+     * 
+     * Allows:
+     * - Numbers (0-9) from both keyboard and numpad
+     * - Decimal point (.) for price fields
+     * - Control keys (backspace, delete, tab, enter, escape)
+     * - Navigation keys (home, end, arrow keys)
+     * - Copy/paste shortcuts (Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X)
+     * 
+     * Blocks:
+     * - Letters and special characters
+     * - Negative signs (-)
+     * - Any non-numeric input
+     */
     // Prevent negative values from being entered
     const handleKeyDown = (e) => {
         // Allow: backspace, delete, tab, escape, enter
@@ -179,6 +237,17 @@ const ProductManagement = () => {
         }
     };
 
+    /**
+     * PASTE VALIDATION FOR NUMERIC FIELDS
+     * Validates pasted content to ensure only valid numbers are accepted
+     * 
+     * Prevents pasting:
+     * - Non-numeric text
+     * - Negative numbers
+     * - Invalid strings or special characters
+     * 
+     * Only allows pasting of valid positive numbers
+     */
     const handlePaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
         if (isNaN(parseFloat(pastedText)) || parseFloat(pastedText) < 0) {

@@ -57,11 +57,23 @@ const RawMaterialManagement = () => {
     };
 
     // Validation functions
+    /**
+     * RAW MATERIAL FORM VALIDATION SYSTEM
+     * Validates all fields in both Add and Edit Raw Material forms
+     * 
+     * @param {string} field - The field being validated ('type', 'quantity', 'reorderLevel', 'safetyStock')
+     * @param {string} value - The current value of the field
+     * @param {boolean} isEdit - Whether this is for edit form (true) or add form (false)
+     * @returns {boolean} - True if validation passes, false otherwise
+     */
     const validateField = (field, value, isEdit = false) => {
         const errors = isEdit ? { ...editMaterialErrors } : { ...newMaterialErrors };
         
         switch (field) {
             case 'type':
+                // VALIDATION: Material Type Selection
+                // - Required field validation
+                // - Checks if user has selected a material type from dropdown
                 if (!value.trim()) {
                     errors.type = 'Material type is required';
                 } else {
@@ -71,6 +83,10 @@ const RawMaterialManagement = () => {
             case 'quantity':
             case 'reorderLevel':
             case 'safetyStock':
+                // VALIDATION: Numeric Fields (Quantity, Reorder Level, Safety Stock)
+                // - Ensures values are valid numbers
+                // - Prevents negative values (must be 0 or greater)
+                // - Uses parseFloat to handle decimal values (e.g., 10.5 kg)
                 const numValue = parseFloat(value);
                 if (isNaN(numValue) || numValue < 0) {
                     let errorMessage = 'Value must be 0 or greater';
@@ -86,6 +102,7 @@ const RawMaterialManagement = () => {
                 break;
         }
         
+        // Update appropriate error state based on form type
         if (isEdit) {
             setEditMaterialErrors(errors);
         } else {
@@ -94,11 +111,33 @@ const RawMaterialManagement = () => {
         return Object.keys(errors).length === 0;
     };
 
+    /**
+     * FORM VALIDATION CHECKER
+     * Determines if form is ready for submission by checking error state
+     * 
+     * @param {Object} errors - Error object containing validation errors
+     * @returns {boolean} - True if no errors exist (form is valid)
+     */
     const isFormValid = (errors) => {
         return Object.keys(errors).length === 0;
     };
 
 
+    /**
+     * KEYBOARD INPUT VALIDATION
+     * Prevents users from typing invalid characters in numeric fields
+     * 
+     * Real-time validation that blocks:
+     * - Negative signs (-)
+     * - Non-numeric characters (except decimals)
+     * - Special characters
+     * 
+     * Allows:
+     * - Numbers (0-9)
+     * - Decimal point (.)
+     * - Control keys (backspace, delete, tab, etc.)
+     * - Copy/paste shortcuts (Ctrl+C, Ctrl+V, etc.)
+     */
     // Prevent negative values from being entered
     const handleKeyDown = (e) => {
         // Allow: backspace, delete, tab, escape, enter
@@ -121,6 +160,17 @@ const RawMaterialManagement = () => {
         }
     };
 
+    /**
+     * PASTE VALIDATION
+     * Validates content when user pastes data into numeric fields
+     * 
+     * Prevents pasting:
+     * - Non-numeric values
+     * - Negative numbers
+     * - Invalid text strings
+     * 
+     * Ensures only valid positive numbers can be pasted
+     */
     const handlePaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
         const num = parseFloat(pastedText);
@@ -129,6 +179,20 @@ const RawMaterialManagement = () => {
         }
     };
 
+    /**
+     * POSITIVE NUMBER CHANGE HANDLER
+     * Handles onChange events for numeric inputs with additional validation
+     * 
+     * Features:
+     * - Removes leading zeros (except for 0.xx decimals)
+     * - Blocks negative values in real-time
+     * - Updates state immediately when valid input detected
+     * 
+     * @param {Event} e - The input change event
+     * @param {Function} stateSetter - State setter function (setNewMaterial or setEditMaterial)
+     * @param {string} field - The field name being updated
+     * @param {boolean} isEdit - Whether this is for edit form
+     */
     // OnChange handler to block negative values (allow 0)
     const handlePositiveNumberChange = (e, stateSetter, field, isEdit = false) => {
         let value = e.target.value;
