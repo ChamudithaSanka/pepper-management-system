@@ -66,13 +66,15 @@ const InventoryDashboard = () => {
                         subtitle: 'Total products'
                     };
                     
-                    // Calculate product categories
-                    const groundPepper = products.filter(p => p.category === 'Ground Pepper').length;
-                    const wholePepper = products.filter(p => p.category === 'Whole Pepper').length;
+                    // Calculate product categories based on actual category names
                     const pepperPowder = products.filter(p => p.category === 'Pepper Powder').length;
-                    const otherProducts = products.filter(p => !['Ground Pepper', 'Whole Pepper', 'Pepper Powder'].includes(p.category)).length;
+                    const pepperWhole = products.filter(p => p.category === 'Pepper Whole').length;
+                    const pepperSpray = products.filter(p => p.category === 'Pepper Spray').length;
+                    const pepperSauce = products.filter(p => p.category === 'Pepper Sauce').length;
+                    const pepperOil = products.filter(p => p.category === 'Pepper Oil').length;
+                    const others = products.filter(p => p.category === 'Others').length;
                     
-                    realData.productCategories = [groundPepper, wholePepper, pepperPowder, otherProducts];
+                    realData.productCategories = [pepperPowder, pepperWhole, pepperSpray, pepperSauce, pepperOil, others];
                     
                     // Calculate low stock
                     const lowStock = products.filter(p => p.stockStatus === 'LowStock').length;
@@ -159,11 +161,25 @@ const InventoryDashboard = () => {
                 {
                     title: 'Product Categories',
                     data: {
-                        labels: ['Ground Pepper', 'Whole Pepper', 'Pepper Powder', 'Other Products'],
+                        labels: ['Pepper Powder', 'Pepper Whole', 'Pepper Spray', 'Pepper Sauce', 'Pepper Oil', 'Others'],
                         datasets: [{
-                            data: realData.productCategories || [0, 0, 0, 0],
-                            backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B'],
-                            borderColor: ['#047857', '#1D4ED8', '#7C3AED', '#D97706'],
+                            data: realData.productCategories || [0, 0, 0, 0, 0, 0],
+                            backgroundColor: [
+                                '#10B981', // green-500 - Pepper Powder
+                                '#3B82F6', // blue-500 - Pepper Whole
+                                '#8B5CF6', // purple-500 - Pepper Spray
+                                '#F59E0B', // yellow-500 - Pepper Sauce
+                                '#EF4444', // red-500 - Pepper Oil
+                                '#6B7280'  // gray-500 - Others
+                            ],
+                            borderColor: [
+                                '#047857', // green-700
+                                '#1D4ED8', // blue-700
+                                '#7C3AED', // purple-700
+                                '#D97706', // yellow-700
+                                '#DC2626', // red-700
+                                '#374151'  // gray-700
+                            ],
                             borderWidth: 2
                         }]
                     }

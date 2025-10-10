@@ -31,14 +31,36 @@ const MaterialOrders = () => {
         }
     };
 
+    /**
+     * DELIVERY QUANTITY VALIDATION HANDLER
+     * Validates and processes delivery of raw material orders
+     * 
+     * Validation Rules:
+     * - Delivered quantity must be a valid positive number
+     * - Delivered quantity cannot exceed requested quantity
+     * - Input sanitization using parseFloat
+     * - User confirmation through prompt dialog
+     * 
+     * Business Logic:
+     * - Updates order status to 'Delivered'
+     * - Updates inventory stock levels
+     * - Records delivery timestamp
+     * 
+     * @param {string} rmOrderId - Raw material order ID
+     * @param {number} requestedQty - Originally requested quantity
+     */
     const markAsDelivered = async (rmOrderId, requestedQty) => {
         try {
+            // PROMPT VALIDATION: Get delivered quantity from user
             const deliveredQty = prompt(`Enter delivered quantity (requested: ${requestedQty} kg):`);
+            
+            // INPUT VALIDATION: Check if valid number entered
             if (!deliveredQty || isNaN(deliveredQty) || parseFloat(deliveredQty) <= 0) {
                 alert('Please enter a valid quantity');
                 return;
             }
 
+            // BUSINESS RULE VALIDATION: Cannot deliver more than requested
             if (parseFloat(deliveredQty) > parseFloat(requestedQty)) {
                 alert('Delivered quantity cannot exceed requested quantity');
                 return;
