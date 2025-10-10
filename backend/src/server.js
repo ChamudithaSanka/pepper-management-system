@@ -7,6 +7,10 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import productRoutes from './routes/productRoutes.js';
 import rawMaterialRoutes from './routes/rawMaterialRoutes.js';
+import farmerRoutes from './routes/farmerRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
+import employeeRoutes from './routes/employeeRoutes.js';
 import rawMaterialOrderRoutes from './routes/rawMaterialOrderRoutes.js';
 import inventoryHistoryRoutes from './routes/inventoryHistoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -57,6 +61,10 @@ app.use(session({
 // Routes
 app.use('/api/products', productRoutes); 
 app.use('/api/raw-materials', rawMaterialRoutes); 
+app.use('/api/farmers', farmerRoutes); 
+app.use('/api/users', userRoutes); 
+app.use('/api/customers', customerRoutes); 
+app.use('/api/employees', employeeRoutes);
 app.use('/api/rm-orders', rawMaterialOrderRoutes);
 app.use('/api/inventory-history', inventoryHistoryRoutes);
 app.use('/api/orders', orderRoutes);
