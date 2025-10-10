@@ -259,6 +259,7 @@ export const deleteOrder = async (req, res) => {
             });
         }
 
+
         await RawMaterialOrder.findByIdAndDelete(order._id);
 
         res.status(200).json({

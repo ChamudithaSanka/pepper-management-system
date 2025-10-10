@@ -21,9 +21,6 @@ import deliveryRoutes from './routes/deliveryRoutes.js';
 import otherExpenseRoutes from './routes/otherExpenseRoutes.js';
 import customerPaymentMethodRoutes from './routes/customerPaymentMethodRoutes.js';
 
-import userRoutes from './routes/userRoutes.js';
-import customerRoutes from './routes/customerRoutes.js';
-
 dotenv.config();
 
 // Get current directory in ES modules
@@ -74,12 +71,6 @@ app.use('/api/salaries', salaryRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/expenses', otherExpenseRoutes);
 app.use('/api/paymentMethods', customerPaymentMethodRoutes);
-
-app.use('/api/orders', orderRoutes);
-app.use('/api/payments', paymentRoutes);
-
-app.use('/api/users', userRoutes); 
-app.use('/api/customers', customerRoutes); 
 
 // Basic route
 app.get('/', (req, res) => {

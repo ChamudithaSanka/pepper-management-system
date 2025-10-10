@@ -71,7 +71,7 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Active", "Inactive"], // Allow both Active and Inactive
+        enum: ["Active", "Inactive"],
         default: "Active"
     }
 }, {
@@ -104,6 +104,8 @@ productSchema.pre('save', function(next) {
     } else {
         this.stockStatus = "InStock";
     }
+
+    // Status can be Active or Inactive
 
     next();
 });

@@ -180,7 +180,7 @@ export const updateProduct = async (req, res) => {
         // Create a copy of the old product for history tracking
         const oldProductData = oldProduct.toObject();
 
-        // Update the product data (including status if provided)
+        // Update the product data
         Object.assign(oldProduct, { ...updateData, currentStock });
         
         // Use save() instead of findByIdAndUpdate to trigger pre-save hooks
