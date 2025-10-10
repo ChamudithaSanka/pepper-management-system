@@ -80,30 +80,25 @@ const MaterialOrders = () => {
         }
     };
 
-    const deleteOrder = async (rmOrderId, materialType) => {
-        // Show confirmation dialog
-        const confirmed = window.confirm(`Are you sure you want to delete this ${materialType} order?\n\nThis action cannot be undone.`);
-        
-        if (!confirmed) {
-            return; // User cancelled
-        }
+    const deleteOrder = async (rmOrderId) => {
+        if (window.confirm('Are you sure you want to delete this order?')) {
+            try {
+                const response = await fetch(`/api/rm-orders/${rmOrderId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
 
-        try {
-            const response = await fetch(`/api/rm-orders/${rmOrderId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                fetchOrders(); // Refresh the orders list
-                alert('Order deleted successfully');
-            } else {
-                const errorData = await response.json();
-                alert(errorData.error || 'Failed to delete order');
+                if (response.ok) {
+                    alert('Order deleted successfully!');
+                    fetchOrders(); // Refresh the orders list
+                } else {
+                    const data = await response.json();
+                    alert(`Failed to delete order: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                alert('Error deleting order. Please try again.');
             }
-        } catch (error) {
-            console.error('Error deleting order:', error);
-            alert('Error deleting order');
         }
     };
 
@@ -279,15 +274,15 @@ const MaterialOrders = () => {
                                             <div className="flex space-x-1">
                                                 {order.status === 'Pending' && (
                                                     <button 
-                                                        onClick={() => markAsDelivered(order.rmOrderId, order.requestedQtyKg)}
-                                                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                                        onClick={() => markAsDelivered(order.rmOrderId, order.requestedQtyKg)} 
+                                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
                                                         Mark Delivered
                                                     </button>
                                                 )}
                                                 <button 
-                                                    onClick={() => deleteOrder(order.rmOrderId, order.rawMaterialType)}
-                                                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                                    onClick={() => deleteOrder(order.rmOrderId)} 
+                                                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors"
                                                 >
                                                     Delete
                                                 </button>

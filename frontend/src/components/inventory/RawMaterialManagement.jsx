@@ -8,7 +8,7 @@ const RawMaterialManagement = () => {
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showAddMaterialForm, setShowAddMaterialForm] = useState(false);
-    const [showEditMaterialForm, setShowEditMaterialForm] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [newMaterial, setNewMaterial] = useState({
         type: '',
@@ -23,8 +23,9 @@ const RawMaterialManagement = () => {
         safetyStock: ''
     });
     const [error, setError] = useState('');
-    const [editError, setEditError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [newMaterialErrors, setNewMaterialErrors] = useState({});
+    const [editMaterialErrors, setEditMaterialErrors] = useState({});
 
     useEffect(() => {
         fetchRawMaterials();
@@ -155,9 +156,8 @@ const RawMaterialManagement = () => {
             reorderLevel: material.reorderLevelKg.toString(),
             safetyStock: (material.safetyStockKg || 0).toString()
         });
-        setEditError(''); // Clear any previous errors
-        setSuccessMessage(''); // Clear any success messages
-        setShowEditMaterialForm(true);
+        setEditMaterialErrors({});
+        setShowEditModal(true);
     };
 
     const handleDeleteMaterial = async (materialId, materialType) => {
@@ -223,7 +223,6 @@ const RawMaterialManagement = () => {
             });
 
             if (response.ok) {
-                const data = await response.json();
                 setNewMaterial({
                     type: '',
                     quantity: '',
@@ -232,12 +231,7 @@ const RawMaterialManagement = () => {
                 });
                 setNewMaterialErrors({});
                 setShowAddMaterialForm(false);
-                setSuccessMessage(`Raw material "${data.data.type}" has been successfully added!`);
                 fetchRawMaterials();
-                // Clear success message after 5 seconds
-                setTimeout(() => {
-                    setSuccessMessage('');
-                }, 5000);
             } else {
                 const data = await response.json();
                 setError(data.message || 'Failed to add raw material');
@@ -250,28 +244,15 @@ const RawMaterialManagement = () => {
         }
     };
 
-    const handleEditMaterial = async (e) => {
+    const handleUpdateMaterial = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setEditError('');
+        setError('');
+        setSuccessMessage('');
 
-        // Frontend validation
-        const errors = [];
-
-        if (!editMaterial.type.trim()) {
-            errors.push('Material type is required');
-        }
-
-        if (!editMaterial.quantity || parseFloat(editMaterial.quantity) <= 0) {
-            errors.push('Quantity must be greater than 0');
-        }
-
-        if (!editMaterial.reorderLevel || parseFloat(editMaterial.reorderLevel) < 0) {
-            errors.push('Reorder level must be 0 or greater');
-        }
-
-        if (errors.length > 0) {
-            setEditError(errors.join('. '));
+        // Check if form is valid using our validation state
+        if (!isFormValid(editMaterialErrors)) {
+            setError('Please fix the validation errors before submitting');
             setLoading(false);
             return;
         }
@@ -294,28 +275,29 @@ const RawMaterialManagement = () => {
             });
 
             if (response.ok) {
-                const data = await response.json();
                 setEditMaterial({
                     type: '',
                     quantity: '',
                     reorderLevel: '',
                     safetyStock: ''
                 });
-                setShowEditMaterialForm(false);
+                setEditMaterialErrors({});
                 setEditingMaterial(null);
-                setSuccessMessage(`Raw material "${data.data.type}" has been successfully updated!`);
+                setShowEditModal(false);
+                setSuccessMessage('Raw material updated successfully!');
                 fetchRawMaterials();
-                // Clear success message after 5 seconds
+                
+                // Clear success message after 3 seconds
                 setTimeout(() => {
                     setSuccessMessage('');
-                }, 5000);
+                }, 3000);
             } else {
                 const data = await response.json();
-                setEditError(data.message || 'Failed to update raw material');
+                setError(data.message || 'Failed to update raw material');
             }
         } catch (error) {
             console.error('Error updating raw material:', error);
-            setEditError('Error updating raw material');
+            setError('Error updating raw material');
         } finally {
             setLoading(false);
         }
@@ -351,22 +333,8 @@ const RawMaterialManagement = () => {
                 </div>
                 <div className="flex space-x-3">
                     <button
-                        onClick={() => {
-                            setShowAddMaterialForm(true);
-                            setSuccessMessage(''); // Clear any success messages
-                            setError(''); // Clear any error messages
-                        }}
-                        disabled={rawMaterials.some(material => material.type === 'Green Pepper') && 
-                                 rawMaterials.some(material => material.type === 'Black Pepper')}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                            rawMaterials.some(material => material.type === 'Green Pepper') && 
-                            rawMaterials.some(material => material.type === 'Black Pepper')
-                                ? 'bg-gray-400 text-white cursor-not-allowed' 
-                                : 'bg-green-600 hover:bg-green-700 text-white'
-                        }`}
-                        title={rawMaterials.some(material => material.type === 'Green Pepper') && 
-                               rawMaterials.some(material => material.type === 'Black Pepper')
-                                ? 'All material types have been added' : ''}
+                        onClick={() => setShowAddMaterialForm(true)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
                         + Add Raw Material
                     </button>
@@ -438,21 +406,17 @@ const RawMaterialManagement = () => {
 
                 {rawMaterials.length === 0 ? (
                     <div className="p-8 text-center">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                        </svg>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No Raw Materials Found</h3>
-                        <p className="text-gray-500 mb-4">Start by adding raw materials to your inventory</p>
-                        <button
-                            onClick={() => {
-                                setShowAddMaterialForm(true);
-                                setSuccessMessage(''); // Clear any success messages
-                                setError(''); // Clear any error messages
-                            }}
-                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                        >
-                            + Add Your First Raw Material
-                        </button>
+                        <div className="text-gray-400">
+                            Start by adding raw materials to your inventory
+                        </div>
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setShowAddMaterialForm(true)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                            >
+                                + Add Your First Raw Material
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
@@ -496,28 +460,18 @@ const RawMaterialManagement = () => {
                                             <td className="px-2 py-2 whitespace-nowrap">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockInfo.color}`}>{stockInfo.status}</span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {material.reorderLevelKg}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockInfo.color}`}>
-                                                    {stockInfo.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {formatDate(material.updatedAt)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <button
-                                                        onClick={() => handleOrderClick(material)}
-                                                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">{formatDate(material.updatedAt)}</td>
+                                            <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
+                                                <div className="flex space-x-1">
+                                                    <button 
+                                                        onClick={() => handleOrderClick(material)} 
+                                                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
-                                                        Place an Order
+                                                        Place Order
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleEditClick(material)}
-                                                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                                        onClick={() => handleEditClick(material)} 
+                                                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors"
                                                     >
                                                         Edit
                                                     </button>
@@ -596,20 +550,11 @@ const RawMaterialManagement = () => {
                                     required
                                 >
                                     <option value="">Select Material Type</option>
-                                    {/* Only show material types that haven't been added yet */}
-                                    {!rawMaterials.some(material => material.type === 'Green Pepper') && (
-                                        <option value="Green Pepper">Green Pepper</option>
-                                    )}
-                                    {!rawMaterials.some(material => material.type === 'Black Pepper') && (
-                                        <option value="Black Pepper">Black Pepper</option>
-                                    )}
+                                    <option value="Green Pepper">Green Pepper</option>
+                                    <option value="Black Pepper">Black Pepper</option>
                                 </select>
-                                {/* Show message if all material types are already added */}
-                                {rawMaterials.some(material => material.type === 'Green Pepper') && 
-                                 rawMaterials.some(material => material.type === 'Black Pepper') && (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        All available material types have been added.
-                                    </p>
+                                {newMaterialErrors.type && (
+                                    <p className="text-red-600 text-sm mt-1">{newMaterialErrors.type}</p>
                                 )}
                             </div>
                             
@@ -712,39 +657,63 @@ const RawMaterialManagement = () => {
             )}
 
             {/* Edit Raw Material Modal */}
-            {showEditMaterialForm && editingMaterial && createPortal(
+            {showEditModal && createPortal(
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
                         <h3 className="text-lg font-medium mb-4">Edit Raw Material</h3>
-                        <form onSubmit={handleEditMaterial} className="space-y-4">
+                        <form onSubmit={handleUpdateMaterial} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Material ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingMaterial?.rawMaterialId || ''}
+                                    disabled
+                                    className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100 text-gray-600"
+                                />
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Material Type *
                                 </label>
                                 <select
                                     value={editMaterial.type}
-                                    onChange={(e) => setEditMaterial({...editMaterial, type: e.target.value})}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    onChange={(e) => {
+                                        setEditMaterial({...editMaterial, type: e.target.value});
+                                        validateField('type', e.target.value, true);
+                                    }}
+                                    className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent ${
+                                        editMaterialErrors.type 
+                                            ? 'border-red-300 focus:ring-red-500' 
+                                            : 'border-gray-300 focus:ring-green-500'
+                                    }`}
                                     required
                                 >
                                     <option value="">Select Material Type</option>
                                     <option value="Green Pepper">Green Pepper</option>
                                     <option value="Black Pepper">Black Pepper</option>
                                 </select>
+                                {editMaterialErrors.type && (
+                                    <p className="text-red-600 text-sm mt-1">{editMaterialErrors.type}</p>
+                                )}
                             </div>
                             
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Current Quantity (kg) *
+                                    Quantity (kg) *
                                 </label>
                                 <input
                                     type="number"
                                     placeholder="Enter quantity in kg"
                                     value={editMaterial.quantity}
-                                    onChange={(e) => setEditMaterial({...editMaterial, quantity: e.target.value})}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'quantity', true)}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
                             </div>
@@ -757,10 +726,12 @@ const RawMaterialManagement = () => {
                                     type="number"
                                     placeholder="Minimum stock level to trigger reorder"
                                     value={editMaterial.reorderLevel}
-                                    onChange={(e) => setEditMaterial({...editMaterial, reorderLevel: e.target.value})}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'reorderLevel', true)}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
                                     min="0"
                                     step="0.1"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
                                     required
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
@@ -768,32 +739,55 @@ const RawMaterialManagement = () => {
                                 </p>
                             </div>
                             
-                            {editError && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Safety Stock (kg) *
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Minimum stock that cannot be used"
+                                    value={editMaterial.safetyStock}
+                                    onChange={e => handlePositiveNumberChange(e, setEditMaterial, 'safetyStock', true)}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={handlePaste}
+                                    min="0"
+                                    step="0.1"
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent border-gray-300 focus:ring-green-500"
+                                    required
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    This amount cannot be used for production to prevent stock from reaching zero
+                                </p>
+                            </div>
+                            
+                            {error && (
                                 <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
-                                    {editError}
+                                    {error}
                                 </div>
                             )}
                             
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
-                                    disabled={loading}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                                    disabled={loading || !isFormValid(editMaterialErrors)}
+                                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
                                 >
                                     {loading ? 'Updating...' : 'Update Material'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setShowEditMaterialForm(false);
-                                        setEditingMaterial(null);
-                                        setEditError('');
+                                        setShowEditModal(false);
+                                        setError('');
+                                        setSuccessMessage('');
+                                        setEditMaterialErrors({});
                                         setEditMaterial({
                                             type: '',
                                             quantity: '',
                                             reorderLevel: '',
                                             safetyStock: ''
                                         });
+                                        setEditingMaterial(null);
                                     }}
                                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded font-medium transition-colors"
                                 >

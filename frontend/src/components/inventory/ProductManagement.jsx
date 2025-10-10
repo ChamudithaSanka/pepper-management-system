@@ -317,17 +317,6 @@ const ProductManagement = () => {
         }
 
         try {
-            // Validate raw material recipe is required and not empty
-            const validRecipes = formData.rawMaterialRecipe.filter(recipe => 
-                recipe.type && recipe.qtyPerUnitKg && recipe.wastePercentage
-            );
-
-            if (validRecipes.length === 0) {
-                setError('Raw Material Recipe is required. Please add at least one raw material.');
-                setLoading(false);
-                return;
-            }
-
             // Upload image first if there's one
             let imageUrl = editingProduct?.imageUrl || null;
             if (imageFile) {
@@ -834,18 +823,14 @@ const ProductManagement = () => {
                                         <td className="px-2 py-2 whitespace-nowrap text-sm font-medium">
                                             <div className="flex space-x-1">
                                                 <button 
-                                                    onClick={() => handleEdit(product)}
-                                                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                                    onClick={() => handleEdit(product)} 
+                                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors"
                                                 >
                                                     Edit
                                                 </button>
                                                 <button 
                                                     onClick={() => handleRestock(product)}
-                                                    className={`px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105 ${
-                                                        product.status === 'Inactive' 
-                                                            ? 'bg-gray-400 text-white cursor-not-allowed' 
-                                                            : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
-                                                    }`}
+                                                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                                                     disabled={product.status === 'Inactive'}
                                                     title={product.status === 'Inactive' ? 'Cannot restock inactive product' : 'Restock product'}
                                                 >
@@ -853,17 +838,17 @@ const ProductManagement = () => {
                                                 </button>
                                                 <button 
                                                     onClick={() => handleToggleStatus(product)}
-                                                    className={`px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105 text-white ${
+                                                    className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors ${
                                                         product.status === 'Active' 
-                                                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700' 
-                                                            : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                                                            ? 'bg-orange-600 hover:bg-orange-700' 
+                                                            : 'bg-green-600 hover:bg-green-700'
                                                     }`}
                                                 >
                                                     {product.status === 'Active' ? 'Deactivate' : 'Activate'}
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleDelete(product._id)}
-                                                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 transform hover:scale-105"
+                                                    onClick={() => handleDelete(product._id)} 
+                                                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors"
                                                 >
                                                     Delete
                                                 </button>
@@ -1114,7 +1099,7 @@ const ProductManagement = () => {
                                                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>
-                                                    <div className="flex text-sm text-gray-600 justify-center">
+                                                    <div className="text-sm text-gray-600">
                                                         <label className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
                                                             <span>Upload a file</span>
                                                             <input
@@ -1234,50 +1219,8 @@ const ProductManagement = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    placeholder="Qty per unit (kg)"
-                                                    value={recipe.qtyPerUnitKg}
-                                                    onChange={(e) => updateRecipeItem(index, 'qtyPerUnitKg', e.target.value)}
-                                                    onKeyDown={handleKeyDown}
-                                                    onPaste={handlePaste}
-                                                    min="0"
-                                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    placeholder="Waste %"
-                                                    value={recipe.wastePercentage}
-                                                    onChange={(e) => updateRecipeItem(index, 'wastePercentage', e.target.value)}
-                                                    onKeyDown={handleKeyDown}
-                                                    onPaste={handlePaste}
-                                                    min="0"
-                                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeRecipeItem(index)}
-                                                    className="text-red-600 hover:text-red-800 px-3 py-2"
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    
-                                    {formData.rawMaterialRecipe.length === 0 && (
-                                        <div className="text-center py-6 bg-gray-50 border border-gray-200 rounded-md">
-                                            <p className="text-gray-500 text-sm">No raw materials added yet</p>
-                                            <p className="text-red-600 text-xs mt-1">* At least one raw material is required</p>
-                                        </div>
-                                    )}
+                                        );
+                                    })}
                                 </div>
                                 
                                 <div className="flex justify-end space-x-3 pt-4">

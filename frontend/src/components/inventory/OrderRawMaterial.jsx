@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
     const [orderData, setOrderData] = useState({
         quantity: '',
+        // units are fixed to kg only now
         deliveryDate: '',
         notes: '',
         farmerId: ''
@@ -17,6 +18,7 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
             // Reset form when modal opens
             setOrderData({
                 quantity: '',
+                // units fixed to kg
                 deliveryDate: '',
                 notes: '',
                 farmerId: ''
@@ -169,9 +171,9 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                     {/* Quantity Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Quantity to Order (kg) *
+                            Quantity to Order *
                         </label>
-                        <div className="relative">
+                        <div className="flex space-x-2">
                             <input
                                 type="number"
                                 name="quantity"
@@ -180,11 +182,11 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
                                 min="1"
                                 step="0.1"
                                 required
-                                className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                placeholder="Enter quantity in kg"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                placeholder="Enter quantity"
                             />
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <span className="text-gray-500 text-sm">kg</span>
+                            <div>
+                                <span>kg</span>
                             </div>
                         </div>
                     </div>

@@ -209,6 +209,7 @@ const InventoryDashboard = () => {
                                 />
                             ))}
                         </div>
+
                     </div>
                 );
 
