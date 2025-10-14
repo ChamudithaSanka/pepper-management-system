@@ -12,6 +12,7 @@ const InventoryHistory = () => {
         sold: 0,
         updated: 0
     });
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         fetchInventoryHistory();
@@ -112,12 +113,27 @@ const InventoryHistory = () => {
                 if (!response.ok) {
                     throw new Error('Failed to delete history record');
                 }
+                
+                // Parse response and show success message
+                const result = await response.json();
+                setSuccessMessage(result.message || 'Record deleted successfully');
+                
+                // Hide success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+                
                 // Refresh the data after deletion
                 fetchInventoryHistory(filterStatus !== 'all' ? filterStatus : null);
                 fetchInventoryHistoryCounts();
             } catch (err) {
                 console.error('Error deleting inventory history:', err);
-                alert('Failed to delete inventory history record: ' + err.message);
+                setError('Failed to delete inventory history record: ' + err.message);
+                
+                // Hide error message after 3 seconds
+                setTimeout(() => {
+                    setError('');
+                }, 3000);
             }
         }
     };
@@ -274,14 +290,48 @@ const InventoryHistory = () => {
                 </div>
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+                <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md flex justify-between items-center">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                        </svg>
+                        <span>{successMessage}</span>
+                    </div>
+                    <button onClick={() => setSuccessMessage('')} className="text-green-700 hover:text-green-900">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+                <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md flex justify-between items-center">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+                        </svg>
+                        <span>{error}</span>
+                    </div>
+                    <button onClick={() => setError('')} className="text-red-700 hover:text-red-900">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            )}
+            
             {/* Inventory History Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="flex justify-center items-center p-8">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
                     </div>
-                ) : error && !inventoryHistory.length ? (
-                    <div className="text-center p-8 text-red-500">{error}</div>
+                ) : !inventoryHistory.length ? (
+                    <div className="text-center p-8 text-gray-500">No inventory history records found</div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">

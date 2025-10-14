@@ -194,18 +194,24 @@ export const deleteInventoryHistory = async (req, res) => {
     try {
         const { id } = req.params;
         
-        const result = await InventoryHistory.findByIdAndDelete(id);
-        
-        if (!result) {
+        const record = await InventoryHistory.findById(id);
+        if (!record) {
             return res.status(404).json({
                 success: false,
                 error: 'History record not found'
             });
         }
         
+        // Store product info before deletion for the response message
+        const productName = record.productName;
+        const changeType = record.changeType;
+        
+        // Delete the record
+        await InventoryHistory.findByIdAndDelete(id);
+        
         res.status(200).json({
             success: true,
-            message: 'History record deleted successfully'
+            message: `${productName} ${changeType.toLowerCase()} record deleted successfully`
         });
     } catch (error) {
         console.error('Error deleting inventory history:', error);
