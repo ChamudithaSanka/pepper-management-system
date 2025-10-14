@@ -1,9 +1,17 @@
 import InventoryHistory from '../models/inventoryHistoryModel.js';
 
-// Get all inventory history records
+// Get all inventory history records with optional filtering
 export const getAllInventoryHistory = async (req, res) => {
     try {
-        const history = await InventoryHistory.find()
+        const { changeType } = req.query;
+        
+        // Build filter query
+        const filter = {};
+        if (changeType && ['Added', 'Removed', 'Updated', 'Sold'].includes(changeType)) {
+            filter.changeType = changeType;
+        }
+        
+        const history = await InventoryHistory.find(filter)
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -30,6 +38,46 @@ export const getSoldProductsHistory = async (req, res) => {
             success: true,
             count: soldHistory.length,
             data: soldHistory
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get inventory history counts by change type
+export const getInventoryHistoryCounts = async (req, res) => {
+    try {
+        // Get counts of each change type in a single aggregation operation
+        const counts = await InventoryHistory.aggregate([
+            {
+                $group: {
+                    _id: "$changeType",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        
+        // Convert to a more usable format
+        const result = {
+            Added: 0,
+            Removed: 0,
+            Sold: 0,
+            Updated: 0
+        };
+        
+        // Fill in the actual counts
+        counts.forEach(item => {
+            if (result.hasOwnProperty(item._id)) {
+                result[item._id] = item.count;
+            }
+        });
+        
+        res.status(200).json({
+            success: true,
+            data: result
         });
     } catch (error) {
         res.status(500).json({

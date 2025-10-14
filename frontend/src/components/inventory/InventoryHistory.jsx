@@ -9,7 +9,8 @@ const InventoryHistory = () => {
     const [stats, setStats] = useState({
         added: 0,
         removed: 0,
-        sold: 0
+        sold: 0,
+        updated: 0
     });
 
     useEffect(() => {
@@ -17,27 +18,60 @@ const InventoryHistory = () => {
     }, []);
     
     useEffect(() => {
-        // Calculate stats when inventory history changes
-        calculateStats();
-    }, [inventoryHistory]);
+        // Fetch real counts from API for stat cards
+        fetchInventoryHistoryCounts();
+    }, []);
     
-    const calculateStats = () => {
+    const fetchInventoryHistoryCounts = async () => {
+        try {
+            const response = await fetch('/api/inventory-history/counts');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch inventory history counts');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                setStats({
+                    added: result.data.Added || 0,
+                    removed: result.data.Removed || 0, 
+                    sold: result.data.Sold || 0,
+                    updated: result.data.Updated || 0
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching inventory history counts:', error);
+            // Fallback to calculating from current data if API fails
+            calculateStatsFromCurrentData();
+        }
+    };
+    
+    // Fallback method if API call fails
+    const calculateStatsFromCurrentData = () => {
         const added = inventoryHistory.filter(item => item.changeType === 'Added').length;
         const removed = inventoryHistory.filter(item => item.changeType === 'Removed').length;
         const sold = inventoryHistory.filter(item => item.changeType === 'Sold').length;
+        const updated = inventoryHistory.filter(item => item.changeType === 'Updated').length;
         
         setStats({
             added,
             removed,
-            sold
+            sold,
+            updated
         });
     };
 
-    const fetchInventoryHistory = async () => {
+    const fetchInventoryHistory = async (filterChangeType = null) => {
         setLoading(true);
         try {
             // Try to fetch real data from the API
-            const response = await fetch('/api/inventory-history');
+            let url = '/api/inventory-history';
+            if (filterChangeType) {
+                url += `?changeType=${filterChangeType}`;
+            }
+            
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory history');
@@ -47,6 +81,10 @@ const InventoryHistory = () => {
             
             if (result.success && result.data) {
                 setInventoryHistory(result.data);
+                // Only update filter status if explicitly requested
+                if (filterChangeType) {
+                    setFilterStatus(filterChangeType);
+                }
             } else {
                 throw new Error(result.error || 'Failed to load data');
             }
@@ -56,44 +94,23 @@ const InventoryHistory = () => {
             console.error('Error fetching inventory history:', err);
             // If API call fails, use mock data
             const mockData = generateMockInventoryHistory();
-            setInventoryHistory(mockData);
+            
+            // Apply filter if requested
+            if (filterChangeType) {
+                const filteredData = mockData.filter(item => item.changeType === filterChangeType);
+                setInventoryHistory(filteredData.length > 0 ? filteredData : mockData);
+                setFilterStatus(filterChangeType);
+            } else {
+                setInventoryHistory(mockData);
+            }
+            
             // Don't set error message so the UI will show the mock data
             setError('');
         } finally {
             setLoading(false);
         }
     };
-    
-    const fetchSoldProducts = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('/api/inventory-history/sold');
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch sold products');
-            }
-            
-            const result = await response.json();
-            
-            if (result.success && result.data) {
-                setInventoryHistory(result.data);
-                setFilterStatus('Sold');
-            } else {
-                throw new Error(result.error || 'Failed to load sold products');
-            }
-            
-            setError('');
-        } catch (err) {
-            console.error('Error fetching sold products:', err);
-            // If API call fails, filter mock data to only show sold products
-            const mockData = generateMockInventoryHistory().filter(item => item.changeType === 'Sold');
-            setInventoryHistory(mockData);
-            setFilterStatus('Sold');
-            setError('');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // fetchSoldProducts has been consolidated into fetchInventoryHistory
 
     // Generate mock data for demonstration
     const generateMockInventoryHistory = () => {
@@ -206,11 +223,7 @@ const InventoryHistory = () => {
                 {/* Total Added Products Card */}
                 <div 
                     className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 cursor-pointer hover:bg-green-50 transition-colors"
-                    onClick={() => {
-                        setFilterStatus('Added');
-                        const addedItems = inventoryHistory.filter(item => item.changeType === 'Added');
-                        setInventoryHistory(addedItems.length > 0 ? addedItems : inventoryHistory);
-                    }}
+                    onClick={() => fetchInventoryHistory('Added')}
                 >
                     <div className="flex justify-between">
                         <div>
@@ -228,11 +241,7 @@ const InventoryHistory = () => {
                 {/* Total Removed Products Card */}
                 <div 
                     className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500 cursor-pointer hover:bg-red-50 transition-colors"
-                    onClick={() => {
-                        setFilterStatus('Removed');
-                        const removedItems = inventoryHistory.filter(item => item.changeType === 'Removed');
-                        setInventoryHistory(removedItems.length > 0 ? removedItems : inventoryHistory);
-                    }}
+                    onClick={() => fetchInventoryHistory('Removed')}
                 >
                     <div className="flex justify-between">
                         <div>
@@ -250,7 +259,7 @@ const InventoryHistory = () => {
                 {/* Total Sold Products Card */}
                 <div 
                     className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500 cursor-pointer hover:bg-blue-50 transition-colors"
-                    onClick={fetchSoldProducts}
+                    onClick={() => fetchInventoryHistory('Sold')}
                 >
                     <div className="flex justify-between">
                         <div>
@@ -274,9 +283,11 @@ const InventoryHistory = () => {
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             value={filterStatus}
                             onChange={(e) => {
-                                setFilterStatus(e.target.value);
-                                if (e.target.value === 'all') {
+                                const selectedValue = e.target.value;
+                                if (selectedValue === 'all') {
                                     fetchInventoryHistory();
+                                } else {
+                                    fetchInventoryHistory(selectedValue);
                                 }
                             }}
                         >
