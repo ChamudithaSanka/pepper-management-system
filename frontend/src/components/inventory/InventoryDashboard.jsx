@@ -5,6 +5,7 @@ import PieChart from '../Dashboard/PieChart';
 import RawMaterialManagement from './RawMaterialManagement';
 import MaterialOrders from './MaterialOrders';
 import ProductManagement from './ProductManagement';
+import InventoryHistory from './InventoryHistory';
 import { 
     inventorySidebarLinks, 
     inventoryUserInfo
@@ -239,22 +240,7 @@ const InventoryDashboard = () => {
                 return <MaterialOrders />;
 
             case 'inventory-history':
-                return (
-                    <div className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Inventory History</h2>
-                        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
-                            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 012 2v6.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v3.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v4.5a.5.5 0 001 0V5a2 2 0 00-2-2V3a2 2 0 00-2-2H6a2 2 0 00-2 2v2z" clipRule="evenodd"/>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Inventory History</h3>
-                            <p className="text-gray-400">Track all inventory movements and changes</p>
-                            <div className="mt-4 text-sm text-gray-500">
-                                • Movement History • Stock Changes • Audit Trail • Reports
-                            </div>
-                        </div>
-                    </div>
-                );
+                return <InventoryHistory />;
 
             default:
                 return (
