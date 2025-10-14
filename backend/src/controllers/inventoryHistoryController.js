@@ -1,5 +1,44 @@
 import InventoryHistory from '../models/inventoryHistoryModel.js';
 
+// Get all inventory history records
+export const getAllInventoryHistory = async (req, res) => {
+    try {
+        const history = await InventoryHistory.find()
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: history.length,
+            data: history
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get sold products history
+export const getSoldProductsHistory = async (req, res) => {
+    try {
+        const soldHistory = await InventoryHistory.find({ 
+            changeType: 'Sold' 
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: soldHistory.length,
+            data: soldHistory
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 // Add inventory history
 export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeType = null) => {
     try {
@@ -36,6 +75,37 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
 };
 
 
+
+// Record product sold in inventory history
+export const recordProductSold = async (product, quantitySold) => {
+    try {
+        const previousStock = product.currentStock;
+        const newStock = previousStock - quantitySold;
+        
+        await InventoryHistory.create({
+            inventoryId: product._id,
+            productId: product.productId,
+            productName: product.productName,
+            changeType: 'Sold',
+            changeAmount: quantitySold,
+            previousStock,
+            newStock,
+            safetyStock: product.safetyStock,
+            reorderLevel: product.reorderLevel
+        });
+        
+        return {
+            success: true,
+            message: 'Sold product recorded in inventory history'
+        };
+    } catch (error) {
+        console.error('Error recording sold product:', error);
+        return {
+            success: false,
+            message: error.message
+        };
+    }
+};
 
 // Get recent inventory history (last 2 months)
 export const getRecentInventoryHistory = async (req, res) => {

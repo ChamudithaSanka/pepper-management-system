@@ -36,28 +36,59 @@ const InventoryHistory = () => {
     const fetchInventoryHistory = async () => {
         setLoading(true);
         try {
-            // In development/testing, just use mock data directly
-            // In production, this would be replaced with actual API call
-            const mockData = generateMockInventoryHistory();
-            setInventoryHistory(mockData);
-            setError('');
-            
-            // Keep this commented for now until the API is ready
-            /*
+            // Try to fetch real data from the API
             const response = await fetch('/api/inventory-history');
+            
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory history');
             }
-            const data = await response.json();
-            setInventoryHistory(data);
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                setInventoryHistory(result.data);
+            } else {
+                throw new Error(result.error || 'Failed to load data');
+            }
+            
             setError('');
-            */
         } catch (err) {
             console.error('Error fetching inventory history:', err);
-            // Even if there's an error, we'll still show mock data
+            // If API call fails, use mock data
             const mockData = generateMockInventoryHistory();
             setInventoryHistory(mockData);
             // Don't set error message so the UI will show the mock data
+            setError('');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const fetchSoldProducts = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('/api/inventory-history/sold');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch sold products');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                setInventoryHistory(result.data);
+                setFilterStatus('Sold');
+            } else {
+                throw new Error(result.error || 'Failed to load sold products');
+            }
+            
+            setError('');
+        } catch (err) {
+            console.error('Error fetching sold products:', err);
+            // If API call fails, filter mock data to only show sold products
+            const mockData = generateMockInventoryHistory().filter(item => item.changeType === 'Sold');
+            setInventoryHistory(mockData);
+            setFilterStatus('Sold');
             setError('');
         } finally {
             setLoading(false);
@@ -173,7 +204,14 @@ const InventoryHistory = () => {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Total Added Products Card */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+                <div 
+                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 cursor-pointer hover:bg-green-50 transition-colors"
+                    onClick={() => {
+                        setFilterStatus('Added');
+                        const addedItems = inventoryHistory.filter(item => item.changeType === 'Added');
+                        setInventoryHistory(addedItems.length > 0 ? addedItems : inventoryHistory);
+                    }}
+                >
                     <div className="flex justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600 mb-1">Total Added Products</p>
@@ -188,7 +226,14 @@ const InventoryHistory = () => {
                 </div>
 
                 {/* Total Removed Products Card */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+                <div 
+                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500 cursor-pointer hover:bg-red-50 transition-colors"
+                    onClick={() => {
+                        setFilterStatus('Removed');
+                        const removedItems = inventoryHistory.filter(item => item.changeType === 'Removed');
+                        setInventoryHistory(removedItems.length > 0 ? removedItems : inventoryHistory);
+                    }}
+                >
                     <div className="flex justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600 mb-1">Total Removed Products</p>
@@ -203,7 +248,10 @@ const InventoryHistory = () => {
                 </div>
 
                 {/* Total Sold Products Card */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+                <div 
+                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500 cursor-pointer hover:bg-blue-50 transition-colors"
+                    onClick={fetchSoldProducts}
+                >
                     <div className="flex justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600 mb-1">Total Sold Products</p>
@@ -225,7 +273,12 @@ const InventoryHistory = () => {
                         <select
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
+                            onChange={(e) => {
+                                setFilterStatus(e.target.value);
+                                if (e.target.value === 'all') {
+                                    fetchInventoryHistory();
+                                }
+                            }}
                         >
                             <option value="all">All Change Types</option>
                             <option value="Added">Added</option>
