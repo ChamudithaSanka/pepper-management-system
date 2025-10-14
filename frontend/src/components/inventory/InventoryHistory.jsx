@@ -188,7 +188,7 @@ const InventoryHistory = () => {
     // Function removed as stock status is no longer displayed
 
     return (
-        <div className="p-6 bg-gradient-to-r from-green-50 to-teal-50">
+        <div className="p-6">
             <div className="mb-6">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Inventory History</h1>
                 <p className="text-gray-600">Track all changes to your inventory items</p>
@@ -252,7 +252,7 @@ const InventoryHistory = () => {
             </div>
 
             {/* Filter Controls */}
-            <div className="mb-6 bg-white p-4 rounded-lg shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="mb-6 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex flex-col md:flex-row gap-4 flex-grow">
                     <div className="w-full md:w-1/3">
                         <select
