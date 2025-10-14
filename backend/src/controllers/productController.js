@@ -214,11 +214,11 @@ export const deleteProduct = async (req, res) => {
             });
         }
 
-        // ------------------ 🆕 Add inventory history for deletion ------------------
+        // Add inventory history for deletion with specific 'Removed' type
         await addInventoryHistory(product, {
             ...product.toObject(),   // preserve all fields
             currentStock: 0          // newStock = 0 because product is removed
-        }, "Removed");               // explicitly set changeType to "Removed"
+        }, 'Removed');
 
         // Delete the product
         await product.deleteOne();

@@ -49,11 +49,22 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
         let changeAmount = Math.abs(newStock - previousStock);
 
         if (!forcedChangeType) { // only calculate if not forced
-            if (newStock > previousStock) {
+            if (!oldProduct) {
+                // Case 1: No old product means this is a brand new product being created
                 changeType = "Added";
-            } else if (newStock < previousStock) {
-                changeType = "Removed"; 
-                // "Sold" can be used in future when selling
+            } else {
+                // Case 2: Product already exists and is being updated
+                // This covers ALL types of updates to existing products including:
+                // - Price changes
+                // - Description changes
+                // - Category changes
+                // - Stock level increases (restocking)
+                // - Stock level decreases (manual adjustment)
+                // - Any other attribute changes
+                changeType = "Updated";
+                
+                // Note: "Sold" will be explicitly set via recordProductSold function
+                // Note: "Removed" will be explicitly set when deleting a product
             }
         }
 
