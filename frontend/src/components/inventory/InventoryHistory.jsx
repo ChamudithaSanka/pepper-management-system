@@ -252,11 +252,11 @@ const InventoryHistory = () => {
             </div>
 
             {/* Filter Controls */}
-            <div className="mb-6 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex flex-col md:flex-row gap-4 flex-grow">
+            <div className="mb-6">
+                <div className="flex flex-col md:flex-row gap-4">
                     <div className="w-full md:w-1/3">
                         <select
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                             value={filterStatus}
                             onChange={(e) => {
                                 const selectedValue = e.target.value;
@@ -271,12 +271,12 @@ const InventoryHistory = () => {
                         </select>
                     </div>
 
-                    <div className="flex-grow">
+                    <div className="flex-1">
                         <div className="relative">
                             <input
                                 type="text"
                                 placeholder="Search by product name or ID..."
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pl-10 bg-white"
                                 value={searchTerm}
                                 onChange={(e) => {
                                     // Allow only letters, numbers, spaces and dashes in search
