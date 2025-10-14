@@ -188,3 +188,30 @@ export const getRecentInventoryHistory = async (req, res) => {
         });
     }
 };
+
+// Delete an inventory history record
+export const deleteInventoryHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const result = await InventoryHistory.findByIdAndDelete(id);
+        
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                error: 'History record not found'
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: 'History record deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting inventory history:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
