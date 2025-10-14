@@ -72,7 +72,7 @@ const InventoryHistory = () => {
         try {
             // Fetch real data from the API
             let url = '/api/inventory-history';
-            if (filterChangeType) {
+            if (filterChangeType && filterChangeType !== 'all') {
                 url += `?changeType=${filterChangeType}`;
             }
             
@@ -86,10 +86,8 @@ const InventoryHistory = () => {
             
             if (result.success && result.data) {
                 setInventoryHistory(result.data);
-                // Only update filter status if explicitly requested
-                if (filterChangeType) {
-                    setFilterStatus(filterChangeType);
-                }
+                // Always update filter status to match what was requested
+                setFilterStatus(filterChangeType === null ? 'all' : filterChangeType);
             } else {
                 throw new Error(result.error || 'Failed to load data');
             }
@@ -246,11 +244,7 @@ const InventoryHistory = () => {
                             value={filterStatus}
                             onChange={(e) => {
                                 const selectedValue = e.target.value;
-                                if (selectedValue === 'all') {
-                                    fetchInventoryHistory();
-                                } else {
-                                    fetchInventoryHistory(selectedValue);
-                                }
+                                fetchInventoryHistory(selectedValue);
                             }}
                         >
                             <option value="all">All Change Types</option>
