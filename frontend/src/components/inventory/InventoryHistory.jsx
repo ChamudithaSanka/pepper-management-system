@@ -42,12 +42,17 @@ const InventoryHistory = () => {
             }
         } catch (error) {
             console.error('Error fetching inventory history counts:', error);
-            // Fallback to calculating from current data if API fails
-            calculateStatsFromCurrentData();
+            // Reset stats to zero instead of using mock data
+            setStats({
+                added: 0,
+                removed: 0,
+                sold: 0,
+                updated: 0
+            });
         }
     };
     
-    // Fallback method if API call fails
+    // Calculate stats from current data if needed
     const calculateStatsFromCurrentData = () => {
         const added = inventoryHistory.filter(item => item.changeType === 'Added').length;
         const removed = inventoryHistory.filter(item => item.changeType === 'Removed').length;
@@ -65,7 +70,7 @@ const InventoryHistory = () => {
     const fetchInventoryHistory = async (filterChangeType = null) => {
         setLoading(true);
         try {
-            // Try to fetch real data from the API
+            // Fetch real data from the API
             let url = '/api/inventory-history';
             if (filterChangeType) {
                 url += `?changeType=${filterChangeType}`;
@@ -92,72 +97,29 @@ const InventoryHistory = () => {
             setError('');
         } catch (err) {
             console.error('Error fetching inventory history:', err);
-            // If API call fails, use mock data
-            const mockData = generateMockInventoryHistory();
-            
-            // Apply filter if requested
-            if (filterChangeType) {
-                const filteredData = mockData.filter(item => item.changeType === filterChangeType);
-                setInventoryHistory(filteredData.length > 0 ? filteredData : mockData);
-                setFilterStatus(filterChangeType);
-            } else {
-                setInventoryHistory(mockData);
-            }
-            
-            // Don't set error message so the UI will show the mock data
-            setError('');
+            // Show error to user
+            setError(`Error: ${err.message}`);
+            // Clear inventory history to avoid showing stale data
+            setInventoryHistory([]);
         } finally {
             setLoading(false);
         }
     };
-    // fetchSoldProducts has been consolidated into fetchInventoryHistory
-
-    // Generate mock data for demonstration
-    const generateMockInventoryHistory = () => {
-        const mockProducts = [
-            { id: 'PID-001', name: 'Premium Black Pepper Powder' },
-            { id: 'PID-002', name: 'Premium Green Whole Peppercorns' },
-            { id: 'PID-003', name: 'Black Pepper Sauce' },
-            { id: 'PID-004', name: 'Organic Ceylon Whole Black Peppercorns' },
-            { id: 'PID-005', name: 'Black Pepper Essential Oil' },
-        ];
-
-        const changeTypes = ['Added', 'Removed', 'Sold', 'Updated'];
-        
-        return Array.from({ length: 20 }, (_, i) => {
-            const product = mockProducts[Math.floor(Math.random() * mockProducts.length)];
-            const changeType = changeTypes[Math.floor(Math.random() * changeTypes.length)];
-            const prevStock = Math.floor(Math.random() * 200);
-            const changeAmount = Math.floor(Math.random() * 50);
-            const newStock = changeType === 'Added' || changeType === 'Updated' 
-                ? prevStock + changeAmount 
-                : Math.max(0, prevStock - changeAmount);
-            
-            return {
-                _id: `hist-${i}`,
-                inventoryId: `inv-${i}`,
-                productId: product.id,
-                productName: product.name,
-                changeType,
-                changeAmount,
-                previousStock: prevStock,
-                newStock,
-                safetyStock: Math.floor(Math.random() * 30) + 10,
-                reorderLevel: Math.floor(Math.random() * 20) + 5,
-                createdAt: new Date(Date.now() - Math.floor(Math.random() * 60 * 24 * 60 * 60 * 1000)).toISOString()
-            };
-        }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    };
+    // No mock data generation - using real API data only
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this history record?')) {
             try {
-                // In production, this would make an API call
-                // await fetch(`/api/inventory-history/${id}`, { method: 'DELETE' });
-                setInventoryHistory(inventoryHistory.filter(item => item._id !== id));
+                const response = await fetch(`/api/inventory-history/${id}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error('Failed to delete history record');
+                }
+                // Refresh the data after deletion
+                fetchInventoryHistory(filterStatus !== 'all' ? filterStatus : null);
+                fetchInventoryHistoryCounts();
             } catch (err) {
                 console.error('Error deleting inventory history:', err);
-                alert('Failed to delete inventory history record');
+                alert('Failed to delete inventory history record: ' + err.message);
             }
         }
     };
@@ -345,8 +307,8 @@ const InventoryHistory = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredHistory.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                                            No inventory history records found
+                                        <td colSpan="9" className="px-6 py-4 text-center text-sm text-gray-500">
+                                            No inventory history records found. Please add or update products to see their history.
                                         </td>
                                     </tr>
                                 ) : (
