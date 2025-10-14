@@ -6,10 +6,32 @@ const InventoryHistory = () => {
     const [error, setError] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [stats, setStats] = useState({
+        added: 0,
+        removed: 0,
+        sold: 0
+    });
 
     useEffect(() => {
         fetchInventoryHistory();
     }, []);
+    
+    useEffect(() => {
+        // Calculate stats when inventory history changes
+        calculateStats();
+    }, [inventoryHistory]);
+    
+    const calculateStats = () => {
+        const added = inventoryHistory.filter(item => item.changeType === 'Added').length;
+        const removed = inventoryHistory.filter(item => item.changeType === 'Removed').length;
+        const sold = inventoryHistory.filter(item => item.changeType === 'Sold').length;
+        
+        setStats({
+            added,
+            removed,
+            sold
+        });
+    };
 
     const fetchInventoryHistory = async () => {
         setLoading(true);
@@ -146,6 +168,54 @@ const InventoryHistory = () => {
             <div className="mb-6">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Inventory History</h1>
                 <p className="text-gray-600">Track all changes to your inventory items</p>
+            </div>
+            
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Total Added Products Card */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+                    <div className="flex justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600 mb-1">Total Added Products</p>
+                            <p className="text-2xl font-bold text-gray-800">{stats.added}</p>
+                        </div>
+                        <div className="bg-green-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Removed Products Card */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+                    <div className="flex justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600 mb-1">Total Removed Products</p>
+                            <p className="text-2xl font-bold text-gray-800">{stats.removed}</p>
+                        </div>
+                        <div className="bg-red-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Sold Products Card */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+                    <div className="flex justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600 mb-1">Total Sold Products</p>
+                            <p className="text-2xl font-bold text-gray-800">{stats.sold}</p>
+                        </div>
+                        <div className="bg-blue-100 p-3 rounded-full">
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Filter Controls */}
