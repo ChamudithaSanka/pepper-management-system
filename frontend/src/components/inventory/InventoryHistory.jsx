@@ -188,7 +188,7 @@ const InventoryHistory = () => {
     // Function removed as stock status is no longer displayed
 
     return (
-        <div>
+        <div className="p-6 bg-gradient-to-r from-green-50 to-teal-50">
             <div className="mb-6">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Inventory History</h1>
                 <p className="text-gray-600">Track all changes to your inventory items</p>
@@ -335,17 +335,17 @@ const InventoryHistory = () => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-green-700">
                                 <tr>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change Type</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change Amount</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Stock</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Safety Stock</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Re-Order Level</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Date</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Change Type</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Change Amount</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Previous Stock</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">New Stock</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Safety Stock</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Re-Order Level</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -356,15 +356,15 @@ const InventoryHistory = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredHistory.map((item) => (
-                                        <tr key={item._id} className="hover:bg-gray-50">
+                                    filteredHistory.map((item, idx) => (
+                                        <tr key={item._id} className={`hover:bg-green-100 ${idx % 2 === 0 ? 'bg-green-50' : 'bg-white'}`}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {item.createdAt ? formatDate(item.createdAt) : 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div>
-                                                        <div className="text-sm font-medium text-gray-900">{item.productName}</div>
+                                                        <div className="text-sm font-bold text-gray-900">{item.productName}</div>
                                                         <div className="text-xs text-gray-500">ID: {item.productId}</div>
                                                     </div>
                                                 </div>
@@ -374,19 +374,19 @@ const InventoryHistory = () => {
                                                     {item.changeType}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 {item.changeAmount}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 {item.previousStock}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 {item.newStock}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 {item.safetyStock}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 {item.reorderLevel}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
