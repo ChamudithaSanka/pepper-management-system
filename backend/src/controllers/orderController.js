@@ -2,6 +2,7 @@ import Order from '../models/orderModel.js';
 import Cart from '../models/cartModel.js';
 import Product from '../models/productModel.js';
 import Customer from '../models/customerModel.js';
+import { recordProductSold } from './inventoryHistoryController.js';
 
 // CREATE ORDER FROM CART
 export const createOrderFromCart = async (req, res) => {
@@ -71,12 +72,23 @@ export const createOrderFromCart = async (req, res) => {
 
         await newOrder.save();
 
-        // Update product stock
+        // Update product stock and record in inventory history
         for (const item of cart.items) {
-            await Product.findByIdAndUpdate(
-                item.productId._id,
-                { $inc: { currentStock: -item.quantity } }
-            );
+            // Get the full product first
+            const product = await Product.findById(item.productId._id);
+            if (product) {
+                // Record the sale in inventory history before updating stock
+                await recordProductSold(product, item.quantity);
+                
+                // Update the product stock
+                product.currentStock -= item.quantity;
+                if (product.currentStock <= product.reorderLevel) {
+                    product.stockStatus = "LowStock";
+                }
+                
+                // Save the updated product
+                await product.save();
+            }
         }
 
         // Update customer's order count and last order date
