@@ -198,7 +198,7 @@ const InventoryHistory = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Total Added Products Card */}
                 <div 
-                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 cursor-pointer hover:bg-green-50 transition-colors"
+                    className="bg-green-50 border-t border-r border-b border-gray-200 rounded-lg p-6 shadow-sm border-l-4 border-l-green-500 cursor-pointer"
                     onClick={() => fetchInventoryHistory('Added')}
                 >
                     <div className="flex justify-between">
@@ -216,7 +216,7 @@ const InventoryHistory = () => {
 
                 {/* Total Removed Products Card */}
                 <div 
-                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500 cursor-pointer hover:bg-red-50 transition-colors"
+                    className="bg-red-50 border-t border-r border-b border-gray-200 rounded-lg p-6 shadow-sm border-l-4 border-l-red-500 cursor-pointer"
                     onClick={() => fetchInventoryHistory('Removed')}
                 >
                     <div className="flex justify-between">
@@ -234,7 +234,7 @@ const InventoryHistory = () => {
 
                 {/* Total Sold Products Card */}
                 <div 
-                    className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500 cursor-pointer hover:bg-blue-50 transition-colors"
+                    className="bg-blue-50 border-t border-r border-b border-gray-200 rounded-lg p-6 shadow-sm border-l-4 border-l-blue-500 cursor-pointer"
                     onClick={() => fetchInventoryHistory('Sold')}
                 >
                     <div className="flex justify-between">
