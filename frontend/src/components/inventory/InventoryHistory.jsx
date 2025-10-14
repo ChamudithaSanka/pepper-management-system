@@ -397,7 +397,7 @@ const InventoryHistory = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button
                                                     onClick={() => handleDelete(item._id)}
-                                                    className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded transition-colors duration-200"
+                                                    className="text-white hover:text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded transition-colors duration-200"
                                                 >
                                                     Delete
                                                 </button>
