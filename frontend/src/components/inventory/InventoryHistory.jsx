@@ -53,7 +53,6 @@ const InventoryHistory = () => {
         ];
 
         const changeTypes = ['Added', 'Removed', 'Sold', 'Updated'];
-        const stockStatuses = ['InStock', 'LowStock'];
         
         return Array.from({ length: 20 }, (_, i) => {
             const product = mockProducts[Math.floor(Math.random() * mockProducts.length)];
@@ -75,8 +74,6 @@ const InventoryHistory = () => {
                 newStock,
                 safetyStock: Math.floor(Math.random() * 30) + 10,
                 reorderLevel: Math.floor(Math.random() * 20) + 5,
-                stockStatus: stockStatuses[Math.floor(Math.random() * stockStatuses.length)],
-                status: 'Active',
                 createdAt: new Date(Date.now() - Math.floor(Math.random() * 60 * 24 * 60 * 60 * 1000)).toISOString()
             };
         }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -142,17 +139,7 @@ const InventoryHistory = () => {
         }
     };
 
-    // Get style for stock status badge
-    const getStockStatusStyle = (status) => {
-        switch (status) {
-            case 'InStock':
-                return 'bg-green-100 text-green-800';
-            case 'LowStock':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
-    };
+    // Function removed as stock status is no longer displayed
 
     return (
         <div>
@@ -216,7 +203,8 @@ const InventoryHistory = () => {
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change Amount</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Stock</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Status</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Safety Stock</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Re-Order Level</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
@@ -255,10 +243,11 @@ const InventoryHistory = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {item.newStock}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStockStatusStyle(item.stockStatus)}`}>
-                                                    {item.stockStatus === 'InStock' ? 'In Stock' : 'Low Stock'}
-                                                </span>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {item.safetyStock}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {item.reorderLevel}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button

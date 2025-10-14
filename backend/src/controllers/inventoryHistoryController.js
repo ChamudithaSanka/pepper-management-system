@@ -27,9 +27,7 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
             previousStock,
             newStock,
             safetyStock: newProduct.safetyStock,
-            reorderLevel: newProduct.reorderLevel,
-            stockStatus: newProduct.stockStatus,
-            status: "Active" // Always set to Active since we removed expiry tracking
+            reorderLevel: newProduct.reorderLevel
         });
     } catch (error) {
         console.error('Error adding inventory history:', error);

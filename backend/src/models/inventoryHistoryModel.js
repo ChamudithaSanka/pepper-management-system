@@ -38,15 +38,9 @@ const inventoryHistorySchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
-    stockStatus: { 
-        type: String, 
-        enum: ['InStock', 'LowStock'],   
-        required: true 
-    },
-    status: { 
-        type: String, 
-        enum: ['Active'], 
-        required: true 
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 }, {
     timestamps: true
