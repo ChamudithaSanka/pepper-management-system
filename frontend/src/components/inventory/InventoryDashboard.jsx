@@ -5,6 +5,7 @@ import PieChart from '../Dashboard/PieChart';
 import RawMaterialManagement from './RawMaterialManagement';
 import MaterialOrders from './MaterialOrders';
 import ProductManagement from './ProductManagement';
+import InventoryHistory from './InventoryHistory';
 import { 
     inventorySidebarLinks, 
     inventoryUserInfo
@@ -66,13 +67,15 @@ const InventoryDashboard = () => {
                         subtitle: 'Total products'
                     };
                     
-                    // Calculate product categories
-                    const groundPepper = products.filter(p => p.category === 'Ground Pepper').length;
-                    const wholePepper = products.filter(p => p.category === 'Whole Pepper').length;
+                    // Calculate product categories based on actual category names
                     const pepperPowder = products.filter(p => p.category === 'Pepper Powder').length;
-                    const otherProducts = products.filter(p => !['Ground Pepper', 'Whole Pepper', 'Pepper Powder'].includes(p.category)).length;
+                    const pepperWhole = products.filter(p => p.category === 'Pepper Whole').length;
+                    const pepperSpray = products.filter(p => p.category === 'Pepper Spray').length;
+                    const pepperSauce = products.filter(p => p.category === 'Pepper Sauce').length;
+                    const pepperOil = products.filter(p => p.category === 'Pepper Oil').length;
+                    const others = products.filter(p => p.category === 'Others').length;
                     
-                    realData.productCategories = [groundPepper, wholePepper, pepperPowder, otherProducts];
+                    realData.productCategories = [pepperPowder, pepperWhole, pepperSpray, pepperSauce, pepperOil, others];
                     
                     // Calculate low stock
                     const lowStock = products.filter(p => p.stockStatus === 'LowStock').length;
@@ -159,11 +162,25 @@ const InventoryDashboard = () => {
                 {
                     title: 'Product Categories',
                     data: {
-                        labels: ['Ground Pepper', 'Whole Pepper', 'Pepper Powder', 'Other Products'],
+                        labels: ['Pepper Powder', 'Pepper Whole', 'Pepper Spray', 'Pepper Sauce', 'Pepper Oil', 'Others'],
                         datasets: [{
-                            data: realData.productCategories || [0, 0, 0, 0],
-                            backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B'],
-                            borderColor: ['#047857', '#1D4ED8', '#7C3AED', '#D97706'],
+                            data: realData.productCategories || [0, 0, 0, 0, 0, 0],
+                            backgroundColor: [
+                                '#10B981', // green-500 - Pepper Powder
+                                '#3B82F6', // blue-500 - Pepper Whole
+                                '#8B5CF6', // purple-500 - Pepper Spray
+                                '#F59E0B', // yellow-500 - Pepper Sauce
+                                '#EF4444', // red-500 - Pepper Oil
+                                '#6B7280'  // gray-500 - Others
+                            ],
+                            borderColor: [
+                                '#047857', // green-700
+                                '#1D4ED8', // blue-700
+                                '#7C3AED', // purple-700
+                                '#D97706', // yellow-700
+                                '#DC2626', // red-700
+                                '#374151'  // gray-700
+                            ],
                             borderWidth: 2
                         }]
                     }
@@ -223,22 +240,7 @@ const InventoryDashboard = () => {
                 return <MaterialOrders />;
 
             case 'inventory-history':
-                return (
-                    <div className="space-y-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Inventory History</h2>
-                        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center shadow-sm">
-                            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 012 2v6.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v3.5a.5.5 0 001 0V5a2 2 0 012-2v1a2 2 0 012 2v4.5a.5.5 0 001 0V5a2 2 0 00-2-2V3a2 2 0 00-2-2H6a2 2 0 00-2 2v2z" clipRule="evenodd"/>
-                            </svg>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Inventory History</h3>
-                            <p className="text-gray-400">Track all inventory movements and changes</p>
-                            <div className="mt-4 text-sm text-gray-500">
-                                • Movement History • Stock Changes • Audit Trail • Reports
-                            </div>
-                        </div>
-                    </div>
-                );
+                return <InventoryHistory />;
 
             default:
                 return (

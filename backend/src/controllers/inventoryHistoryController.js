@@ -1,5 +1,92 @@
 import InventoryHistory from '../models/inventoryHistoryModel.js';
 
+// Get all inventory history records with optional filtering
+export const getAllInventoryHistory = async (req, res) => {
+    try {
+        const { changeType } = req.query;
+        
+        // Build filter query
+        const filter = {};
+        if (changeType && ['Added', 'Removed', 'Updated', 'Sold'].includes(changeType)) {
+            filter.changeType = changeType;
+        }
+        
+        const history = await InventoryHistory.find(filter)
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: history.length,
+            data: history
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get sold products history
+export const getSoldProductsHistory = async (req, res) => {
+    try {
+        const soldHistory = await InventoryHistory.find({ 
+            changeType: 'Sold' 
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: soldHistory.length,
+            data: soldHistory
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Get inventory history counts by change type
+export const getInventoryHistoryCounts = async (req, res) => {
+    try {
+        // Get counts of each change type in a single aggregation operation
+        const counts = await InventoryHistory.aggregate([
+            {
+                $group: {
+                    _id: "$changeType",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        
+        // Convert to a more usable format
+        const result = {
+            Added: 0,
+            Removed: 0,
+            Sold: 0,
+            Updated: 0
+        };
+        
+        // Fill in the actual counts
+        counts.forEach(item => {
+            if (result.hasOwnProperty(item._id)) {
+                result[item._id] = item.count;
+            }
+        });
+        
+        res.status(200).json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 // Add inventory history
 export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeType = null) => {
     try {
@@ -10,11 +97,22 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
         let changeAmount = Math.abs(newStock - previousStock);
 
         if (!forcedChangeType) { // only calculate if not forced
-            if (newStock > previousStock) {
+            if (!oldProduct) {
+                // Case 1: No old product means this is a brand new product being created
                 changeType = "Added";
-            } else if (newStock < previousStock) {
-                changeType = "Removed"; 
-                // "Sold" can be used in future when selling
+            } else {
+                // Case 2: Product already exists and is being updated
+                // This covers ALL types of updates to existing products including:
+                // - Price changes
+                // - Description changes
+                // - Category changes
+                // - Stock level increases (restocking)
+                // - Stock level decreases (manual adjustment)
+                // - Any other attribute changes
+                changeType = "Updated";
+                
+                // Note: "Sold" will be explicitly set via recordProductSold function
+                // Note: "Removed" will be explicitly set when deleting a product
             }
         }
 
@@ -27,9 +125,7 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
             previousStock,
             newStock,
             safetyStock: newProduct.safetyStock,
-            reorderLevel: newProduct.reorderLevel,
-            stockStatus: newProduct.stockStatus,
-            status: "Active" // Always set to Active since we removed expiry tracking
+            reorderLevel: newProduct.reorderLevel
         });
     } catch (error) {
         console.error('Error adding inventory history:', error);
@@ -38,6 +134,37 @@ export const addInventoryHistory = async (oldProduct, newProduct, forcedChangeTy
 };
 
 
+
+// Record product sold in inventory history
+export const recordProductSold = async (product, quantitySold) => {
+    try {
+        const previousStock = product.currentStock;
+        const newStock = previousStock - quantitySold;
+        
+        await InventoryHistory.create({
+            inventoryId: product._id,
+            productId: product.productId,
+            productName: product.productName,
+            changeType: 'Sold',
+            changeAmount: quantitySold,
+            previousStock,
+            newStock,
+            safetyStock: product.safetyStock,
+            reorderLevel: product.reorderLevel
+        });
+        
+        return {
+            success: true,
+            message: 'Sold product recorded in inventory history'
+        };
+    } catch (error) {
+        console.error('Error recording sold product:', error);
+        return {
+            success: false,
+            message: error.message
+        };
+    }
+};
 
 // Get recent inventory history (last 2 months)
 export const getRecentInventoryHistory = async (req, res) => {
@@ -55,6 +182,39 @@ export const getRecentInventoryHistory = async (req, res) => {
             data: history
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Delete an inventory history record
+export const deleteInventoryHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const record = await InventoryHistory.findById(id);
+        if (!record) {
+            return res.status(404).json({
+                success: false,
+                error: 'History record not found'
+            });
+        }
+        
+        // Store product info before deletion for the response message
+        const productName = record.productName;
+        const changeType = record.changeType;
+        
+        // Delete the record
+        await InventoryHistory.findByIdAndDelete(id);
+        
+        res.status(200).json({
+            success: true,
+            message: `${productName} ${changeType.toLowerCase()} record deleted successfully`
+        });
+    } catch (error) {
+        console.error('Error deleting inventory history:', error);
         res.status(500).json({
             success: false,
             error: error.message

@@ -60,6 +60,17 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
         }
     };
 
+    /**
+     * RAW MATERIAL ORDER FORM INPUT HANDLER
+     * Handles all form input changes with real-time validation
+     * 
+     * Special Features:
+     * - Quantity validation: When user enters quantity, automatically fetches eligible farmers
+     * - Farmer capacity validation: Resets farmer selection when quantity changes
+     * - Real-time farmer filtering: Only shows farmers who can supply the requested quantity
+     * 
+     * @param {Event} e - The input change event
+     */
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setOrderData(prev => ({
@@ -67,7 +78,8 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
             [name]: value
         }));
 
-        // Re-fetch eligible farmers when quantity changes
+        // QUANTITY VALIDATION: Re-fetch eligible farmers when quantity changes
+        // This ensures only farmers with sufficient capacity are shown
         if (name === 'quantity' && value && parseFloat(value) > 0) {
             fetchEligibleFarmers(value);
             // Reset selected farmer since capacity requirements changed
@@ -79,14 +91,27 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
         }
     };
 
+    /**
+     * ORDER FORM SUBMISSION HANDLER
+     * Validates and submits raw material order to backend
+     * 
+     * Validation includes:
+     * - Required fields: quantity, farmerId, deliveryDate
+     * - Quantity must be positive number
+     * - Delivery date must be in the future
+     * - Selected farmer must be valid
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
+            // FORM DATA VALIDATION: Prepare validated order payload
             const orderPayload = {
                 rawMaterialType: material.type,
-                requestedQtyKg: parseFloat(orderData.quantity),
+                requestedQtyKg: parseFloat(orderData.quantity), // Ensure numeric quantity
                 farmerId: orderData.farmerId,
                 deliveryDate: orderData.deliveryDate,
                 notes: orderData.notes
@@ -119,6 +144,15 @@ const OrderRawMaterial = ({ isOpen, onClose, material, onOrderSuccess }) => {
         }
     };
 
+    /**
+     * DATE VALIDATION HELPER
+     * Ensures delivery date is at least one day in the future
+     * 
+     * Business Rule: Orders cannot be delivered on the same day
+     * Minimum delivery time: Next day
+     * 
+     * @returns {string} - Minimum delivery date in YYYY-MM-DD format
+     */
     const getMinDeliveryDate = () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
