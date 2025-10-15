@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { generateSalarySlipPDF } from '../../utils/salarySlipGenerator.js';
 
 const SalaryList = () => {
     const [salaries, setSalaries] = useState([]);
@@ -92,6 +93,34 @@ const SalaryList = () => {
             fetchStats();
         } catch (err) {
             alert('Failed to delete salary: ' + err.message);
+        }
+    };
+
+    const handleGeneratePDF = async (salary) => {
+        try {
+            // Prepare data for PDF generation from salary record
+            const pdfData = {
+                employeeId: salary.employeeId,
+                employeeName: salary.employeeName,
+                designation: salary.designation,
+                month: salary.month,
+                year: salary.year,
+                basicSalary: salary.basicSalary,
+                attendanceData: salary.attendanceData,
+                allowances: salary.allowances,
+                deductions: salary.deductions,
+                companyContributions: salary.companyContributions,
+                totalAllowances: salary.totalAllowances,
+                totalDeductions: salary.totalDeductions,
+                grossSalary: salary.grossSalary,
+                netSalary: salary.netSalary
+            };
+
+            // Generate PDF using the same utility as CalculateSalary
+            await generateSalarySlipPDF(pdfData, salary);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF. Please try again.');
         }
     };
 
@@ -299,16 +328,28 @@ const SalaryList = () => {
                                         <td className="px-2 py-2 font-bold text-gray-900">{formatCurrency(salary.netSalary)}</td>
                                         <td className="px-2 py-2 text-gray-500">{formatDate(salary.createdAt)}</td>
                                         <td className="px-2 py-2 text-center">
-                                            <button
-                                                onClick={() => deleteSalary(salary._id)}
-                                                className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
-                                                title="Delete Record"
-                                            >
-                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                </svg>
-                                                Delete
-                                            </button>
+                                            <div className="flex gap-2 justify-center">
+                                                <button
+                                                    onClick={() => handleGeneratePDF(salary)}
+                                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors inline-flex items-center whitespace-nowrap"
+                                                    title="Generate PDF"
+                                                >
+                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    PDF
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteSalary(salary._id)}
+                                                    className="bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors inline-flex items-center whitespace-nowrap"
+                                                    title="Delete Record"
+                                                >
+                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
