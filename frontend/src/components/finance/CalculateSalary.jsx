@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { generateSalarySlipPDF } from '../../utils/salarySlipGenerator.js';
 
 const CalculateSalary = ({ preSelectedEmployee = null, onBack = null }) => {
     const [employees, setEmployees] = useState([]);
@@ -240,55 +239,7 @@ const CalculateSalary = ({ preSelectedEmployee = null, onBack = null }) => {
         }
     };
 
-    const handleGeneratePDF = async () => {
-        if (!selectedEmployee) {
-            setError('Please select an employee first');
-            return;
-        }
 
-        try {
-            // Prepare data for PDF generation
-            const pdfData = {
-                employeeId: selectedEmployee.employeeId,
-                employeeName: selectedEmployee.name,
-                designation: selectedEmployee.designation,
-                month: attendanceData.month,
-                year: new Date().getFullYear(),
-                basicSalary: calculations.basicSalary || selectedEmployee.basicSalary || 0,
-                attendanceData: {
-                    workingDays: attendanceData.workingDays,
-                    otHours: attendanceData.otHours,
-                    noPayDays: attendanceData.noPayDays
-                },
-                allowances: {
-                    foodAllowance: allowances.food,
-                    medicalAllowance: allowances.medical,
-                    bonus: allowances.bonus,
-                    otPay: calculations.breakdown?.allowances?.otPay || 0
-                },
-                deductions: {
-                    noPayAmount: calculations.breakdown?.deductions?.noPayAmount || 0,
-                    epfEmployee: calculations.breakdown?.deductions?.epfEmployee || 0,
-                    loans: deductions.loans,
-                    advances: deductions.advances
-                },
-                companyContributions: {
-                    epfCompany: calculations.breakdown?.companyContributions?.epfCompany || 0,
-                    etfCompany: calculations.breakdown?.companyContributions?.etfCompany || 0
-                },
-                totalAllowances: calculations.totalAllowances || 0,
-                totalDeductions: calculations.totalDeductions || 0,
-                grossSalary: calculations.grossSalary || 0,
-                netSalary: calculations.netSalary || 0
-            };
-
-            // Generate PDF
-            await generateSalarySlipPDF(pdfData, selectedEmployee);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            setError('Error generating PDF. Please try again.');
-        }
-    };
 
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -677,16 +628,6 @@ const CalculateSalary = ({ preSelectedEmployee = null, onBack = null }) => {
                                     className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                                 >
                                     {loading ? 'Saving...' : 'Save Salary Record'}
-                                </button>
-                                <button
-                                    onClick={handleGeneratePDF}
-                                    disabled={!selectedEmployee}
-                                    className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
-                                >
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Generate PDF
                                 </button>
                             </div>
                 </div>
